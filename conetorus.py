@@ -1,6 +1,7 @@
 import numpy
 import scipy
-from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
+from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arccos
+from coordtrans import to_spherical, to_cartesian
 
 import progressbar
 import matplotlib.pyplot as plt
@@ -11,23 +12,18 @@ class ConeTorusGeometry(object):
 		self.NH = NH
 		self.verbose = verbose
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point_wrong(self, (xi, yi, zi), (dist, beta, alpha)):
 		d = dist / self.NH # distance in units of nH
 		
 		if self.verbose: print '  .. .. mean in nH units: ', d.mean()
-		
-		# compute relative vector traveled
-		xv=d*sin(beta)*cos(alpha)
-		yv=d*sin(beta)*sin(alpha)
-		zv=d*cos(beta)
 
+		# compute relative vector traveled
+		xv, yv, zv = to_cartesian((d, beta, alpha))
+		
 		# compute new position
-		xf=xi+xv
-		yf=yi+yv
-		zf=zi+zv
+		xf, yf, zf = xi + xv, yi + yv, zi + zv
 		
 		# compute intersection with cone border
-		
 		a = zv**2 - (xv**2 + yv**2)*tan(0.5*pi - self.Theta_tor)**2
 		b = 2.*zi*zv - (2.*xi*xv + 2.*yi*yv)*tan(0.5*pi - self.Theta_tor)**2
 		c = zi**2 - (xi**2 + yi**2)*tan(0.5*pi - self.Theta_tor)**2
@@ -41,6 +37,8 @@ class ConeTorusGeometry(object):
 			logical_and(e1 < 1., e2 > 0.))
 	  	#if self.verbose: print '  .. %d of %d have 2 solutions' % (twosolmask.sum(), len(twosolmask))
 		# compute the two possible new positions
+		print 'twosol:', twosolmask
+		
 		x1=xi[twosolmask]+e1[twosolmask]*xv[twosolmask]
 		x2=xi[twosolmask]+e2[twosolmask]*xv[twosolmask]
 		y1=yi[twosolmask]+e1[twosolmask]*yv[twosolmask]
@@ -48,30 +46,160 @@ class ConeTorusGeometry(object):
 		z1=zi[twosolmask]+e1[twosolmask]*zv[twosolmask]
 		z2=zi[twosolmask]+e2[twosolmask]*zv[twosolmask]
 		
+		print 'e2', e2
 		ltsol = e2[twosolmask] < 1.
+		gtsol = -ltsol
 		
-		xf[twosolmask][ltsol] = x2[ltsol]+xv[ltsol]-(x1[ltsol]-xi[ltsol])
-		yf[twosolmask][ltsol] = y2[ltsol]+yv[ltsol]-(y1[ltsol]-yi[ltsol])
-		zf[twosolmask][ltsol] = z2[ltsol]+zv[ltsol]-(z1[ltsol]-zi[ltsol])
+		asol = twosolmask.copy()
+		asol[twosolmask] = ltsol
+		bsol = twosolmask.copy()
+		bsol[twosolmask] = gtsol
+		xf[asol] = x2[ltsol]+xv[asol]-(x1[ltsol]-xi[asol])
+		yf[asol] = y2[ltsol]+yv[asol]-(y1[ltsol]-yi[asol])
+		zf[asol] = z2[ltsol]+zv[asol]-(z1[ltsol]-zi[asol])
 		
-		xf[twosolmask][-ltsol] += (x2[-ltsol]-x1[-ltsol])
-		yf[twosolmask][-ltsol] += (y2[-ltsol]-y1[-ltsol])
-		zf[twosolmask][-ltsol] += (z2[-ltsol]-z1[-ltsol])
+		xf[bsol] += (x2[gtsol]-x1[gtsol])
+		yf[bsol] += (y2[gtsol]-y1[gtsol])
+		zf[bsol] += (z2[gtsol]-z1[gtsol])
 		
 	  	#print '  .. using symmetries'
 		# use symmetries
 		# bring to upper side of torus
 		zf = numpy.abs(zf)
 		# compute spherical coordinates
-		rad = (xf**2+yf**2+zf**2)**0.5
-		phi = numpy.zeros_like(xf)
-		phi_mask = xf != 0
-		phi[phi_mask] = atan(yf[phi_mask] / xf[phi_mask])
-		theta = acos(zf / rad)
+		rad, theta, phi = to_spherical((xf, yf, zf))
 		
 	  	#if self.verbose: print '  .. checking if left cone'
 		# are we inside the cone?
 		inside = numpy.logical_and(rad < 1., theta > self.Theta_tor)
+		return inside, (xf,yf,zf), (rad, phi, theta)
+
+	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+		d = dist / self.NH # distance in units of nH
+		
+		if self.verbose: print '  .. .. mean in nH units: ', d.mean()
+
+		# compute relative vector traveled
+		xv, yv, zv = to_cartesian((1, beta, alpha))
+		
+		#print xv, yv, zv
+		# compute intersection with cone border
+		a = zv**2 - (xv**2 + yv**2)*tan(0.5*pi - self.Theta_tor)**2
+		b = 2.*zi*zv - (2.*xi*xv + 2.*yi*yv)*tan(0.5*pi - self.Theta_tor)**2
+		c = zi**2 - (xi**2 + yi**2)*tan(0.5*pi - self.Theta_tor)**2
+		quad = b**2 - 4.*a*c
+		
+		# compute the two solutions
+		e1=(-b-quad**0.5)/(2.*a)
+		e2=(-b+quad**0.5)/(2.*a)
+		# if both are positive and e1<1
+		#assert (quad >= 0).all()
+		x1 = xi + e1 * xv
+		x2 = xi + e2 * xv
+		y1 = yi + e1 * yv
+		y2 = yi + e2 * yv
+		z1 = zi + e1 * zv
+		z2 = zi + e2 * zv
+		
+		# check if those points are outside the sphere
+		ri1 = x1**2 + y1**2 + z1**2 <= 1
+		ri2 = x2**2 + y2**2 + z2**2 <= 1
+		#print 'cone points radius', ri1, ri2
+		
+		# compute intersection with sphere
+		#  a=xD2+yD2-zD2, b=2xExD+2yEyD-2zEzD, and c=xE2+yE2-zE2.
+		#  a=xD2+yD2+zD2, b=2xExD+2yEyD+2zEzD, and c=xE2+yE2+zE2-1
+		sa = 1
+		sb = 2.*zi*zv + 2.*xi*xv + 2.*yi*yv
+		sc = zi**2 + xi**2 + yi**2 - 1
+		squad = sb**2 - 4.*sa*sc
+		# compute the two solutions
+		se1 = (-sb-squad**0.5)/(2.*sa)
+		se2 = (-sb+squad**0.5)/(2.*sa)
+
+		sx1 = xi + se1 * xv
+		sx2 = xi + se2 * xv
+		sy1 = yi + se1 * yv
+		sy2 = yi + se2 * yv
+		sz1 = zi + se1 * zv
+		sz2 = zi + se2 * zv
+
+		# check if inside cone
+		r1 = sx1**2 + sy1**2 + sz1**2
+		r2 = sx2**2 + sy2**2 + sz2**2
+		theta1 = numpy.where(r1 == 0, 0., arccos(sz1 / r1))
+		theta2 = numpy.where(r2 == 0, 0., arccos(sz2 / r2))
+		theta1[theta1 > pi/2] = pi - theta1[theta1 > pi/2]
+		theta2[theta2 > pi/2] = pi - theta2[theta2 > pi/2]
+		si1 = theta1 >= self.Theta_tor
+		si2 = theta2 >= self.Theta_tor
+		#print 'circle points theta', theta1, theta2, si1, si2 #, (sx1, sy1, sz1), (sx2, sy2, sz2)
+		
+		# now we should go through them
+		es = numpy.transpose([e1, e2, se1, se2])
+		#print es, 'es'
+		good = numpy.transpose([ri1, ri2, si1, si2])
+		# they will be ignored, because we go in the pos direction
+		good[-(es > 0)] = False
+		es[-good] = -1
+		nsol = good.sum(axis=1)
+		#assert nsol.shape == xi.shape, (nsol.shape, xi.shape)
+		es.sort(axis=1)
+		# now handle the different cases
+		#print nsol, good
+		#assert (nsol >= 0).all(), nsol.min()
+		#assert (nsol <= 3).all(), nsol.min()
+		#assert ((nsol == 0) + (nsol == 1) + (nsol == 3)).all(), nsol
+		
+		# default:
+		
+		xf, yf, zf = xi + d * xv, yi + d * yv, zi + d * zv
+		# no solution, we are on the brink of stepping out
+		# set to False
+		inside = numpy.zeros(xf.shape, dtype=bool)
+		
+		es_1 = nsol == 1
+		t = es[es_1,-1]
+		#    go from where we are to there
+		inside[es_1] = d[es_1] < t # if true we never left
+		#print 't:', t, d[es_1], es_1
+		
+		# 3 solutions
+		es_2 = nsol == 3
+		if es_2.any():
+			#print 'BRANCH2'
+			t1 = es[es_2,-3]
+			t2 = es[es_2,-2]
+			t3 = es[es_2,-1]
+			# two cases: either we never make it to t1
+			inside_2 = d[es_2] < t1 # if true we are still inside
+			#print inside.shape, inside_2.shape
+			inside[es_2] = inside_2
+			#print 'es_2', es_2
+			#print 'inside_2', inside_2
+			if not inside_2.all():
+				#print 'BRANCH3'
+				# alternatively, we make it to t1:
+				# have to add to the distance we are allowed to travel
+				# the distance between t1 and t2 
+				es_3 = es_2
+				es_3[es_3] = -inside_2 # select those cases
+				#print 'd', d, es_3, d[es_3].shape, t2.shape, t1.shape, inside_2.shape
+				#print 't:', t1, t2, t3
+				#assert es_3.shape == (len(xi),)
+				#assert es_3.sum() == (-inside_2).sum(), (es_3, -inside_2)
+				#assert d[es_3].size == (-inside_2).sum(), (es_3, -inside_2)
+				dmod = d[es_3] + t2[-inside_2] - t1[-inside_2]
+				xf[es_3] = xi[es_3] + dmod * xv[es_3]
+				yf[es_3] = yi[es_3] + dmod * yv[es_3]
+				zf[es_3] = zi[es_3] + dmod * zv[es_3]
+				inside[es_3] = dmod < t3[-inside_2]
+		
+		# bring to upper side of torus
+		#zf = numpy.abs(zf)
+		# compute spherical coordinates
+		rad, theta, phi = to_spherical((xf, yf, zf))
+		
 		return inside, (xf,yf,zf), (rad, phi, theta)
 	
 	def viz(self): 
@@ -109,4 +237,154 @@ class ConeTorusGeometry(object):
 		
 		ax.set_xticks([])
 		ax.set_yticks([])
+
+def test_origin_x():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi, yi, zi = numpy.zeros((3,3))
+	# x-direction
+	beta  = numpy.zeros((3,)) + pi/2
+	alpha  = numpy.zeros((3,))# + pi/2
+	dist = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(zf, 0), zf
+	assert numpy.allclose(yf, 0), yf
+	assert numpy.allclose(xf, dist), xf
+	assert numpy.all(inside == [True, True, False]), inside
+	
+def test_origin_y():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi, yi, zi = numpy.zeros((3,3))
+	# y-direction
+	beta  = numpy.zeros((3,)) + pi/2
+	alpha  = numpy.zeros((3,)) + pi/2
+	dist = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(zf, 0), zf
+	assert numpy.allclose(yf, dist), yf
+	assert numpy.allclose(xf, 0), xf
+	assert numpy.all(inside == [True, True, False]), inside
+	
+def test_origin_z():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi, yi, zi = numpy.zeros((3,3))
+	beta  = numpy.zeros((3,))
+	alpha  = numpy.zeros((3,))
+	dist = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(zf, dist), zf
+	assert numpy.allclose(yf, 0), yf
+	assert numpy.allclose(xf, 0), xf
+	assert numpy.all(inside == [False, False, False]), inside
+	
+def test_origin_xyz():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi, yi, zi = numpy.zeros((3,3))
+	beta  = pi/4 + pi/8 + numpy.zeros(3)
+	alpha  = pi/8 + numpy.zeros(3)
+	dist = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(xf, 0.85355339*dist), xf
+	assert numpy.allclose(yf, 0.35355339*dist), yf
+	assert numpy.allclose(zf, 0.38268343*dist), zf
+	assert numpy.all(inside == [True, True, False]), inside
+	assert numpy.allclose(rad, dist), rad
+	assert numpy.allclose(phi, alpha), alpha
+	assert numpy.allclose(theta, beta), theta
+
+def test_vertical_x():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi, yi, zi = numpy.zeros((3,3))
+	xi += 0.5
+	beta  = numpy.zeros(3) # go up
+	alpha = numpy.zeros(3)
+	dist  = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(xf, 0.5), xf
+	assert numpy.allclose(yf, 0.0), yf
+	assert numpy.allclose(zf, dist), zf
+	assert numpy.all(inside == [True, False, False]), inside
+
+def test_vertical_y():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi, yi, zi = numpy.zeros((3,3))
+	xi += 0.5
+	beta  = numpy.zeros(3) # go up
+	alpha = numpy.zeros(3)
+	dist  = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(xf, 0.5), xf
+	assert numpy.allclose(yf, 0.0), yf
+	assert numpy.allclose(zf, dist), zf
+	assert numpy.all(inside == [True, False, False]), inside
+
+def test_vertical_xyz():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi = 0.4 + numpy.zeros(3)
+	yi = 0.4 + numpy.zeros(3)
+	zi = 0.1 + numpy.zeros(3)
+	beta  = numpy.zeros(3) # go up
+	alpha = numpy.zeros(3)
+	dist  = numpy.array([0.01, 0.99, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(xf, 0.4), xf
+	assert numpy.allclose(yf, 0.4), yf
+	assert numpy.allclose(zf, 0.1 + dist), zf
+	assert numpy.all(inside == [True, False, False]), inside
+
+def test_vertical_xyz_far():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	# above that position we hit the sphere first, then the cone
+	xi = 0.7 + numpy.zeros(3)
+	yi = 0.7 + numpy.zeros(3)
+	zi = 0.1 + numpy.zeros(3)
+	beta  = numpy.zeros(3) # go up
+	alpha = numpy.zeros(3)
+	dist  = numpy.array([0.01, 0.8, 1.01])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(xf, 0.7), xf
+	assert numpy.allclose(yf, 0.7), yf
+	assert numpy.allclose(zf, 0.1 + dist), zf
+	assert numpy.all(inside == [True, False, False]), inside
+
+
+def test_horizontal_x_shortside():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi = -0.99 + numpy.zeros(3)
+	yi = 0 + numpy.zeros(3)
+	zi = 0.001 + numpy.zeros(3)
+	beta  = numpy.zeros(3) + pi/2 # go horizontal
+	alpha = numpy.array([0, 0, pi]) # go in x
+	dist  = numpy.array([0.01, 0.98, 0.02])
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	assert numpy.allclose(xf, [-0.98, -0.01, -1.01]), xf
+	assert numpy.allclose(yf, 0), yf
+	assert numpy.allclose(zf, 0.001), zf
+	assert numpy.all(inside == [True, True, False]), inside
+
+def test_horizontal_x_farside():
+	torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
+	xi = -0.99 + numpy.zeros(3)
+	yi = 0 + numpy.zeros(3)
+	zi = 0.001 + numpy.zeros(3)
+	beta  = numpy.zeros(3) + pi/2 # go horizontal
+	alpha = numpy.zeros(3) # go in x
+	dist  = numpy.array([1.0, 1.5, 3])
+	xskipped = zi * 2 # in 45 degree torus x=z
+	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+	print 'expectation:'
+	print 'naive:', xi + dist
+	print 'skipped:', xskipped
+	print xi + dist + xskipped
+	print 'testing:'
+	assert numpy.allclose(xf, xi + dist + xskipped), xf
+	assert numpy.allclose(yf, 0), yf
+	assert numpy.allclose(zf, 0.001), zf
+	assert numpy.all(inside == [True, True, False]), inside
+
+if __name__ == '__main__':
+	test()	
+	
+	
+	
+
 

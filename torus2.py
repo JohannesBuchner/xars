@@ -21,6 +21,7 @@ deltae = energy_hi - energy_lo
 rng = scipy.random
 
 from conetorus import ConeTorusGeometry
+from spheretorus import SphereTorusGeometry
 import montecarlo
 
 rng.seed(0)
@@ -75,7 +76,10 @@ assert nh_in <= 27, 'NH should be below 27'
 prefix = '%.1f_%.1f_' % (nh_in, cone_in) if args.output is None else args.output
   # total number of photons to send in
 
-geometry = ConeTorusGeometry(Theta_tor = cone, NH = nh, verbose=args.verbose)
+if cone == 0:
+	geometry = SphereTorusGeometry(NH = nh, verbose=args.verbose)
+else:
+	geometry = ConeTorusGeometry(Theta_tor = cone, NH = nh, verbose=args.verbose)
 geometry.viz()
 plt.savefig(prefix + "geometry.pdf")
 plt.savefig(prefix + "geometry.png")
@@ -84,7 +88,8 @@ plt.close()
 #binmapfunction = lambda beta: numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1
 def mapper(beta):
 	#beta[beta > pi/2] = pi - beta[beta > pi/2]
-	slot = numpy.floor(nmu * beta / pi)
+	beta0 = numpy.where(beta > pi/2, pi - beta, beta)
+	slot = numpy.floor(nmu * beta0 / pi)
 	#print beta * 180 / pi, slot
 	return slot
 

@@ -12,21 +12,7 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 font = 'sans-serif'
 
-def to_spherical((xf, yf, zf)):
-	xf = numpy.asarray(xf).reshape((-1,))
-	yf = numpy.asarray(yf).reshape((-1,))
-	zf = numpy.asarray(zf).reshape((-1,))
-	rad = (xf**2+yf**2+zf**2)**0.5
-	#phi = numpy.fmod(numpy.arctan2(yf, xf) + 2*pi, pi)
-	phi = numpy.arctan2(yf, xf)
-	theta = numpy.where(rad == 0, 0., arccos(zf / rad))
-	return (rad, theta, phi)
-
-def to_cartesian((rad, theta, phi)):
-	xv = rad * sin(theta) * cos(phi)
-	yv = rad * sin(theta) * sin(phi)
-	zv = rad * cos(theta)
-	return (xv, yv, zv)
+from coordtrans import to_spherical, to_cartesian
 
 def intersection_sort(intersections):
 	#print 'sorting intersections ...'
