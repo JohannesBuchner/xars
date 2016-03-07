@@ -12,6 +12,8 @@ import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
 from binning import nbins, energy2bin, bin2energy
 import progressbar
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 energy_lo, energy_hi = bin2energy(range(nbins))
@@ -85,7 +87,6 @@ plt.savefig(prefix + "geometry.pdf")
 plt.savefig(prefix + "geometry.png")
 plt.close()
 
-#binmapfunction = lambda beta: numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1
 def mapper(beta):
 	#beta[beta > pi/2] = pi - beta[beta > pi/2]
 	beta0 = numpy.where(beta > pi/2, pi - beta, beta)
@@ -95,6 +96,7 @@ def mapper(beta):
 
 binmapfunction = lambda beta: numpy.floor((nmu - 2) * beta / pi)
 binmapfunction = mapper
+binmapfunction = lambda beta: (numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1).astype(int)
 
 rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
 	binmapfunction = binmapfunction,
