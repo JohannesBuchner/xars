@@ -425,7 +425,10 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
 	
-	import astropy.io.fits as pyfits
+	try:
+		import pyfits
+	except ImportError:
+		import astropy.io.fits as pyfits
 	try:
 		print 'Loading previous file if exists ...'
 		old_file = pyfits.open(prefix + "rdata.fits")
@@ -448,7 +451,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 	hdu.header['METHOD'] = 'Monte-Carlo simulation code'
 	hdu.header['NPHOT'] = nphot_total
 	for k,v in extra_fits_header.iteritems():
-		hdu.header.update(k, v)
+		hdu.header[k] = v
 	hdu.writeto(prefix + "rdata.fits", clobber=True)
 	print 'total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
 
@@ -457,11 +460,11 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 	matrix = rdata
 	print matrix[600,500:600,3]
 	print matrix[500,100:500,3]
-	for i in range(len(energy)):
-		eselect = energy.reshape((-1,1)) * (matrix[i] > 0)
-		eselect = eselect[eselect > 0]
-		if len(eselect) == 0: continue
-		print '%.2f %.2f' % (energy[i], eselect.min())
+	#for i in range(len(energy)):
+	#	eselect = energy.reshape((-1,1)) * (matrix[i] > 0)
+	#	eselect = eselect[eselect > 0]
+	#	if len(eselect) == 0: continue
+	#	print '%.2f %.2f' % (energy[i], eselect.min())
 	#print energy.reshape((1,-1,1)) * (matrix > 0)
 	#print numpy.argmax(energy.reshape((1,-1,1)) * (matrix > 0), axis=0)
 	x = energy
@@ -478,21 +481,22 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 		y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae
 		print '%d ... ' % mu
 		
-		plt.figure(figsize=(7,7))
-		plt.plot(energy, 0.1 * exp(-xphot*NH) * energy**-PhoIndex, '-', color='orange', linewidth=4)
+		plt.figure(figsize=(10,10))
+		plt.plot(energy, 0.1 * exp(-xphot*NH) * energy**-PhoIndex, '-', color='red', linewidth=1)
 		plt.plot(energy, 0.1 * exp(-xscatt*NH) * energy**-PhoIndex, '-', color='pink')
-		plt.plot(energy, 0.1 * exp(-xkfe*NH) * energy**-PhoIndex, '-', color='red')
+		plt.plot(energy, 0.1 * exp(-xkfe*NH) * energy**-PhoIndex, '-', color='orange')
 		plt.plot(energy, 0.1 * energy**-PhoIndex, '--', color='gray')
 		plt.plot(energy_lo, y / total, '-', color='k') #, drawstyle='steps')
 		#plt.plot(energy, exp(-xboth) * energy**-PhoIndex, '-', color='yellow')
 		plt.gca().set_xscale('log')
 		plt.gca().set_yscale('log')
-		plt.xlim(0.1, 10 * (1 + 10))
+		#plt.xlim(0.1, 10 * (1 + 10))
+		plt.xlim(3, 40)
 		lo, hi = 1e-8, 1
 		plt.vlines(6.40, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.vlines(7.06, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.ylim(lo, hi)
-		#plt.savefig(prefix + "_%d.pdf" % mu)
+		plt.savefig(prefix + "_%d.pdf" % mu)
 		plt.savefig(prefix + "_%d.png" % mu)
 		numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
 		plt.close()
