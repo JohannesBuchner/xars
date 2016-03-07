@@ -1,5 +1,4 @@
 import numpy, scipy
-import matplotlib.pyplot as plt
 from numpy import exp, log, log10
 
 nbins = 1250 # number of energy bins
@@ -48,6 +47,7 @@ def bin2energy(i):
 	return e, f
 
 if __name__ == '__main__':
+	import matplotlib.pyplot as plt
 	energy = numpy.logspace(log10(0.1), log10(1100))
 	results = energy2bin(energy)
 	plt.figure()
