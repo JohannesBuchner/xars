@@ -21,7 +21,7 @@ deltae = energy_hi - energy_lo
 
 rng = scipy.random
 
-from wedgetorus import WedgeTorusGeometry
+from geometries.wedgetorus import WedgeTorusGeometry
 from montecarlo import PhotonBunch
 
 rng.seed(0)

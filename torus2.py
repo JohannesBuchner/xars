@@ -10,20 +10,15 @@ Literature:
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
-from binning import nbins, energy2bin, bin2energy
 import progressbar
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-energy_lo, energy_hi = bin2energy(range(nbins))
-energy = (energy_hi + energy_lo)/2.
-deltae = energy_hi - energy_lo
-
 rng = scipy.random
 
-from conetorus import ConeTorusGeometry
-from spheretorus import SphereTorusGeometry
+from geometries.conetorus import ConeTorusGeometry
+from geometries.spheretorus import SphereTorusGeometry
 import montecarlo
 
 rng.seed(0)
@@ -102,8 +97,12 @@ rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=
 	binmapfunction = binmapfunction,
 	plot_paths=args.plot_paths, plot_interactions=args.plot_interactions, verbose=args.verbose)
 
+rdata_transmit, rdata_reflect = rdata
+rdata_both = rdata_transmit + rdata_reflect
 header = dict(NH='%f' % nh, OPENING='%f' % cone)
-montecarlo.store(prefix, nphot, rdata, nmu, extra_fits_header = header)
+montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, extra_fits_header = header, plot=True)
+montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=True)
+montecarlo.store(prefix, nphot, rdata_both, nmu, extra_fits_header = header, plot=True)
 
 
 

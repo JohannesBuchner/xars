@@ -53,9 +53,15 @@ xboth = xphot + xscatt
 absorption_ratio = xphot / xboth
 fek_ratio = 0.342 * xkfe / xphot
 
+def test():
+	assert (e1 == e2).all()
+	assert e1.shape == energy.shape, (e1.shape, energy.shape)
+	assert (e1 == energy_lo).all(), zip(e1, energy, energy_lo, energy_hi)
+
 if __name__ == '__main__':
 	#xscatt[:] = 1e-6
 	import matplotlib.pyplot as plt
+	energy = energy_lo
 	plt.figure()
 	plt.plot(energy, label='energy')
 	plt.plot(e2, label='xphot.dat')

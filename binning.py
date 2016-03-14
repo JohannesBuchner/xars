@@ -23,7 +23,7 @@ def energy2bin(energy):
 	
 	return numpy.array(ibin, dtype=numpy.uint)
 
-def bin2energy(i):
+def bin2energy_wrong(i):
 	i = numpy.asarray(i).reshape((-1,))
 	dn = 0.01 * numpy.ones_like(i)
 	n = i * dn
@@ -45,6 +45,49 @@ def bin2energy(i):
 	deltae = f-e
 	
 	return e, f
+
+def bin2energy_lo(i):
+	i = numpy.asarray(i).reshape((-1,))
+	dn = 0.01 * numpy.ones_like(i)
+	n = i * dn
+	m1 = n > 8.34
+	dn[m1] = 0.022
+	n[m1] = 8.34 + (i[m1] - 834.0) * dn[m1]
+	m2 = n > 9.308
+	dn[m2] = 0.05
+	n[m2] = 9.308+(i[m2]-878.0)*dn[m2]
+	m3 = n > 10.258
+	dn[m3] = 0.1
+	n[m3] = 10.258 + (i[m3]-897.0)*dn[m3]
+	m4 = n > 11.158
+	dn[m4] = 0.35
+	n[m4] = 11.158+(i[m4] - 906.0)*dn[m4]
+	
+	return 23.4 * 10**(n/70.0)-23.3
+
+def bin2energy_hi(i):
+	return bin2energy_lo(i+1)
+
+def bin2energy(i):
+	j = numpy.asarray(i)
+	return bin2energy_lo(j), bin2energy_hi(j)
+	
+def test_bin2energy():
+	allbins = numpy.arange(nbins)
+	elo, ehi = bin2energy(allbins)
+	edgediff = ehi[:-1] - elo[1:]
+	assert numpy.allclose(0, edgediff, atol=1e-5, rtol=1), (allbins[edgediff > 0], edgediff[edgediff > 0])
+
+def test_energy2bin():
+	E = numpy.random.uniform(0.1, 100, size=100000)
+	bin = energy2bin(E)
+	allbins = numpy.arange(nbins)
+	elo, ehi = bin2energy(allbins)
+	
+	for i in allbins:
+		assert (E[bin == i] >= elo[i]).all(), (E[bin == i].min(), E[bin == i].max(), elo[i], ehi[i])
+		assert (E[bin == i] < ehi[i]).all(), (E[bin == i].min(), E[bin == i].max(), elo[i], ehi[i])
+
 
 if __name__ == '__main__':
 	import matplotlib.pyplot as plt

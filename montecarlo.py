@@ -25,8 +25,12 @@ class PhotonBunch(object):
 		self.geometry = geometry
 		energy_lo, energy_hi = bin2energy(i)
 		e = (energy_lo + energy_hi) / 2.
+		#e = energy_lo
 		if self.verbose: print 'PhotonBunch of size %d with energy %.2f keV' % (nphot, e)
-		self.energy = e * numpy.ones(nphot)
+		#self.energy = e * numpy.ones(nphot)
+		self.energy = rng.uniform(low=energy_lo, high=energy_hi, size=nphot)
+		#bin = energy2bin(self.energy)
+		#assert (bin == i).all(), (bin.max(), bin.min())
 		self.bin = i * numpy.ones(nphot, dtype=numpy.uint)
 		self.stuck = self.rad != 0 # False
 	
@@ -212,63 +216,34 @@ class PhotonBunch(object):
 		nphotscattered = len(energy)
 		if nphotscattered > 0:
 			if self.verbose: print '  scattering: %d' % nphotscattered
-			u = rng.uniform(size=nphotscattered)
-			
-			Efrac = energy / electmass
-			
-			mu = -1.0 + 2.0*u
-			term1 = (1.0 + mu**2) / 2.0
-			term2 = 1.0 / (1.0 + Efrac * (1.0 - mu))
-			term3 = 2.0 * Efrac**2 * (1 - mu)**2 * term2 / term1
-			
-			ang_diff_scat = term1 * (term2**2) * (1.0 + term3)
-			
-			coin = rng.uniform(size=nphotscattered)
-			processed = coin < ang_diff_scat
-			if self.verbose: print '  .. passed: %d (%.1f%%)' % (processed.sum(), processed.sum()*100.0/nphotscattered)
-			if processed.any():
-				# we can now update the direction and energy of the 
-				# stuck ones that were processed
-				mu = mu[processed]
-				E = energy[processed]
-			
-				# new energy
-				#if self.verbose: print '  .. .. mus: %.2f' % (mus.mean())
-				loss = (1. + (1. - mu) * E / electmass)
-				if self.verbose: print '  .. .. energy loss: %.3f, %.3f, %.3f' % (
-					loss.min(), loss.mean(), loss.max())
-				E /= loss
-				if self.verbose: print '  .. .. new energy: %.3f, %.3f, %.3f' % (
-					E.min(), E.mean(), E.max())
-				
-				### update angle
-				# beta ~ theta, alpha ~ phi in normal notation
-				alpha, beta = alpha[processed], beta[processed]
-				orig_vector = numpy.transpose([sin(beta)*cos(alpha), 
-					sin(beta)*sin(alpha), cos(beta)])
-				
-				# need random vector to find rotation plane
-				random_vector = numpy.random.normal(size=(mu.size, 3))
-				# vector of rotation axis
-				cross_vector = numpy.cross(random_vector, orig_vector)
-				cross_vector /= (cross_vector**2).sum(axis=0)**0.5
-				
-				# we rotate by acos(mu)
-				# delta_theta = acos(mu)
-				delta_alpha = rng.uniform(0, 2*pi, size=mu.size)
-				zz = mu.reshape((-1,1))
-				sinT = (1 - mu**2)**0.5
-				xx = (cos(delta_alpha) * sinT).reshape((-1,1))
-				yy = (sin(delta_alpha) * sinT).reshape((-1,1))
-				perturbed_vector = random_vector * xx + cross_vector * yy + orig_vector * zz
-				# transform back to spherical coordinates
-				xy = perturbed_vector[:,0]**2 + perturbed_vector[:,1]**2
-				zz = perturbed_vector[:,2]**2
-				#beta  = np.arctan2(xy**0.5, zz)
-				#alpha = np.arctan2(perturbed_vector[:,1], perturbed_vector[:,0])
-				_, beta_new, alpha_new = to_spherical(perturbed_vector.transpose())
-				self.update_and_free_stuck(alpha_new, beta_new, E, energy2bin(E), processed)
-				
+			a = rng.uniform(size=nphotscattered)
+			# compute new direction:
+			alpha_new = a * 2. * pi # left-right angle uniform randomly
+
+			# compute up-down angle
+			beta0 = beta
+			r5 = rng.uniform(size=nphotscattered)
+			r5a = rng.uniform(size=nphotscattered)
+
+			x = 2. * r5a - 1
+			mus = numpy.where(r5 > 0.75, 
+				numpy.sign(x) * numpy.abs(x)**(1/3.), 
+				x)
+			betas = acos(mus)
+			mu = cos(beta0)*cos(betas)+sin(beta0)*sin(betas)*cos(alpha_new - alpha)
+			beta_new = acos(mu)
+
+			# new energy
+			#if self.verbose: print '  .. .. mus: %.2f' % (mus.mean())
+			loss = (1. + (1. - mus) * energy / electmass)
+			if self.verbose: print '  .. .. energy loss: %.3f, %.3f, %.3f' % (
+				loss.min(), loss.mean(), loss.max())
+			E = energy / loss
+			if self.verbose: print '  .. .. new energy: %.3f, %.3f, %.3f' % (
+				E.min(), E.mean(), E.max())
+			processed = E >= 0
+			self.update_and_free_stuck(alpha_new, beta_new, E, energy2bin(E), processed)
+		
 	  	if self.verbose: print '  .. finally checking all, if outside of energy range'
 
 		phi, theta, rad, alpha, beta, energy, bin = self.get()
@@ -329,7 +304,8 @@ def run(prefix, nphot, nmu, geometry,
 	if plot_paths or plot_interactions:
 		import matplotlib.pyplot as plt
 	
-	rdata = numpy.zeros((nbins, nbins, nmu))
+	rdata_transmit = numpy.zeros((nbins, nbins, nmu))
+	rdata_reflect = numpy.zeros((nbins, nbins, nmu))
 	#rdata = [0] * nbins
 	energy_lo, energy_hi = bin2energy(range(nbins))
 	energy = (energy_hi + energy_lo)/2.
@@ -355,8 +331,6 @@ def run(prefix, nphot, nmu, geometry,
 				if not more:
 					break
 				continue
-			#if n_interactions < 1:
-			#	continue
 			if verbose: print ' received %d emitted photons (after %d interactions)' % (len(emission['energy']), n_interactions)
 			beta = emission['beta']
 			#beta = numpy.abs(beta)
@@ -374,7 +348,10 @@ def run(prefix, nphot, nmu, geometry,
 			# produce unique array bins, mbin which contains counts
 			counts, xedges, yedges = numpy.histogram2d(bins, mbin, bins=binrange)
 			# record into histogram if it landed within relevant range
-			rdata[i] += counts
+			if n_interactions < 1:
+				rdata_transmit[i] += counts
+			else:
+				rdata_reflect[i] += counts
 			#if (emission['energy'] == 6.40).any():
 			#	print ' %f: %d/%d are lines' % (energy[i], (emission['energy'] == 7.06).sum(), (emission['energy'] == 6.40).sum())
 			#	linebin = set(bins[emission['energy'] == 6.40])
@@ -416,15 +393,13 @@ def run(prefix, nphot, nmu, geometry,
 		pbar.update(pbar.currval + 1)
 	pbar.finish()
 
-	rdata = numpy.array(rdata)
-	return rdata, nphot
+	return (rdata_transmit, rdata_reflect), nphot
 
-def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
+def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	
 	energy_lo, energy_hi = bin2energy(range(nbins))
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
-	
 	try:
 		import pyfits
 	except ImportError:
@@ -454,7 +429,9 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 		hdu.header[k] = v
 	hdu.writeto(prefix + "rdata.fits", clobber=True)
 	print 'total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
-
+	
+	if not plot:
+		return nphot_total, rdata
 	import matplotlib.pyplot as plt
 	PhoIndex = 2
 	matrix = rdata
@@ -472,21 +449,19 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 	xwidth = deltae
 	print 'plotting...'
 	NH = 1e24/1e22
+	weights = (energy**-PhoIndex * deltae).reshape((-1,1))
+	yall = (weights * matrix.sum(axis=2)).sum(axis=0) / deltae
 	for mu in range(nmu):
-		a = energy_lo
-		b = energy_hi
-		G = PhoIndex
-		weights = energy**-PhoIndex * deltae
-		# .transpose()
 		y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae
 		print '%d ... ' % mu
 		
 		plt.figure(figsize=(10,10))
-		plt.plot(energy, 0.1 * exp(-xphot*NH) * energy**-PhoIndex, '-', color='red', linewidth=1)
-		plt.plot(energy, 0.1 * exp(-xscatt*NH) * energy**-PhoIndex, '-', color='pink')
-		plt.plot(energy, 0.1 * exp(-xkfe*NH) * energy**-PhoIndex, '-', color='orange')
-		plt.plot(energy, 0.1 * energy**-PhoIndex, '--', color='gray')
+		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex / nmu, '-', color='red', linewidth=1)
+		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex / nmu, '-', color='pink')
+		plt.plot(energy, exp(-xkfe*NH) * energy**-PhoIndex / nmu, '-', color='orange')
+		plt.plot(energy, energy**-PhoIndex / nmu, '--', color='gray')
 		plt.plot(energy_lo, y / total, '-', color='k') #, drawstyle='steps')
+		plt.plot(energy_lo, yall / total / nmu, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
 		#plt.plot(energy, exp(-xboth) * energy**-PhoIndex, '-', color='yellow')
 		plt.gca().set_xscale('log')
 		plt.gca().set_yscale('log')
@@ -496,6 +471,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}):
 		plt.vlines(6.40, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.vlines(7.06, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.ylim(lo, hi)
+		plt.show()
 		plt.savefig(prefix + "_%d.pdf" % mu)
 		plt.savefig(prefix + "_%d.png" % mu)
 		numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
