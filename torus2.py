@@ -82,16 +82,16 @@ plt.savefig(prefix + "geometry.pdf")
 plt.savefig(prefix + "geometry.png")
 plt.close()
 
-def mapper(beta):
+def mapper(beta, alpha):
 	#beta[beta > pi/2] = pi - beta[beta > pi/2]
 	beta0 = numpy.where(beta > pi/2, pi - beta, beta)
 	slot = numpy.floor(nmu * beta0 / pi)
 	#print beta * 180 / pi, slot
 	return slot
 
-binmapfunction = lambda beta: numpy.floor((nmu - 2) * beta / pi)
+binmapfunction = lambda beta, alpha: numpy.floor((nmu - 2) * beta / pi)
 binmapfunction = mapper
-binmapfunction = lambda beta: (numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1).astype(int)
+binmapfunction = lambda beta, alpha: (numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1).astype(int)
 
 rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
 	binmapfunction = binmapfunction,

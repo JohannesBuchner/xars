@@ -43,7 +43,9 @@ args = parser.parse_args()
 nmu = 10     # number of viewing angle bins
 geometry = DiskGeometry(verbose=args.verbose)
 prefix = args.output
-binmapfunction = lambda beta: (numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1).astype(int)
+
+def binmapfunction(beta, alpha): 
+	return (numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1).astype(int)
 
 rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
 	binmapfunction = binmapfunction,
