@@ -16,9 +16,9 @@ class PhotonBunch(object):
 		self.rad = numpy.zeros(nphot)
 		self.phi = numpy.zeros(nphot) # initial left-right angle for position
 		self.theta = numpy.zeros(nphot) # initial up-down angle for position
-		self.alpha = numpy.zeros(nphot) # initial left-right direction for direction -- value does not matter due to symmetry
+		self.alpha = rng.uniform(0, 2*pi, size=nphot) # initial left-right direction for direction -- value does not matter due to symmetry
 		#mu = numpy.linspace(-1, 1, nphot) # uniform distribution
-		mu = numpy.random.uniform(-1, 1, size=nphot)
+		mu = rng.uniform(-1, 1, size=nphot)
 		self.beta = acos(mu) # up-down angle for direction
 		# self.beta = acos(numpy.linspace(-cone_in, cone_in, nphot)) # up-down angle for direction
 		self.geometry = geometry
@@ -41,9 +41,11 @@ class PhotonBunch(object):
 		self.stuck = self.stuck[mask]
 	
 	def cut_free(self, free_mask):
+		"""cut the free photons according to free_mask """
 		free = -self.stuck
 		free[free] = free_mask
 		self.cut(free)
+		return free
 	
 	def set(self, phi, theta, rad, alpha, beta, energy, bin):
 		self.phi, self.theta, self.rad, self.alpha, self.beta, self.energy, self.bin = phi, theta, rad, alpha, beta, energy, bin
@@ -71,9 +73,9 @@ class PhotonBunch(object):
 		#self.stuck[self.stuck] = freed 
 	
 	def pump(self):
+		if self.verbose: print 'photon iteration: %d free photons, %d scattering %s' % ((-self.stuck).sum(), self.stuck.sum(), '_'*20)
 		phi, theta, rad, alpha, beta, energy, bin = self.get_free()
 		
-		if self.verbose: print 'photon iteration: %d free photons, %d scattering %s' % (len(energy), self.stuck.sum(), '_'*20)
 		
 		# first half deals with free photons
 		if len(energy) > 0:
@@ -88,23 +90,22 @@ class PhotonBunch(object):
 			phi0 = phi
 			theta0 = theta
 			rad0 = rad
+		  	xi, yi, zi = to_cartesian((rad0, theta0, phi0))
 		  	
 		  	#if self.verbose: print '  .. computing position'
 			# compute position
-			xi=rad0*sin(theta0)*cos(phi0)
-			yi=rad0*sin(theta0)*sin(phi0)
-			zi=rad0*cos(theta0)
-		
 			inside, (xf,yf,zf), (rad, phi, theta) = self.geometry.compute_next_point((xi, yi, zi), (dist, beta, alpha))
 			outside = -inside
 
 			# emit
 			if self.verbose: print '  .. emitting %d to outside, %d inside material' % ((-inside).sum(), inside.sum())
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
+			mask = -self.stuck
+			mask[mask] = outside
 			self.cut_free(inside)
 			emit = dict(phi=phi0[outside], theta=theta0[outside], rad=rad0[outside], 
 				beta=beta[outside], alpha=alpha[outside],
-				energy=energy[outside], bin=bin[outside], mask=outside)
+				energy=energy[outside], bin=bin[outside], mask=mask)
 			#print '   ', rad.shape, theta.shape, len(inside)
 			xf, yf, zf = xf[inside], yf[inside], zf[inside]
 			phi, theta, rad, alpha, beta, energy, bin = self.get_free()
@@ -156,10 +157,10 @@ class PhotonBunch(object):
 				e = None
 			
 			# emit line in random direction
-			if is_line.any():
+			if photabsorbed_line.any():
 				nline = photabsorbed_line.sum()
-				alpha_random = numpy.random.uniform(nline)
-				beta_random = acos(numpy.random.uniform(-1, 1, size=nline))
+				alpha_random = rng.uniform(0, 2*pi, size=nline)
+				beta_random = acos(rng.uniform(-1, 1, size=nline))
 				alpha[photabsorbed_line] = alpha_random
 				beta[photabsorbed_line] = beta_random
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
@@ -201,9 +202,10 @@ class PhotonBunch(object):
 		
 			# compute new positions for remainder
 			xf, yf, zf = xf[remainders], yf[remainders], zf[remainders]
-			rad = (xf**2+yf**2+zf**2)**0.5
-			phi = atan2(yf, xf)
-			theta = numpy.where(rad == 0, 0., acos(zf / rad))
+			rad, theta, phi = to_spherical((xf, yf, zf))
+			#rad = (xf**2+yf**2+zf**2)**0.5
+			#phi = atan2(yf, xf)
+			#theta = numpy.where(rad == 0, 0., acos(zf / rad))
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
 			self.stuck[-self.stuck] = photscattered[remainders]
 			if self.verbose: print '  .. .. %d stuck in scattering' % (self.stuck.sum())

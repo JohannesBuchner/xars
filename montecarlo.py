@@ -4,6 +4,7 @@ from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_
 from binning import nbins, energy2bin, bin2energy
 from xsect import xscatt, xphot, xkfe, xboth, absorption_ratio, fek_ratio, electmass
 import progressbar
+from photons import PhotonBunch
 
 rng = scipy.random
 
