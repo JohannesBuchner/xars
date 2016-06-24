@@ -28,7 +28,7 @@ import sys, os
 
 parser = argparse.ArgumentParser(
 	description="""Monte-Carlo simulator for X-ray obscurer geometries""",
-	epilog="""(C) Johannes Buchner, 2013. Based on work by Murray Brightman & Kirpal Nandra (see 2011 publication)""")
+	epilog="""(C) Johannes Buchner, 2013-2016. Based on work by Murray Brightman & Kirpal Nandra (see 2011 publication)""")
 
 parser.add_argument('--log10nh', type=float, help='column density (10^X cm^-1)', default=None)
 parser.add_argument('--nh', type=float, help='column density (X/10^22 cm^-1)', default=None)
