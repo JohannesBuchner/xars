@@ -123,9 +123,10 @@ class PhotonBunch(object):
 		
 			# Iron to photon-absorption effectiveness
 			omega = fek_ratio[bin[photabsorbed]] # Importance of lines compared to photon-absorption
+			#omega *= 0 # disable FeK line
 			#print '  ..  .. omega:', omega
 			r3 = rng.uniform(size=photabsorbed.sum())
-		
+			
 			# Are we coming out as a line
 			is_line = r3 < omega
 			photabsorbed_line = photabsorbed.copy()

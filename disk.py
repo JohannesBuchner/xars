@@ -20,12 +20,6 @@ rng = scipy.random
 from geometries.disk import DiskGeometry
 import montecarlo
 
-rng.seed(0)
-
-import argparse
-import sys, os
-
-
 import argparse
 import sys, os
 

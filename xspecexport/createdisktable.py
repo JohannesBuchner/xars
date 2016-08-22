@@ -1,6 +1,7 @@
 import numpy
 from numpy import pi
 import astropy.io.fits as pyfits
+import h5py
 import sys
 from binning import nbins, energy2bin, bin2energy
 
@@ -21,19 +22,23 @@ outfilename = sys.argv[1]
 
 for filename in sys.argv[2:]:
 	print 'loading', filename
-	f = pyfits.open(filename)
-	nphot = int(f[0].header['NPHOT'])
-	matrix = f[0].data
+	#f = pyfits.open(filename)
+	#nphot = int(f[0].header['NPHOT'])
+	#matrix = f[0].data
+	f = h5py.File(filename)
+	nphot = f.attrs['NPHOT']
+	matrix = f['rdata']
 	a, b, nmu = matrix.shape
 	assert a == nbins, f[0].data.shape
 	assert b == nbins, f[0].data.shape
 	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
-	for PhoIndex in PhoIndices:
-		weights = (energy**-PhoIndex * deltae).reshape((-1,1))
+	for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
 		# go through viewing angles
-		for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
-			y = (weights * matrix[:,:,mu]).sum(axis=0) / (nphot / 10.)
+		matrix_mu = matrix[:,:,mu]
+		for PhoIndex in PhoIndices:
+			weights = (energy**-PhoIndex * deltae).reshape((-1,1))
+			y = (weights * matrix_mu).sum(axis=0) / (nphot / 10.)
 			print PhoIndex, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y

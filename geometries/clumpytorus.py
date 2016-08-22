@@ -20,7 +20,6 @@ class ClumpyTorusGeometry(object):
 		self.verbose = verbose
 	
 	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
-		
 		a, b, c = to_cartesian((1, beta, alpha))
 		t = sphere_raytrace_finite(self.x, self.y, self.z, self.r, self.rho, xi, yi, zi, a, b, c, dist)
 		

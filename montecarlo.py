@@ -161,6 +161,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		prev_nphot = old_file[0].header.get('NPHOT', 0)
 		print 'Accumulating onto previous result ...'
 		rdata = rdata + rdata_old
+		del rdata_old
 	except Exception as e:
 		print 'updating file failed; writing fresh. Error:', e
 		prev_nphot = 0
@@ -178,6 +179,92 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	for k,v in extra_fits_header.iteritems():
 		hdu.header[k] = v
 	hdu.writeto(prefix + "rdata.fits", clobber=True)
+	print 'total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
+	
+	if not plot:
+		return nphot_total, rdata
+	import matplotlib.pyplot as plt
+	PhoIndex = 2
+	matrix = rdata
+	print matrix[600,500:600,3]
+	print matrix[500,100:500,3]
+	#for i in range(len(energy)):
+	#	eselect = energy.reshape((-1,1)) * (matrix[i] > 0)
+	#	eselect = eselect[eselect > 0]
+	#	if len(eselect) == 0: continue
+	#	print '%.2f %.2f' % (energy[i], eselect.min())
+	#print energy.reshape((1,-1,1)) * (matrix > 0)
+	#print numpy.argmax(energy.reshape((1,-1,1)) * (matrix > 0), axis=0)
+	x = energy
+	total = nphot_total
+	xwidth = deltae
+	print 'plotting...'
+	NH = 1e24/1e22
+	weights = (energy**-PhoIndex * deltae).reshape((-1,1))
+	yall = (weights * matrix.sum(axis=2)).sum(axis=0) / deltae
+	for mu in range(nmu):
+		y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae
+		print '%d ... ' % mu
+		
+		plt.figure(figsize=(10,10))
+		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex / nmu, '-', color='red', linewidth=1)
+		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex / nmu, '-', color='pink')
+		plt.plot(energy, exp(-xkfe*NH) * energy**-PhoIndex / nmu, '-', color='orange')
+		plt.plot(energy, energy**-PhoIndex / nmu, '--', color='gray')
+		plt.plot(energy_lo, y / total, '-', color='k') #, drawstyle='steps')
+		plt.plot(energy_lo, yall / total / nmu, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
+		#plt.plot(energy, exp(-xboth) * energy**-PhoIndex, '-', color='yellow')
+		plt.gca().set_xscale('log')
+		plt.gca().set_yscale('log')
+		#plt.xlim(0.1, 10 * (1 + 10))
+		plt.xlim(3, 40)
+		lo, hi = 1e-8, 1
+		plt.vlines(6.40, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
+		plt.vlines(7.06, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
+		plt.ylim(lo, hi)
+		plt.show()
+		plt.savefig(prefix + "_%d.pdf" % mu)
+		plt.savefig(prefix + "_%d.png" % mu)
+		numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
+		plt.close()
+	return nphot_total, rdata
+
+
+def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
+	
+	energy_lo, energy_hi = bin2energy(range(nbins))
+	energy = (energy_hi + energy_lo)/2.
+	deltae = energy_hi - energy_lo
+	import h5py
+	try:
+		print 'Loading previous file if exists ...'
+		with h5py.File(prefix + "rdata.hdf5", 'r') as old_file:
+			print '  reading values'
+			rdata_old = old_file['rdata'].value
+			print '  reading header value'
+			prev_nphot = old_file.attrs['NPHOT']
+			print 'Accumulating onto previous result ...'
+			rdata = rdata + rdata_old
+			del rdata_old
+	except Exception as e:
+		print 'updating file failed; writing fresh. Error:', e
+		prev_nphot = 0
+	nphot_total = nphot + prev_nphot
+	print 'storing ...'
+	import datetime, time
+	now = datetime.datetime.fromtimestamp(time.time())
+	nowstr = now.isoformat()
+	nowstr = nowstr[:nowstr.rfind('.')]
+	with h5py.File(prefix + "rdata.hdf5", 'w') as f:
+		f.create_dataset('rdata', data=rdata, compression='gzip', shuffle=True)
+	
+		f.attrs['CREATOR'] = """Johannes Buchner <johannes.buchner.acad@gmx.com>"""
+		f.attrs['DATE'] = nowstr
+		f.attrs['METHOD'] = 'Monte-Carlo simulation code'
+		f.attrs['NPHOT'] = nphot_total
+		for k,v in extra_fits_header.iteritems():
+			f.attrs[k] = v
+	
 	print 'total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
 	
 	if not plot:

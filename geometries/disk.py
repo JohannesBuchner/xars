@@ -24,7 +24,7 @@ class DiskGeometry(object):
 		rad, phi, theta = to_spherical((xf, yf, zf))
 		
 		# are we inside the disk
-		inside = zf <= 0
+		inside = zf < 0
 		return inside, (xf,yf,zf), (rad, phi, theta)
 
 

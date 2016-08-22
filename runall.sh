@@ -19,7 +19,7 @@ do
 	for o in 25.79999924  36.90000153  45.59999847  53.09999847 60. 66.40000153 72.5  78.5 84.30000305
 	do
 		[ -e output/${i}_${j}_rdata.fits ] ||
-		python torus2.py --nh=$nh --opening-angle=$o --nevents $1 --output="output/${i}_${j}_" &
+		python torus2.py --nh=$nh --opening-angle=$o --nevents $1 --output="$2/${i}_${j}_" &
 		((j++))
 	done
 	wait

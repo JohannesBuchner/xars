@@ -1,7 +1,7 @@
 import numpy
 from numpy import pi
-import astropy.io.fits as pyfits
 import h5py
+import astropy.io.fits as pyfits
 import sys
 from binning import nbins, energy2bin, bin2energy
 
@@ -13,47 +13,51 @@ table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3. ]
-ThetaIncs = [ 18.20000076,  31.79999924,  41.40000153,  49.5       ,
-		56.59999847,  63.29999924,  69.5       ,  75.5       ,
-		81.40000153,  87.09999847]
-ThetaTors = [25.79999924,  36.90000153,  45.59999847,  53.09999847,
-		60.        ,  66.40000153,  72.5       ,  78.5       ,
-		84.30000305]
+nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
+	2.82000005e-02,   3.97999994e-02,   5.62000014e-02,
+	7.94000030e-02,   1.12000003e-01,   1.58000007e-01,
+	2.24000007e-01,   3.16000015e-01,   4.46999997e-01,
+	6.30999982e-01,   8.90999973e-01,   1.25999999e+00,
+	1.77999997e+00,   2.50999999e+00,   3.54999995e+00,
+	5.01000023e+00,   7.07999992e+00,   1.00000000e+01,
+	1.41000004e+01,   2.00000000e+01,   2.82000008e+01,
+	3.97999992e+01,   5.62000008e+01,   7.94000015e+01,
+	1.12000000e+02,   1.58000000e+02,   2.24000000e+02,
+	3.16000000e+02,   4.47000000e+02,   6.31000000e+02,
+	8.91000000e+02,   1.26000000e+03,   1.78000000e+03,
+	2.51000000e+03,   3.55000000e+03,   5.01000000e+03,
+	7.08000000e+03,   1.00000000e+04])
+
 data = {}
 
-def readfile(filename):
-	if filename.endswith('.hdf5') or filename.endswith('.h5'):
-		f = h5py.File(filename, 'r')
-		matrix = f['rdata']
-		header = f.attrs
-	else:
-		f = pyfits.open(filename)
-		header = f[0].header
-		matrix = f[0].data
-	return header, matrix
+outfilename = sys.argv[1]
+prefix = sys.argv[2]
+sigmas  = [8,16,24,32,'sphere']
+sigmav = [8,16,24,32,64]
+opening = [70,55,48,40,20]
+filenames = [prefix % o for o in sigmas]
 
-for filename in sys.argv[1:]:
+for Theta_tor, filename in zip(opening, filenames):
 	print 'loading', filename
-	header, matrix = readfile(filename)
-	#f = pyfits.open(filename)
-	nh = float(header['NH'])
-	opening = float(header['OPENING']) * 180 / pi
-	nphot = int(header['NPHOT'])
-	opening = [thetator for thetator in ThetaTors if numpy.abs(opening - thetator) < 0.1][0]
+	f = h5py.File(filename)
+	nphot = f.attrs['NPHOT']
+	
+	matrix = f['rdata']
 	a, b, nmu = matrix.shape
-	assert a == nbins, f[0].data.shape
-	assert b == nbins, f[0].data.shape
+	print matrix.shape
+	assert a == nbins, matrix.shape
+	assert b == nbins, matrix.shape
 	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
 	for PhoIndex in PhoIndices:
 		weights = (energy**-PhoIndex * deltae).reshape((-1,1))
 		# go through viewing angles
-		for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
+		for mu, nh in enumerate(nh_bins):
 			y = (weights * matrix[:,:,mu]).sum(axis=0) / (nphot / 10.)
-			print nh, PhoIndex, opening, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
+			print nh, PhoIndex, Theta_tor #, (y/deltae)[energy_lo >= 1][0]
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y
-			table.append(((nh, PhoIndex, opening, ThetaInc), y))
+			table.append(((nh, PhoIndex, Theta_tor), y))
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -101,19 +105,9 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 60.0, 5.0, 0.0, 25.799999, 84.300003, 90.0, 9, numpy.array([ 25.79999924,  36.90000153,  45.59999847,  53.09999847,
-		60.        ,  66.40000153,  72.5       ,  78.5       ,
-		84.30000305,   0.        ,   0.        ,   0.        ,
+	('Theta_tor', 0, 60.0, 5.0, 0.0, 25.799999, 84.300003, 90.0, 5, numpy.array([ 20,40,48,55,
+		70        ,    0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
-	('Theta_inc', 0, 18.200001, 5.0, 0.0, 18.200001, 87.099998, 90.0, 10, numpy.array([ 18.20000076,  31.79999924,  41.40000153,  49.5       ,
-		56.59999847,  63.29999924,  69.5       ,  75.5       ,
-		81.40000153,  87.09999847,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
@@ -146,7 +140,7 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 
 # PARAMVAL (4), INTPSPEC
-dtype = [('PARAMVAL', '>f4', (4,)), ('INTPSPEC', '>f4', (nbins,))]
+dtype = [('PARAMVAL', '>f4', (3,)), ('INTPSPEC', '>f4', (nbins,))]
 table.sort()
 table = numpy.array(table, dtype=dtype)
 hdu = pyfits.BinTableHDU(data=table)
@@ -161,6 +155,6 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 hdus = pyfits.HDUList(hdus)
 
-hdus.writeto("xspecmodel.fits", clobber=True)
+hdus.writeto(outfilename, clobber=True)
 
 
