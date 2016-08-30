@@ -129,7 +129,7 @@ class PhotonBunch(object):
 			
 			# Are we coming out as a line
 			# This handles all lines (lines loaded in xsects)
-			line_mask = r3[:,None] > omega
+			line_mask = omega > r3[:,None]
 			iline = numpy.where(line_mask.any(axis=1),
 				line_mask.argmax(axis=1), -1)
 			is_line = iline > 0
@@ -144,8 +144,8 @@ class PhotonBunch(object):
 			if is_line.any():
 				e2 = xlines_energies[iline[is_line]]
 				e = energy2bin(e2)
-				energy[is_line] = e2
-				bin[is_lineKbeta] = e
+				energy[photabsorbed_line] = e2
+				bin[photabsorbed_line] = e
 				del e2, e
 			
 			# emit line in random direction

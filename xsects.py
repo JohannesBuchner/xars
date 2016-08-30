@@ -69,7 +69,7 @@ def test():
 
 if __name__ == '__main__':
 	#xscatt[:] = 1e-6
-	xkfe = xsects[:,2]
+	xkfe = xsects[:,2] * 10
 	import matplotlib.pyplot as plt
 	energy = energy_lo
 	plt.figure()
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 	plt.subplot(3, 1, 1)
 	plt.plot(energy, xphot, label='absorption')
 	plt.plot(energy, numpy.where(xkfe < 1e-5, 1e-5, xkfe), label=r'Fe $K\alpha$')
-	plt.ylim(xscatt.min() / 10000, None)
+	plt.ylim(xscatt.min() / 10, None)
 	print 'absorption cross-section:', xphot
 	plt.plot(energy, 1.2 * xscatt, label='scattering')
 	print 'scattering cross-section:', xscatt
