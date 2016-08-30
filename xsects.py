@@ -40,19 +40,19 @@ xlines_yields = xsectsdata[1,2:]
 xsects = xsectsdata[2:,:]
 e1 = xsects[:,0]
 xphot = xsects[:,1]
+e70 = e1 > 70.
+lines_max = numpy.max(xsects[:,2:], axis=1)
+xphot[e70] = lines_max[e70] * xphot[e70][0] / lines_max[e70][0]
+assert (xphot >= 0).all()
+assert (xscatt >= 0).all()
+
 xlines = xsects[:,2:] * xlines_yields
 xlines_relative = xlines / xphot[:,None]
 # compute probability to come out as fluorescent line
 xlines_cumulative = numpy.cumsum(xlines_relative, axis=1)
-
-e70 = e1 > 70.
-lines_max = numpy.max(xsects[:,2:], axis=1)
-xphot[e70] = lines_max[e70] * xphot[e70][0] / lines_max[e70][0]
 assert (xlines >= 0).all()
 assert (xlines_relative >= 0).all()
 assert (xlines_cumulative >= 0).all()
-assert (xphot >= 0).all()
-assert (xscatt >= 0).all()
 
 # from units 1e-21 to 1e-22
 xphot *= 10
@@ -80,11 +80,13 @@ if __name__ == '__main__':
 	plt.savefig('binning.pdf')
 	plt.close()
 	
-	plt.figure(figsize=(5,7))
+	plt.figure(figsize=(5,10))
 	plt.subplot(3, 1, 1)
 	plt.plot(energy, xphot, label='absorption')
-	plt.plot(energy, numpy.where(xkfe < 1e-5, 1e-5, xkfe), label=r'Fe $K\alpha$')
-	plt.ylim(xscatt.min() / 10, None)
+	for i in range(xlines.shape[1]):
+		plt.plot(energy, xlines[:,i], label='Fluorescent Line %.2f keV' % (xlines_energies[i]))
+	plt.plot(energy, numpy.where(xkfe < 1e-5, 1e-5, xkfe), '--', label=r'Fe $K\alpha$')
+	plt.ylim(xscatt.min() / 10000, None)
 	print 'absorption cross-section:', xphot
 	plt.plot(energy, 1.2 * xscatt, label='scattering')
 	print 'scattering cross-section:', xscatt

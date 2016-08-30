@@ -2,7 +2,7 @@ import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arctan2 as atan2, exp
 from binning import nbins, energy2bin, bin2energy
-from xsect import xscatt, xphot, xkfe, xboth, absorption_ratio, fek_ratio, electmass
+from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
 import progressbar
 from photons import PhotonBunch
 
@@ -209,7 +209,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		plt.figure(figsize=(10,10))
 		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex / nmu, '-', color='red', linewidth=1)
 		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex / nmu, '-', color='pink')
-		plt.plot(energy, exp(-xkfe*NH) * energy**-PhoIndex / nmu, '-', color='orange')
+		plt.plot(energy, exp(-xlines_cumulative[:,0]*NH) * energy**-PhoIndex / nmu, '-', color='orange')
 		plt.plot(energy, energy**-PhoIndex / nmu, '--', color='gray')
 		plt.plot(energy_lo, y / total, '-', color='k') #, drawstyle='steps')
 		plt.plot(energy_lo, yall / total / nmu, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
@@ -295,7 +295,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		plt.figure(figsize=(10,10))
 		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex / nmu, '-', color='red', linewidth=1)
 		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex / nmu, '-', color='pink')
-		plt.plot(energy, exp(-xkfe*NH) * energy**-PhoIndex / nmu, '-', color='orange')
+		plt.plot(energy, exp(-xlines_cumulative[:,0]*NH) * energy**-PhoIndex / nmu, '-', color='orange')
 		plt.plot(energy, energy**-PhoIndex / nmu, '--', color='gray')
 		plt.plot(energy_lo, y / total, '-', color='k') #, drawstyle='steps')
 		plt.plot(energy_lo, yall / total / nmu, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')

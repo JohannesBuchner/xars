@@ -132,7 +132,7 @@ class PhotonBunch(object):
 			line_mask = omega > r3[:,None]
 			iline = numpy.where(line_mask.any(axis=1),
 				line_mask.argmax(axis=1), -1)
-			is_line = iline > 0
+			is_line = iline >= 0
 			photabsorbed_line = photabsorbed.copy()
 			photabsorbed_notline = photabsorbed.copy()
 			# set the absorbed ones (where we have true) to the criterion
