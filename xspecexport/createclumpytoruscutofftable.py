@@ -1,5 +1,5 @@
 import numpy
-from numpy import pi
+from numpy import pi, exp
 import h5py
 import astropy.io.fits as pyfits
 import sys
@@ -13,6 +13,7 @@ table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3. ]
+Ecuts = [ 20.,  30, 40, 60, 100, 140, 200, 400 ]
 ThetaIncs = [ 18.20000076,  31.79999924,  41.40000153,  49.5       ,
 		56.59999847,  63.29999924,  69.5       ,  75.5       ,
 		81.40000153,  87.09999847]
@@ -64,15 +65,16 @@ for Theta_tor, filename, norm_filename in zip(Theta_tors, filenames, norm_filena
 	
 	for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
 		# go through viewing angles
-		#matrix_mu = matrix[:,:,mu] / (nphot / 10.) / (narea/ntotal)
+		#matrix_mu = matrix[:,:,mu] / (nphot / 10.) / min(norm, 1e-6)
 		matrix_mu = matrix[:,:,mu] * 1. / nphot #/ min(norm, 1e-6)
+		print nh, Theta_tor, ThetaInc
 		for PhoIndex in PhoIndices:
-			weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
-			y = (weights * matrix_mu).sum(axis=0)
-			print nh, PhoIndex, Theta_tor, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
-			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
-			#assert numpy.any(y > 0), y
-			table.append(((nh, PhoIndex, Theta_tor, ThetaInc), y))
+			for Ecut in Ecuts:
+				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
+				y = (weights * matrix_mu).sum(axis=0)
+				#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
+				#assert numpy.any(y > 0), y
+				table.append(((nh, PhoIndex, Ecut, Theta_tor, ThetaInc), y))
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -115,6 +117,14 @@ parameters = numpy.array([
 	('PhoIndex', 0, 2.0, 0.0099999998, 1.0, 1.2, 2.8, 3.0, 11, numpy.array([ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
+	('Ecut', 0, 100.0, 10.0, 20, 20, 400, 400, 8, numpy.array([ 20.        ,  30,  40,  60,  100,
+		140        ,  200,  400 ,  0 ,  0,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
