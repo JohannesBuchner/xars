@@ -3,7 +3,7 @@ import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arctan2 as atan2, exp
 from coordtrans import to_spherical, to_cartesian
 from binning import nbins, energy2bin, bin2energy
-from xsect import xscatt, xphot, xkfe, xboth, absorption_ratio, fek_ratio, electmass
+from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
 
 rng = scipy.random
 
@@ -122,13 +122,17 @@ class PhotonBunch(object):
 			#if self.verbose: print '  .. .. photon-abs prob min: %f mean: %f max: %f ' % (q.min(), q.mean(), q.max())
 		
 			# Iron to photon-absorption effectiveness
-			omega = fek_ratio[bin[photabsorbed]] # Importance of lines compared to photon-absorption
+			omega = xlines_cumulative[bin[photabsorbed]] # Importance of lines compared to photon-absorption
 			#omega *= 0 # disable FeK line
 			#print '  ..  .. omega:', omega
 			r3 = rng.uniform(size=photabsorbed.sum())
 			
 			# Are we coming out as a line
-			is_line = r3 < omega
+			# This handles all lines (lines loaded in xsects)
+			line_mask = r3[:,None] > omega
+			iline = numpy.where(line_mask.any(axis=1),
+				line_mask.argmax(axis=1), -1)
+			is_line = iline > 0
 			photabsorbed_line = photabsorbed.copy()
 			photabsorbed_notline = photabsorbed.copy()
 			# set the absorbed ones (where we have true) to the criterion
@@ -136,26 +140,13 @@ class PhotonBunch(object):
 			photabsorbed_notline[photabsorbed] = -is_line
 		
 			r4 = rng.uniform(size=photabsorbed_line.sum())
-		
-			is_Kbeta = r4 > 0.866
-			is_lineKbeta = photabsorbed_line.copy()
-			is_lineKalpha = photabsorbed_line.copy()
-			is_lineKbeta[photabsorbed_line] = is_Kbeta
-			is_lineKalpha[photabsorbed_line] = -is_Kbeta
-		
-			# emit Fe-Kbeta line  # 7.0580
-			#e = energy2bin(energy[photabsorbed_line][is_lineKbeta])
-			if is_lineKbeta.any():
-				energy[is_lineKbeta] = 7.06
-				e = energy2bin(energy[is_lineKbeta])
+			
+			if is_line.any():
+				e2 = xlines_energies[iline[is_line]]
+				e = energy2bin(e2)
+				energy[is_line] = e2
 				bin[is_lineKbeta] = e
-				e = None
-			# emit Fe-Kalpha line # 6.4038 & 6.3908
-			if is_lineKalpha.any():
-				energy[is_lineKalpha] = 6.40
-				e = energy2bin(energy[is_lineKalpha])
-				bin[is_lineKalpha] = e
-				e = None
+				del e2, e
 			
 			# emit line in random direction
 			if photabsorbed_line.any():
