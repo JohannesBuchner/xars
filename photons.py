@@ -105,7 +105,9 @@ class PhotonBunch(object):
 			self.cut_free(inside)
 			emit = dict(phi=phi0[outside], theta=theta0[outside], rad=rad0[outside], 
 				beta=beta[outside], alpha=alpha[outside],
-				energy=energy[outside], bin=bin[outside], mask=mask)
+				energy=energy[outside], bin=bin[outside], 
+				x=xi[outside], y=yi[outside], z=zi[outside],
+				mask=mask)
 			#print '   ', rad.shape, theta.shape, len(inside)
 			xf, yf, zf = xf[inside], yf[inside], zf[inside]
 			phi, theta, rad, alpha, beta, energy, bin = self.get_free()

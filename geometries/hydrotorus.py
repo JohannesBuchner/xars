@@ -66,7 +66,7 @@ class HydroTorusGeometry(object):
 		cmap = plt.cm.gray_r
 		cmap = 'Greens'
 		logrho = log10(self.rho[:,127,:] + 1e-3)
-		plt.imshow(logrho, cmap=cmap, vmin=-3, vmax=+3)
+		plt.imshow(logrho.transpose(), cmap=cmap, vmin=-3, vmax=+3)
 		plt.plot(self.center[2], self.center[0], 'x', color='r', ms=4, mew=2)
 		plt.xlim(0, 256)
 		plt.ylim(0, 256)

@@ -284,34 +284,35 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	x = energy
 	total = nphot_total
 	xwidth = deltae
+	deltae0 = deltae[energy >= 1][0]
 	print 'plotting...'
 	NH = 1e24/1e22
 	weights = (energy**-PhoIndex * deltae).reshape((-1,1))
-	yall = (weights * matrix.sum(axis=2)).sum(axis=0) / deltae
+	yall = (weights * matrix.sum(axis=2)).sum(axis=0) / deltae * deltae0
 	for mu in range(nmu):
-		y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae
+		y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae * deltae0
 		print '%d ... ' % mu
 		
 		plt.figure(figsize=(10,10))
-		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex / nmu, '-', color='red', linewidth=1)
-		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex / nmu, '-', color='pink')
-		plt.plot(energy, exp(-xlines_cumulative[:,0]*NH) * energy**-PhoIndex / nmu, '-', color='orange')
-		plt.plot(energy, energy**-PhoIndex / nmu, '--', color='gray')
-		plt.plot(energy_lo, y / total, '-', color='k') #, drawstyle='steps')
-		plt.plot(energy_lo, yall / total / nmu, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
+		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex, '-', color='red', linewidth=1)
+		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex, '-', color='pink')
+		plt.plot(energy, exp(-xlines_cumulative[:,0]*NH) * energy**-PhoIndex, '-', color='orange')
+		plt.plot(energy, energy**-PhoIndex, '--', color='gray')
+		plt.plot(energy_lo, y / total * nmu, '-', color='k') #, drawstyle='steps')
+		plt.plot(energy_lo, yall / total, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
 		#plt.plot(energy, exp(-xboth) * energy**-PhoIndex, '-', color='yellow')
 		plt.gca().set_xscale('log')
 		plt.gca().set_yscale('log')
 		#plt.xlim(0.1, 10 * (1 + 10))
-		plt.xlim(3, 40)
+		plt.xlim(1, 40)
 		lo, hi = 1e-8, 1
 		plt.vlines(6.40, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.vlines(7.06, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.ylim(lo, hi)
-		plt.show()
-		plt.savefig(prefix + "_%d.pdf" % mu)
+		#plt.show()
+		#plt.savefig(prefix + "_%d.pdf" % mu)
 		plt.savefig(prefix + "_%d.png" % mu)
-		numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
+		#numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
 		plt.close()
 	return nphot_total, rdata
 

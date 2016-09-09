@@ -109,6 +109,8 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 if not os.path.exists(prefix + "normalisation.fits"):
 	compute_normalisation(prefix, binmapfunction=binmapfunction, verbose=True)
 
+#outphotons = open(prefix + 'photons.txt', 'a')
+
 def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 	rdata_transmit = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
 	rdata_reflect = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
@@ -144,7 +146,15 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 			mbin = numpy.asarray(binmapfunction(beta=beta, alpha=alpha)).astype(numpy.uint)
 			# highest bin exceeded due to rounding
 			mbin[mbin == nmu] = nmu - 1
-		
+			
+			if False and n_interactions > 0:
+				numpy.savetxt(outphotons, numpy.transpose([
+					energy[i] * numpy.ones_like(emission['x']), 
+					emission['energy'],
+					emission['x'], emission['y'], emission['z'], 
+					emission['beta'], emission['alpha']]))
+				outphotons.flush()
+			
 			# bin in NH
 			nh = geometry.compute_los_nh(beta, alpha)
 			nh[nh<1e-2] = 1e-2

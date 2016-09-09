@@ -140,7 +140,7 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 
 # PARAMVAL (4), INTPSPEC
-dtype = [('PARAMVAL', '>f4', (3,)), ('INTPSPEC', '>f4', (nbins,))]
+dtype = [('PARAMVAL', '>f4', (len(parameters),)), ('INTPSPEC', '>f4', (nbins,))]
 table.sort()
 table = numpy.array(table, dtype=dtype)
 hdu = pyfits.BinTableHDU(data=table)

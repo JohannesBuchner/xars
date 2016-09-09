@@ -1,12 +1,14 @@
 import numpy
 from numpy import pi
 import astropy.io.fits as pyfits
+import h5py
 import sys
 from binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
 energy = (energy_hi + energy_lo) / 2
 deltae = energy_hi - energy_lo
+deltae0 = deltae[energy >= 1][0]
 
 table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
@@ -24,22 +26,29 @@ outfilename = sys.argv[1]
 
 for filename in sys.argv[2:]:
 	print 'loading', filename
-	f = pyfits.open(filename)
-	nh = float(f[0].header['NH'])
-	opening = float(f[0].header['OPENING']) * 180 / pi
+	f = h5py.File(filename)
+	nphot = f.attrs['NPHOT']
+	nh = float(f.attrs['NH'])
+	opening = float(f.attrs['OPENING']) * 180 / pi
+	
+	matrix = f['rdata']
+
+	#nh = float(f[0].header['NH'])
+	#opening = float(f[0].header['OPENING']) * 180 / pi
 	opening = [thetator for thetator in ThetaTors if numpy.abs(opening - thetator) < 0.1][0]
-	nphot = int(f[0].header['NPHOT'])
-	matrix = f[0].data
+	#nphot = int(f[0].header['NPHOT'])
+	#matrix = f[0].data
 	a, b, nmu = matrix.shape
-	assert a == nbins, f[0].data.shape
-	assert b == nbins, f[0].data.shape
+	assert a == nbins, matrix.shape
+	assert b == nbins, matrix.shape
 	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
-	for PhoIndex in PhoIndices:
-		weights = (energy**-PhoIndex * deltae).reshape((-1,1))
-		# go through viewing angles
-		for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
-			y = (weights * matrix[:,:,mu]).sum(axis=0) / (nphot / 10.)
+	# go through viewing angles
+	for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
+		matrix_mu = matrix[:,:,mu]
+		for PhoIndex in PhoIndices:
+			weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
+			y = (weights * matrix_mu).sum(axis=0) / (nphot / 10.)
 			print nh, PhoIndex, opening, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y
@@ -136,7 +145,7 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 
 # PARAMVAL (4), INTPSPEC
-dtype = [('PARAMVAL', '>f4', (4,)), ('INTPSPEC', '>f4', (nbins,))]
+dtype = [('PARAMVAL', '>f4', (len(parameters),)), ('INTPSPEC', '>f4', (nbins,))]
 table.sort()
 table = numpy.array(table, dtype=dtype)
 hdu = pyfits.BinTableHDU(data=table)

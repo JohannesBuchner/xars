@@ -99,7 +99,7 @@ rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=
 
 rdata_transmit, rdata_reflect = rdata
 rdata_both = rdata_transmit + rdata_reflect
-header = dict(NH='%f' % nh, OPENING='%f' % cone)
+header = dict(NH=nh, OPENING=cone)
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, extra_fits_header = header, plot=False)
 montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=False)
 montecarlo.store(prefix, nphot, rdata_both, nmu, extra_fits_header = header, plot=True)
