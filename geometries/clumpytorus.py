@@ -7,6 +7,9 @@ import h5py
 import matplotlib.pyplot as plt
 from raytrace import sphere_raytrace_finite, sphere_raytrace
 
+def sigma_convert(sigma):
+	return round((sigma * 1.4) / 5) * 5
+
 class ClumpyTorusGeometry(object):
 	def __init__(self, filename, verbose = False):
 		f = h5py.File(filename, 'r')
@@ -57,7 +60,7 @@ class ClumpyTorusGeometry(object):
 
 		plt.figure(figsize=(5,5), frameon=False)
 		plt.axis('off')
-		plt.title(r'$\sigma=%d^\circ$' % self.sigma.value)
+		plt.title(r'$\sigma=%d^\circ$' % (sigma_convert(self.sigma.value)))
 		cmap = plt.cm.gray_r
 		patches = []
 		colors = []
