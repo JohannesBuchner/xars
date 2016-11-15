@@ -1,5 +1,11 @@
 import sys
 import h5py
+import shutil
+
+if len(sys.argv[1:-1]) == 1:
+	print 'simple copying %s -> %s' % (sys.argv[1], sys.argv[-1])
+	shutil.copyfile(sys.argv[1], sys.argv[-1])
+	sys.exit(0)
 
 nphot = 0
 rdata = 0
