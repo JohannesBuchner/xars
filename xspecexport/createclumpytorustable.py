@@ -1,8 +1,9 @@
 import numpy
-from numpy import pi
+from numpy import pi, exp
 import h5py
 import astropy.io.fits as pyfits
 import sys
+import progressbar
 from binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
@@ -13,9 +14,6 @@ table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3. ]
-ThetaIncs = [ 18.20000076,  31.79999924,  41.40000153,  49.5       ,
-		56.59999847,  63.29999924,  69.5       ,  75.5       ,
-		81.40000153,  87.09999847]
 
 nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
 	2.82000005e-02,   3.97999994e-02,   5.62000014e-02,
@@ -40,39 +38,44 @@ norm_prefix = sys.argv[3]
 #sigmas  = [10,15,20,30,40,60,'sphere']
 #sigmav = [10,15,20,30,40,60,90]
 #Theta_tors = [80, 75, 70, 60, 50, 30,  0]
-sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
+#sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
+sigmas  = ['5_gexp2', '10_gexp2', '30_gexp2', '60_gexp2', 'sphere']
 sigmav  = [5, 10, 30, 60, 90]
 Theta_tors = [85, 80, 60, 30, 0]
 filenames = [prefix % o for o in sigmas]
 norm_filenames = [norm_prefix % o for o in sigmas]
-nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [0,60,90]]
+nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [90,60,0]]
 deltae0 = deltae[energy >= 1][0]
 
+widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
+pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(filenames)*len(nh_bins_ThetaInc)).start()
+
 for Theta_tor, filename, norm_filename in zip(Theta_tors, filenames, norm_filenames):
-	print 'loading', filename
+	#print 'loading', filename
 	f = h5py.File(filename)
-	print 'loading', norm_filename
+	#print 'loading', norm_filename
 	normalisations = pyfits.open(norm_filename)[0].data
 	nphot = f.attrs['NPHOT']
 	
 	matrix = f['rdata']
 	a, b, nmu = matrix.shape
-	print matrix.shape
 	assert a == nbins, matrix.shape
 	assert b == nbins, matrix.shape
-	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
 	for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
 		# go through viewing angles
-		#matrix_mu = matrix[:,:,mu] / (nphot / 10.) / (narea/ntotal)
-		matrix_mu = matrix[:,:,mu] * 1. / nphot #/ min(norm, 1e-6)
+		matrix_mu = matrix[:,:,mu] * 1. / nphot / max(norm, 1e-6)
+		#print '   ', nh, ThetaInc
+		widgets[1] = '| op=%d nh=%.3f inc=%02d ' % (Theta_tor, nh, ThetaInc)
+		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
 			weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
 			y = (weights * matrix_mu).sum(axis=0)
-			print nh, PhoIndex, Theta_tor, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
+			#print nh, PhoIndex, Theta_tor, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y
 			table.append(((nh, PhoIndex, Theta_tor, ThetaInc), y))
+pbar.finish()
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -120,7 +123,7 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 50.0, 5.0, 0.0, 25.799999, 84.300003, 90.0, 5, numpy.array([ 0,  30,  60,  80,
+	('Theta_tor', 0, 50.0, 5.0, 0.0, 0, 85, 90.0, 5, numpy.array([ 0,  30,  60,  80,
 		85        ,  0,  0     ,  0.       ,
 		 0,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
@@ -141,6 +144,7 @@ parameters = numpy.array([
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
 ], dtype=dtype)
+assert numpy.product(parameters['NUMBVALS']) == len(table), ('parameter definition does not match spectra table', parameters['NUMBVALS'], numpy.product(parameters['NUMBVALS']), len(table))
 hdu = pyfits.BinTableHDU(data=parameters)
 hdu.header['DATE'] = nowstr
 hdu.header['EXTNAME'] = 'PARAMETERS'

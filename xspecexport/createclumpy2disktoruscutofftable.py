@@ -3,6 +3,7 @@ from numpy import pi, exp
 import h5py
 import astropy.io.fits as pyfits
 import sys
+import progressbar
 from binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
@@ -33,45 +34,59 @@ nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
 data = {}
 
 outfilename = sys.argv[1]
-prefix = sys.argv[2]
-norm_prefix = sys.argv[3]
+diskfilename = sys.argv[2]
+rdataname = sys.argv[3]
+models = sys.argv[4:]
 #sigmas  = [10,15,20,30,40,60,'sphere']
 #sigmav = [10,15,20,30,40,60,90]
 #Theta_tors = [80, 75, 70, 60, 50, 30,  0]
-sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
-sigmav  = [5, 10, 30, 60, 90]
-Theta_tors = [85, 80, 60, 30, 0]
-filenames = [prefix % o for o in sigmas]
-norm_filenames = [norm_prefix % o for o in sigmas]
-nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [0,60,90]]
+nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [90,60,0]]
 deltae0 = deltae[energy >= 1][0]
 
-for Theta_tor, filename, norm_filename in zip(Theta_tors, filenames, norm_filenames):
-	print 'loading', filename
-	f = h5py.File(filename)
-	print 'loading', norm_filename
+widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
+pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(models)*len(nh_bins_ThetaInc)).start()
+
+
+f = h5py.File(diskfilename, 'r')
+nphot = f.attrs['NPHOT']
+matrix = f['rdata'].value
+# response of disk reflection
+# 2x -- from top and bottom
+matrix_disk = matrix.sum(axis=2) * 1. / nphot * 2
+
+for model in models:
+	#print 'loading', model
+	m = h5py.File(model, 'r')
+	sigma = m['sigma'].value * 2**0.5
+	Ntot = m['Ntot'].value
+	ThetaCloud = (Ntot / 100000.)**-0.5
+	Theta_tor = 90 - sigma
+	
+	norm_filename = '%s_outnormalisation.fits' % model
 	normalisations = pyfits.open(norm_filename)[0].data
+	filename = rdataname % model
+	#print Ntot, sigma, ThetaCloud, Theta_tor, model
+	f = h5py.File(filename, 'r')
 	nphot = f.attrs['NPHOT']
 	
 	matrix = f['rdata']
 	a, b, nmu = matrix.shape
-	print matrix.shape
 	assert a == nbins, matrix.shape
 	assert b == nbins, matrix.shape
-	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
 	for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
 		# go through viewing angles
-		#matrix_mu = matrix[:,:,mu] / (nphot / 10.) / min(norm, 1e-6)
-		matrix_mu = matrix[:,:,mu] * 1. / nphot #/ min(norm, 1e-6)
-		print nh, Theta_tor, ThetaInc
+		matrix_mu = matrix[:,:,mu] * 1. / nphot / max(norm, 1e-6)
+		#print '   ', nh, ThetaInc
+		widgets[1] = '| op=%d cloud=%.1f nh=%.3f inc=%02d ' % (Theta_tor, ThetaCloud, nh, ThetaInc)
+		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
 			for Ecut in Ecuts:
 				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
-				y = (weights * matrix_mu).sum(axis=0)
-				#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
-				#assert numpy.any(y > 0), y
-				table.append(((nh, PhoIndex, Ecut, Theta_tor, ThetaInc), y))
+				y_disk = (weights * matrix_disk).sum(axis=0)
+				y = (y_disk * matrix_mu).sum(axis=0)
+				table.append(((nh, PhoIndex, Ecut, Theta_tor, ThetaCloud, ThetaInc), y))
+pbar.finish()
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -127,9 +142,19 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 50.0, 5.0, 0.0, 30, 85, 90.0, 5, numpy.array([ 0,  30,  60,  80,
-		85        ,  0,  0     ,  0.       ,
-		 0,   0.        ,   0.        ,   0.        ,
+	('Theta_tor', 0, 50.0, 5.0, 0.0, 30, 85, 90.0, 4, numpy.array([ 30,  60,  80, 85,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
+	('Theta_cloud', 0, 1.0, 0.3, 1.0, 1., 5.77350269, 5.77350269, 4, numpy.array([ 1. ,  1.82574186, 3.16227766,  5.77350269  ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
@@ -148,6 +173,7 @@ parameters = numpy.array([
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
 ], dtype=dtype)
+assert numpy.product(parameters['NUMBVALS']) == len(table), ('parameter definition does not match spectra table', parameters['NUMBVALS'], numpy.product(parameters['NUMBVALS']), len(table))
 hdu = pyfits.BinTableHDU(data=parameters)
 hdu.header['DATE'] = nowstr
 hdu.header['EXTNAME'] = 'PARAMETERS'

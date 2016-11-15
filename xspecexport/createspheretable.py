@@ -3,75 +3,43 @@ from numpy import pi, exp
 import h5py
 import astropy.io.fits as pyfits
 import sys
+import progressbar
 from binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
 energy = (energy_hi + energy_lo) / 2
 deltae = energy_hi - energy_lo
+deltae0 = deltae[energy >= 1][0]
 
 table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3. ]
-Ecuts = [ 20.,  30, 40, 60, 100, 140, 200, 400 ]
-
-nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
-	2.82000005e-02,   3.97999994e-02,   5.62000014e-02,
-	7.94000030e-02,   1.12000003e-01,   1.58000007e-01,
-	2.24000007e-01,   3.16000015e-01,   4.46999997e-01,
-	6.30999982e-01,   8.90999973e-01,   1.25999999e+00,
-	1.77999997e+00,   2.50999999e+00,   3.54999995e+00,
-	5.01000023e+00,   7.07999992e+00,   1.00000000e+01,
-	1.41000004e+01,   2.00000000e+01,   2.82000008e+01,
-	3.97999992e+01,   5.62000008e+01,   7.94000015e+01,
-	1.12000000e+02,   1.58000000e+02,   2.24000000e+02,
-	3.16000000e+02,   4.47000000e+02,   6.31000000e+02,
-	8.91000000e+02,   1.26000000e+03,   1.78000000e+03,
-	2.51000000e+03,   3.55000000e+03,   5.01000000e+03,
-	7.08000000e+03,   1.00000000e+04])
-
 data = {}
 
 outfilename = sys.argv[1]
-prefix = sys.argv[2]
-norm_prefix = sys.argv[3]
-#sigmas  = [10,15,20,30,40,60,'sphere']
-#sigmav = [10,15,20,30,40,60,90]
-#Theta_tors = [80, 75, 70, 60, 50, 30,  0]
-sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
-sigmav  = [5, 10, 30, 60, 90]
-Theta_tors = [85, 80, 60, 30, 0]
-filenames = [prefix % o for o in sigmas]
-norm_filenames = [norm_prefix % o for o in sigmas]
-nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [0,60,90]]
-deltae0 = deltae[energy >= 1][0]
 
-for Theta_tor, filename, norm_filename in zip(Theta_tors, filenames, norm_filenames):
-	print 'loading', filename
+widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
+pbar = progressbar.ProgressBar(widgets=widgets)
+
+for filename in pbar(sys.argv[2:]):
 	f = h5py.File(filename)
-	print 'loading', norm_filename
-	normalisations = pyfits.open(norm_filename)[0].data
 	nphot = f.attrs['NPHOT']
+	nh = float(f.attrs['NH'])
+	widgets[1] = ' NH=%.3f ' % nh
 	
 	matrix = f['rdata']
+
 	a, b, nmu = matrix.shape
-	print matrix.shape
 	assert a == nbins, matrix.shape
 	assert b == nbins, matrix.shape
-	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
-	for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
-		# go through viewing angles
-		#matrix_mu = matrix[:,:,mu] / (nphot / 10.) / min(norm, 1e-6)
-		matrix_mu = matrix[:,:,mu] * 1. / nphot #/ min(norm, 1e-6)
-		print nh, Theta_tor, ThetaInc
-		for PhoIndex in PhoIndices:
-			for Ecut in Ecuts:
-				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
-				y = (weights * matrix_mu).sum(axis=0)
-				#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
-				#assert numpy.any(y > 0), y
-				table.append(((nh, PhoIndex, Ecut, Theta_tor, ThetaInc), y))
+	# go through viewing angles
+	matrix_mu = matrix.value.sum(axis=2)
+	for PhoIndex in PhoIndices:
+		weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
+		y = (weights * matrix_mu).sum(axis=0) / (nphot / 10.)
+		table.append(((nh, PhoIndex), y))
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -119,35 +87,8 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Ecut', 0, 100.0, 10.0, 20, 20, 400, 400, 8, numpy.array([ 20.        ,  30,  40,  60,  100,
-		140        ,  200,  400 ,  0 ,  0,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 50.0, 5.0, 0.0, 30, 85, 90.0, 5, numpy.array([ 0,  30,  60,  80,
-		85        ,  0,  0     ,  0.       ,
-		 0,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
-	('Theta_inc', 0, 18.200001, 5.0, 0.0, 18.200001, 87.099998, 90.0, 3, numpy.array([ 0,  60,  90,  0.0       ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,
-		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
 ], dtype=dtype)
+assert numpy.product(parameters['NUMBVALS']) == len(table), ('parameter definition does not match spectra table', parameters['NUMBVALS'], numpy.product(parameters['NUMBVALS']), len(table))
 hdu = pyfits.BinTableHDU(data=parameters)
 hdu.header['DATE'] = nowstr
 hdu.header['EXTNAME'] = 'PARAMETERS'
