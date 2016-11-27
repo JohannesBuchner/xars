@@ -237,7 +237,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	deltae = energy_hi - energy_lo
 	import h5py
 	try:
-		print 'Loading previous file if exists ...'
+		print 'Loading previous file "%s" if exists ...' % (prefix + "rdata.hdf5")
 		with h5py.File(prefix + "rdata.hdf5", 'r') as old_file:
 			print '  reading values'
 			rdata_old = old_file['rdata'].value
@@ -247,10 +247,11 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 			rdata = rdata + rdata_old
 			del rdata_old
 	except Exception as e:
-		print 'updating file failed; writing fresh. Error:', e
+		if "error message = 'no such file or directory'" not in e.message:
+			print 'updating file failed; writing fresh. Error:', e
 		prev_nphot = 0
 	nphot_total = nphot + prev_nphot
-	print 'storing ...'
+	print '  storing ...'
 	import datetime, time
 	now = datetime.datetime.fromtimestamp(time.time())
 	nowstr = now.isoformat()
@@ -265,41 +266,33 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		for k,v in extra_fits_header.iteritems():
 			f.attrs[k] = v
 	
-	print 'total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
+	print '  total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
 	
 	if not plot:
 		return nphot_total, rdata
 	import matplotlib.pyplot as plt
+	import sys
 	PhoIndex = 2
 	matrix = rdata
-	print matrix[600,500:600,3]
-	print matrix[500,100:500,3]
-	#for i in range(len(energy)):
-	#	eselect = energy.reshape((-1,1)) * (matrix[i] > 0)
-	#	eselect = eselect[eselect > 0]
-	#	if len(eselect) == 0: continue
-	#	print '%.2f %.2f' % (energy[i], eselect.min())
-	#print energy.reshape((1,-1,1)) * (matrix > 0)
-	#print numpy.argmax(energy.reshape((1,-1,1)) * (matrix > 0), axis=0)
 	x = energy
 	total = nphot_total
 	xwidth = deltae
 	deltae0 = deltae[energy >= 1][0]
-	print 'plotting...'
 	NH = 1e24/1e22
-	weights = (energy**-PhoIndex * deltae).reshape((-1,1))
+	weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1)) # * deltae.reshape((1, -1)) / deltae.reshape((-1, 1))
 	yall = (weights * matrix.sum(axis=2)).sum(axis=0) / deltae * deltae0
 	for mu in range(nmu):
 		y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae * deltae0
-		print '%d ... ' % mu
+		sys.stdout.write('plotting %d/%d ...\r' % (mu+1, nmu))
+		sys.stdout.flush()
 		
 		plt.figure(figsize=(10,10))
 		plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex, '-', color='red', linewidth=1)
 		plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex, '-', color='pink')
 		plt.plot(energy, exp(-xlines_cumulative[:,0]*NH) * energy**-PhoIndex, '-', color='orange')
 		plt.plot(energy, energy**-PhoIndex, '--', color='gray')
-		plt.plot(energy_lo, y / total * nmu, '-', color='k') #, drawstyle='steps')
-		plt.plot(energy_lo, yall / total, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
+		plt.plot(energy, y / total * nmu, '-', color='k') #, drawstyle='steps')
+		plt.plot(energy, yall / total, '-', color='gray', alpha=0.3, linewidth=3) #, drawstyle='steps')
 		#plt.plot(energy, exp(-xboth) * energy**-PhoIndex, '-', color='yellow')
 		plt.gca().set_xscale('log')
 		plt.gca().set_yscale('log')
@@ -308,12 +301,18 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		lo, hi = 1e-8, 1
 		plt.vlines(6.40, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.vlines(7.06, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
+		#plt.vlines(8.33, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
+		#plt.vlines(9.4, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
+		#plt.vlines(10.4, lo, hi, linestyles=[':'], color='grey', alpha=0.5)
 		plt.ylim(lo, hi)
+		#plt.ylim(1e-5, 1e-3)
+		#plt.xlim(6, 15)
 		#plt.show()
 		#plt.savefig(prefix + "_%d.pdf" % mu)
 		plt.savefig(prefix + "_%d.png" % mu)
 		#numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
 		plt.close()
+	print
 	return nphot_total, rdata
 
 

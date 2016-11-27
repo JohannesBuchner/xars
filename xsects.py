@@ -33,6 +33,11 @@ term4=(1.+3.*x)/(t1**2)
 xscatt_compton = 0.75*xthom*(term1*(term2-log(t1))+term3-term4)
 xscatt = numpy.where(x < 0.05, xscatt_thomson, xscatt_compton)
 
+# When applied the cross section is 120% larger
+xscatt_thomson *= 1.2
+xscatt_compton *= 1.2
+xscatt *= 1.2
+
 # photoelectric and line cross-sections
 xsectsdata = numpy.loadtxt('xsects.dat')
 xlines_energies = xsectsdata[0,2:]
@@ -63,6 +68,7 @@ xscatt_compton *= 10
 xboth = xphot + xscatt
 absorption_ratio = xphot / xboth
 
+
 def test():
 	assert e1.shape == energy.shape, (e1.shape, energy.shape)
 	assert (e1 == energy_lo).all(), zip(e1, energy, energy_lo, energy_hi)
@@ -80,7 +86,7 @@ if __name__ == '__main__':
 	plt.savefig('binning.pdf')
 	plt.close()
 	
-	plt.figure(figsize=(5,10))
+	plt.figure(figsize=(7,18))
 	plt.subplot(3, 1, 1)
 	plt.plot(energy, xphot, label='absorption')
 	for i in range(xlines.shape[1]):
@@ -123,8 +129,8 @@ if __name__ == '__main__':
 	plt.legend(loc='best', ncol=2, prop=dict(size=6))
 	plt.ylabel('distance / $N_H$')
 	plt.xlabel('energy [keV]')
-	plt.gca().set_yscale('log')
 	plt.gca().set_xscale('log')
+	plt.gca().set_yscale('log')
 	plt.savefig('xsects.pdf', bbox_inches='tight')
 	plt.close()
 

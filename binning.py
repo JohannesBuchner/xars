@@ -96,7 +96,7 @@ if __name__ == '__main__':
 	plt.figure()
 	plt.plot(energy, results, '+-')
 	#plt.plot(energy, numpy.round(400*numpy.log10(energy)), '+-')
-	bins = range(1250)
+	bins = range(nbins)
 	plt.plot(bin2energy(bins)[0], bins, '+-')
 	plt.gca().set_xscale('log')
 	#plt.gca().set_xscale('log')

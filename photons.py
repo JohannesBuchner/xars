@@ -24,7 +24,6 @@ class PhotonBunch(object):
 		self.geometry = geometry
 		energy_lo, energy_hi = bin2energy(i)
 		e = (energy_lo + energy_hi) / 2.
-		#e = energy_lo
 		if self.verbose: print 'PhotonBunch of size %d with energy %.2f keV' % (nphot, e)
 		#self.energy = e * numpy.ones(nphot)
 		self.energy = rng.uniform(low=energy_lo, high=energy_hi, size=nphot)
