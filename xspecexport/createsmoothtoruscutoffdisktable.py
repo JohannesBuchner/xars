@@ -30,14 +30,23 @@ nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
 	2.51000000e+03,   3.55000000e+03,   5.01000000e+03,
 	7.08000000e+03,   1.00000000e+04])
 
+Ecuts = [ 20.,  30, 40, 60, 100, 140, 200, 400 ]
 data = {}
 
 outfilename = sys.argv[1]
-prefix = sys.argv[2]
+diskfilename = sys.argv[2]
+prefix = sys.argv[3]
 sigmas  = ['5_gexp2','10_gexp2','20_gexp2','30_gexp2','sphere']
 sigmav = [5,10,20,30,90]
 opening = [90-s for s in sigmav]
 filenames = [prefix % o for o in sigmas]
+
+f = h5py.File(diskfilename, 'r')
+nphot = f.attrs['NPHOT']
+matrix = f['rdata'].value
+# response of disk reflection
+# 2x -- from top and bottom
+matrix_disk = matrix.sum(axis=2) * 1. / nphot * 2
 
 widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
 pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(filenames)*len(nh_bins)).start()
@@ -68,12 +77,14 @@ for Theta_tor, filename in zip(opening, filenames):
 		widgets[1] = '| op=%d nh=%.3f ' % (Theta_tor, nh)
 		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
-			weights = (energy**-PhoIndex * deltae).reshape((-1,1))
-			y = (weights * matrix_mu).sum(axis=0) / nphot * 1. / deltac
-			#print nh, PhoIndex, Theta_tor #, (y/deltae)[energy_lo >= 1][0]
-			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
-			#assert numpy.any(y > 0), y
-			table.append(((nh, PhoIndex, Theta_tor), y))
+			for Ecut in Ecuts:
+				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
+				y_disk = (weights * matrix_disk).sum(axis=0)
+				y = (y_disk * matrix_mu).sum(axis=0) / nphot * 1. / deltac
+				#print nh, PhoIndex, Theta_tor #, (y/deltae)[energy_lo >= 1][0]
+				#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
+				#assert numpy.any(y > 0), y
+				table.append(((nh, PhoIndex, Ecut, Theta_tor), y))
 pbar.finish()
 
 hdus = []
@@ -117,6 +128,14 @@ parameters = numpy.array([
 	('PhoIndex', 0, 2.0, 0.0099999998, 1.0, 1.2, 2.8, 3.0, 11, numpy.array([ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
+	('Ecut', 0, 100.0, 10.0, 20, 20, 400, 400, 8, numpy.array([ 20.        ,  30,  40,  60,  100,
+		140        ,  200,  400 ,  0 ,  0,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,

@@ -3,6 +3,7 @@ from numpy import pi
 import astropy.io.fits as pyfits
 import h5py
 import sys
+import progressbar
 from binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
@@ -23,9 +24,13 @@ ThetaTors = [25.79999924,  36.90000153,  45.59999847,  53.09999847,
 data = {}
 
 outfilename = sys.argv[1]
+models = sys.argv[2:]
 
-for filename in sys.argv[2:]:
-	print 'loading', filename
+widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
+pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(models)*len(ThetaIncs)).start()
+
+for filename in models:
+	#print 'loading', filename
 	f = h5py.File(filename)
 	nphot = f.attrs['NPHOT']
 	nh = float(f.attrs['NH'])
@@ -46,13 +51,18 @@ for filename in sys.argv[2:]:
 	# go through viewing angles
 	for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
 		matrix_mu = matrix[:,:,mu]
+		widgets[1] = '| op=%d nh=%.3f inc=%02d ' % (opening, nh, ThetaInc)
+		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
-			weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
-			y = (weights * matrix_mu).sum(axis=0) / (nphot / 10.)
-			print nh, PhoIndex, opening, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
+			spectrum = energy**-PhoIndex
+			spectrum[1150:] = 0
+			weights = (spectrum * deltae / deltae0).reshape((-1,1))
+			y = (weights * matrix_mu).sum(axis=0) / nphot / 10.
+			#print nh, PhoIndex, opening, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y
 			table.append(((nh, PhoIndex, opening, ThetaInc), y))
+pbar.finish()
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -121,6 +131,7 @@ parameters = numpy.array([
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
 ], dtype=dtype)
+assert numpy.product(parameters['NUMBVALS']) == len(table), ('parameter definition does not match spectra table', parameters['NUMBVALS'], numpy.product(parameters['NUMBVALS']), len(table))
 hdu = pyfits.BinTableHDU(data=parameters)
 hdu.header['DATE'] = nowstr
 hdu.header['EXTNAME'] = 'PARAMETERS'

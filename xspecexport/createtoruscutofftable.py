@@ -15,65 +15,53 @@ table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3. ]
-nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
-	2.82000005e-02,   3.97999994e-02,   5.62000014e-02,
-	7.94000030e-02,   1.12000003e-01,   1.58000007e-01,
-	2.24000007e-01,   3.16000015e-01,   4.46999997e-01,
-	6.30999982e-01,   8.90999973e-01,   1.25999999e+00,
-	1.77999997e+00,   2.50999999e+00,   3.54999995e+00,
-	5.01000023e+00,   7.07999992e+00,   1.00000000e+01,
-	1.41000004e+01,   2.00000000e+01,   2.82000008e+01,
-	3.97999992e+01,   5.62000008e+01,   7.94000015e+01,
-	1.12000000e+02,   1.58000000e+02,   2.24000000e+02,
-	3.16000000e+02,   4.47000000e+02,   6.31000000e+02,
-	8.91000000e+02,   1.26000000e+03,   1.78000000e+03,
-	2.51000000e+03,   3.55000000e+03,   5.01000000e+03,
-	7.08000000e+03,   1.00000000e+04])
-
+ThetaIncs = [ 18.20000076,  31.79999924,  41.40000153,  49.5       ,
+		56.59999847,  63.29999924,  69.5       ,  75.5       ,
+		81.40000153,  87.09999847]
+ThetaTors = [25.79999924,  36.90000153,  45.59999847,  53.09999847,
+		60.        ,  66.40000153,  72.5       ,  78.5       ,
+		84.30000305]
+Ecuts = [ 20.,  30, 40, 60, 100, 140, 200, 400 ]
 data = {}
 
 outfilename = sys.argv[1]
-prefix = sys.argv[2]
-sigmas  = ['5_gexp2','10_gexp2','20_gexp2','30_gexp2','sphere']
-sigmav = [5,10,20,30,90]
-opening = [90-s for s in sigmav]
-filenames = [prefix % o for o in sigmas]
+models = sys.argv[2:]
 
 widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
-pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(filenames)*len(nh_bins)).start()
+pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(models)*len(ThetaIncs)).start()
 
-
-for Theta_tor, filename in zip(opening, filenames):
+for filename in models:
 	#print 'loading', filename
 	f = h5py.File(filename)
 	nphot = f.attrs['NPHOT']
-	
-	geometry = numpy.loadtxt(filename.replace('_rdata.hdf5', '').replace('_transmitrdata.hdf5', '').replace('_reflectrdata.hdf5', '').replace('layered',''))
+	nh = float(f.attrs['NH'])
+	opening = float(f.attrs['OPENING']) * 180 / pi
 	
 	matrix = f['rdata']
+
+	#nh = float(f[0].header['NH'])
+	#opening = float(f[0].header['OPENING']) * 180 / pi
+	opening = [thetator for thetator in ThetaTors if numpy.abs(opening - thetator) < 0.1][0]
+	#nphot = int(f[0].header['NPHOT'])
+	#matrix = f[0].data
 	a, b, nmu = matrix.shape
 	assert a == nbins, matrix.shape
 	assert b == nbins, matrix.shape
 	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
-	last_angle = 0
 	# go through viewing angles
-	for mu, nh in enumerate(nh_bins):
-		angle = geometry[mu,0]
-		# theta = arccos(1-x)
-		deltac = numpy.cos(last_angle) - numpy.cos(angle)
-		last_angle = angle
-		
+	for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
 		matrix_mu = matrix[:,:,mu]
-		widgets[1] = '| op=%d nh=%.3f ' % (Theta_tor, nh)
+		widgets[1] = '| op=%d nh=%.3f inc=%02d ' % (opening, nh, ThetaInc)
 		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
-			weights = (energy**-PhoIndex * deltae).reshape((-1,1))
-			y = (weights * matrix_mu).sum(axis=0) / nphot * 1. / deltac
-			#print nh, PhoIndex, Theta_tor #, (y/deltae)[energy_lo >= 1][0]
-			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
-			#assert numpy.any(y > 0), y
-			table.append(((nh, PhoIndex, Theta_tor), y))
+			for Ecut in Ecuts:
+				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
+				y = (weights * matrix_mu).sum(axis=0) / nphot / 10.
+				#print nh, PhoIndex, opening, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
+				#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
+				#assert numpy.any(y > 0), y
+				table.append(((nh, PhoIndex, Ecut, opening, ThetaInc), y))
 pbar.finish()
 
 hdus = []
@@ -122,9 +110,27 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 60.0, 5.0, 0.0, 0.0, 85.0, 85.0, 5, numpy.array([ 0,60,70,80,85,
-		             0.        ,   0.        ,   0.        ,
+	('Ecut', 0, 100.0, 10.0, 20, 20, 400, 400, 8, numpy.array([ 20.        ,  30,  40,  60,  100,
+		140        ,  200,  400 ,  0 ,  0,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
+	('Theta_tor', 0, 60.0, 5.0, 0.0, 25.799999, 84.300003, 90.0, 9, numpy.array([ 25.79999924,  36.90000153,  45.59999847,  53.09999847,
+		60.        ,  66.40000153,  72.5       ,  78.5       ,
+		84.30000305,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
+	('Theta_inc', 0, 18.200001, 5.0, 0.0, 18.200001, 87.099998, 90.0, 10, numpy.array([ 18.20000076,  31.79999924,  41.40000153,  49.5       ,
+		56.59999847,  63.29999924,  69.5       ,  75.5       ,
+		81.40000153,  87.09999847,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
@@ -133,7 +139,6 @@ parameters = numpy.array([
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
 ], dtype=dtype)
-assert numpy.product(parameters['NUMBVALS']) == len(table), ('parameter definition does not match spectra table', parameters['NUMBVALS'], numpy.product(parameters['NUMBVALS']), len(table))
 hdu = pyfits.BinTableHDU(data=parameters)
 hdu.header['DATE'] = nowstr
 hdu.header['EXTNAME'] = 'PARAMETERS'

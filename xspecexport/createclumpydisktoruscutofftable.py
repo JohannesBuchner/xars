@@ -1,7 +1,7 @@
 import numpy
 from numpy import pi, exp
-import astropy.io.fits as pyfits
 import h5py
+import astropy.io.fits as pyfits
 import sys
 import progressbar
 from binning import nbins, energy2bin, bin2energy
@@ -9,12 +9,13 @@ from binning import nbins, energy2bin, bin2energy
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
 energy = (energy_hi + energy_lo) / 2
 deltae = energy_hi - energy_lo
-deltae0 = deltae[energy >= 1][0]
 
 table = []
 PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
 		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
 		3. ]
+Ecuts = [ 20.,  30, 40, 60, 100, 140, 200, 400 ]
+
 nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
 	2.82000005e-02,   3.97999994e-02,   5.62000014e-02,
 	7.94000030e-02,   1.12000003e-01,   1.58000007e-01,
@@ -33,47 +34,57 @@ nh_bins = numpy.array([9.99999978e-03, 1.41000003e-02, 1.99999996e-02,
 data = {}
 
 outfilename = sys.argv[1]
-prefix = sys.argv[2]
-sigmas  = ['5_gexp2','10_gexp2','20_gexp2','30_gexp2','sphere']
-sigmav = [5,10,20,30,90]
-opening = [90-s for s in sigmav]
+diskfilename = sys.argv[2]
+prefix = sys.argv[3]
+norm_prefix = sys.argv[4]
+#sigmas  = [10,15,20,30,40,60,'sphere']
+#sigmav = [10,15,20,30,40,60,90]
+#Theta_tors = [80, 75, 70, 60, 50, 30,  0]
+#sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
+sigmas  = ['5_gexp2', '10_gexp2', '30_gexp2', 'sphere']
+sigmav  = [5, 10, 30, 90]
+Theta_tors = [85, 80, 60, 0]
 filenames = [prefix % o for o in sigmas]
+norm_filenames = [norm_prefix % o for o in sigmas]
+nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [90,60,0]]
+nmu = len(nh_bins_ThetaInc)
+deltae0 = deltae[energy >= 1][0]
 
 widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
-pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(filenames)*len(nh_bins)).start()
+pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(filenames)*len(nh_bins_ThetaInc)).start()
 
 
-for Theta_tor, filename in zip(opening, filenames):
+f = h5py.File(diskfilename, 'r')
+nphot = f.attrs['NPHOT']
+matrix = f['rdata'].value
+# response of disk reflection
+# 2x -- from top and bottom
+matrix_disk = matrix.sum(axis=2) * 1. / nphot * 2
+
+for Theta_tor, filename, norm_filename in zip(Theta_tors, filenames, norm_filenames):
 	#print 'loading', filename
 	f = h5py.File(filename)
+	#print 'loading', norm_filename
+	normalisations = pyfits.open(norm_filename)[0].data
 	nphot = f.attrs['NPHOT']
-	
-	geometry = numpy.loadtxt(filename.replace('_rdata.hdf5', '').replace('_transmitrdata.hdf5', '').replace('_reflectrdata.hdf5', '').replace('layered',''))
 	
 	matrix = f['rdata']
 	a, b, nmu = matrix.shape
 	assert a == nbins, matrix.shape
 	assert b == nbins, matrix.shape
-	#data[(nh, opening)] = [(nphot, f[0].data)]
 	
-	last_angle = 0
-	# go through viewing angles
-	for mu, nh in enumerate(nh_bins):
-		angle = geometry[mu,0]
-		# theta = arccos(1-x)
-		deltac = numpy.cos(last_angle) - numpy.cos(angle)
-		last_angle = angle
-		
+	for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
+		# go through viewing angles
 		matrix_mu = matrix[:,:,mu]
-		widgets[1] = '| op=%d nh=%.3f ' % (Theta_tor, nh)
+		#print '   ', nh, ThetaInc
+		widgets[1] = '| op=%d nh=%.3f inc=%02d ' % (Theta_tor, nh, ThetaInc)
 		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
-			weights = (energy**-PhoIndex * deltae).reshape((-1,1))
-			y = (weights * matrix_mu).sum(axis=0) / nphot * 1. / deltac
-			#print nh, PhoIndex, Theta_tor #, (y/deltae)[energy_lo >= 1][0]
-			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
-			#assert numpy.any(y > 0), y
-			table.append(((nh, PhoIndex, Theta_tor), y))
+			for Ecut in Ecuts:
+				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
+				y_disk = (weights * matrix_disk).sum(axis=0)
+				y = (y_disk * matrix_mu).sum(axis=0) / (nphot * max(norm, 1e-6) * nmu)
+				table.append(((nh, PhoIndex, Ecut, Theta_tor, ThetaInc), y))
 pbar.finish()
 
 hdus = []
@@ -122,8 +133,26 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 60.0, 5.0, 0.0, 0.0, 85.0, 85.0, 5, numpy.array([ 0,60,70,80,85,
-		             0.        ,   0.        ,   0.        ,
+	('Ecut', 0, 100.0, 10.0, 20, 20, 400, 400, 8, numpy.array([ 20.        ,  30,  40,  60,  100,
+		140        ,  200,  400 ,  0 ,  0,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
+	('Theta_tor', 0, 50.0, 5.0, 0.0, 0, 85, 85.0, 4, numpy.array([ 0,  60,  80,
+		85        ,  0,  0     ,  0.       , 0.,
+		 0,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
+	('Theta_inc', 0, 18.200001, 5.0, 0.0, 18.200001, 87.099998, 90.0, 3, numpy.array([ 0,  60,  90,  0.0       ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,

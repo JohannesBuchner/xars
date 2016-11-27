@@ -39,12 +39,13 @@ norm_prefix = sys.argv[3]
 #sigmav = [10,15,20,30,40,60,90]
 #Theta_tors = [80, 75, 70, 60, 50, 30,  0]
 #sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
-sigmas  = ['5_gexp2', '10_gexp2', '30_gexp2', '60_gexp2', 'sphere']
-sigmav  = [5, 10, 30, 60, 90]
-Theta_tors = [85, 80, 60, 30, 0]
+sigmas  = ['5_gexp2', '10_gexp2', '30_gexp2', 'sphere']
+sigmav  = [5, 10, 30, 90]
+Theta_tors = [85, 80, 60, 0]
 filenames = [prefix % o for o in sigmas]
 norm_filenames = [norm_prefix % o for o in sigmas]
 nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [90,60,0]]
+nmu = len(nh_bins_ThetaInc)
 deltae0 = deltae[energy >= 1][0]
 
 widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
@@ -64,13 +65,15 @@ for Theta_tor, filename, norm_filename in zip(Theta_tors, filenames, norm_filena
 	
 	for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
 		# go through viewing angles
-		matrix_mu = matrix[:,:,mu] * 1. / nphot / max(norm, 1e-6)
+		matrix_mu = matrix[:,:,mu]
 		#print '   ', nh, ThetaInc
 		widgets[1] = '| op=%d nh=%.3f inc=%02d ' % (Theta_tor, nh, ThetaInc)
 		pbar.update(pbar.currval + 1)
 		for PhoIndex in PhoIndices:
-			weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
-			y = (weights * matrix_mu).sum(axis=0)
+			spectrum = energy**-PhoIndex
+			spectrum[1150:] = 0
+			weights = (spectrum * deltae / deltae0).reshape((-1,1))
+			y = (weights * matrix_mu).sum(axis=0) / (nphot * max(norm, 1e-6) * nmu)
 			#print nh, PhoIndex, Theta_tor, ThetaInc #, (y/deltae)[energy_lo >= 1][0]
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y
@@ -123,8 +126,8 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 50.0, 5.0, 0.0, 0, 85, 90.0, 5, numpy.array([ 0,  30,  60,  80,
-		85        ,  0,  0     ,  0.       ,
+	('Theta_tor', 0, 50.0, 5.0, 0.0, 0, 85, 90.0, 4, numpy.array([ 0,  60,  80,
+		85        ,  0,  0     ,  0.       , 0.,
 		 0,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,

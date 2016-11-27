@@ -37,7 +37,9 @@ for filename in pbar(sys.argv[2:]):
 	# go through viewing angles
 	matrix_mu = matrix.value.sum(axis=2)
 	for PhoIndex in PhoIndices:
-		weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))
+		spectrum = energy**-PhoIndex
+		spectrum[1150:] = 0
+		weights = (spectrum * deltae / deltae0).reshape((-1,1))
 		y = (weights * matrix_mu).sum(axis=0) / (nphot / 10.)
 		table.append(((nh, PhoIndex), y))
 
