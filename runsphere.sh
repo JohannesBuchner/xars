@@ -15,13 +15,12 @@ for nh in 9.99999978e-03   1.41000003e-02   1.99999996e-02 \
          2.51000000e+03   3.55000000e+03   5.01000000e+03 \
          7.08000000e+03   1.00000000e+04
 do
-	j=0
-	for o in 25.79999924  36.90000153  45.59999847  53.09999847 60. 66.40000153 72.5  78.5 84.30000305
-	do
-		#[ -e $2/${i}_${j}_rdata.hdf5 ] ||
-		python torus2.py --nh=$nh --opening-angle=$o --nevents $1 --output="$2/${i}_${j}_" &
-		((j++))
-	done
-	wait
+	if [ -e "output/sphere_${i}_rdata.hdf5" ]; then
+		echo "output/sphere_${i}_rdata.hdf5" already there
+		((i++))
+		continue
+	fi
+	python torus2.py --nh=$nh --opening-angle=0 --nevents $1 --output="output/sphere_${i}_" &
+	sleep 5
 	((i++))
 done
