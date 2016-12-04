@@ -124,7 +124,7 @@ class WedgeTorusGeometry(object):
 				rf, thetaf, phif = to_spherical((xi+inter*xv, yi+inter*yv, zi+inter*zv))
 				if self.verbose: print '   potential sphere surface intersection with %d:' % i, inter, (rf, thetaf, phif)
 				relevant = numpy.logical_and(thetaf <= self.Theta_high[i], thetaf >= self.Theta_low[i])
-				inter[-relevant] = numpy.nan
+				inter[~relevant] = numpy.nan
 				if self.verbose: print '   sphere surface intersection with %d:' % i, inter, relevant
 				intersections.append((i * numpy.ones_like(inter, dtype=numpy.uint), inter))
 				
@@ -138,7 +138,7 @@ class WedgeTorusGeometry(object):
 				relevant = numpy.logical_and(
 					numpy.logical_and(rf <= self.r_outer[i], rf >= self.r_inner[i]),
 					numpy.logical_and( thetaf - 1e-6 <= self.Theta_high[i], thetaf + 1e-6 >= self.Theta_low[i]))
-				inter[-relevant] = numpy.nan
+				inter[~relevant] = numpy.nan
 				if self.verbose: print '   cone surface intersection with %d:' % i, inter, relevant
 				intersections.append((i * numpy.ones_like(inter, dtype=numpy.uint), inter))
 		
@@ -281,8 +281,8 @@ class WedgeTorusGeometry(object):
 		##if self.plot: plt.plot(0.4 + 0.3*xf, 0.5 + 0.3*zf, 'o', color='green' if d2 > 0 else 'red', alpha=0.3)
 		d1[d1 <= 0] = numpy.nan
 		d2[d2 <= 0] = numpy.nan
-		d1[-have_soln] = numpy.nan
-		d2[-have_soln] = numpy.nan
+		d1[~have_soln] = numpy.nan
+		d2[~have_soln] = numpy.nan
 		return d1, d2
 
 	def line_cone_intersection(self, (xi, yi, zi), (xv, yv, zv), theta):
@@ -307,8 +307,8 @@ class WedgeTorusGeometry(object):
 			di[di <= 0] = numpy.nan
 			di[(dtheta - theta)**2 > 1e-9] = numpy.nan
 		
-		d1[-have_soln] = numpy.nan
-		d2[-have_soln] = numpy.nan
+		d1[~have_soln] = numpy.nan
+		d2[~have_soln] = numpy.nan
 		return d1, d2
 		
 	

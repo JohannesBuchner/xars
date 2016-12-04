@@ -140,8 +140,8 @@ class ConeTorusGeometry(object):
 		#print es, 'es'
 		good = numpy.transpose([ri1, ri2, si1, si2])
 		# they will be ignored, because we go in the pos direction
-		good[-(es > 0)] = False
-		es[-good] = -1
+		good[~(es > 0)] = False
+		es[~good] = -1
 		nsol = good.sum(axis=1)
 		#assert nsol.shape == xi.shape, (nsol.shape, xi.shape)
 		es.sort(axis=1)
@@ -189,11 +189,11 @@ class ConeTorusGeometry(object):
 				#assert es_3.shape == (len(xi),)
 				#assert es_3.sum() == (-inside_2).sum(), (es_3, -inside_2)
 				#assert d[es_3].size == (-inside_2).sum(), (es_3, -inside_2)
-				dmod = d[es_3] + t2[-inside_2] - t1[-inside_2]
+				dmod = d[es_3] + t2[~inside_2] - t1[~inside_2]
 				xf[es_3] = xi[es_3] + dmod * xv[es_3]
 				yf[es_3] = yi[es_3] + dmod * yv[es_3]
 				zf[es_3] = zi[es_3] + dmod * zv[es_3]
-				inside[es_3] = dmod < t3[-inside_2]
+				inside[es_3] = dmod < t3[~inside_2]
 		
 		# bring to upper side of torus
 		#zf = numpy.abs(zf)
