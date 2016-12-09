@@ -46,8 +46,9 @@ xsects = xsectsdata[2:,:]
 e1 = xsects[:,0]
 xphot = xsects[:,1]
 e70 = e1 > 70.
-lines_max = numpy.max(xsects[:,2:], axis=1)
-xphot[e70] = lines_max[e70] * xphot[e70][0] / lines_max[e70][0]
+if e70.any():
+	lines_max = numpy.max(xsects[:,2:], axis=1)
+	xphot[e70] = lines_max[e70] * xphot[e70][0] / lines_max[e70][0]
 assert (xphot >= 0).all()
 assert (xscatt >= 0).all()
 
@@ -71,13 +72,14 @@ absorption_ratio = xphot / xboth
 
 def test():
 	assert e1.shape == energy.shape, (e1.shape, energy.shape)
-	assert (e1 == energy_lo).all(), zip(e1, energy, energy_lo, energy_hi)
+	for i in range(len(energy)):
+		assert (numpy.isclose(e1[i], energy_lo[i])), (e1[i], energy[i], energy_lo[i], energy_hi[i])
 
 if __name__ == '__main__':
 	#xscatt[:] = 1e-6
 	xkfe = xsects[:,2] * 10
 	import matplotlib.pyplot as plt
-	energy = energy_lo
+	#energy = energy_lo
 	plt.figure()
 	plt.plot(energy, label='energy')
 	plt.plot(e1, label='xphot.dat')
@@ -94,7 +96,7 @@ if __name__ == '__main__':
 	plt.plot(energy, numpy.where(xkfe < 1e-5, 1e-5, xkfe), '--', label=r'Fe $K\alpha$')
 	plt.ylim(xscatt.min() / 10000, None)
 	print 'absorption cross-section:', xphot
-	plt.plot(energy, 1.2 * xscatt, label='scattering')
+	plt.plot(energy, xscatt, label='scattering')
 	print 'scattering cross-section:', xscatt
 	plt.plot(energy, xboth, label='both')
 	plt.gca().set_yscale('log')
