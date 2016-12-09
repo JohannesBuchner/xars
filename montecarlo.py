@@ -21,20 +21,20 @@ def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
 		len(mask) * 100. / nphot, 
 		mask.sum() * 100. / nphot,
 		n_interactions ), color='red')
-	plt.plot(xi[-mask], zi[-mask], '.', ms=1, alpha=0.5,
+	plt.plot(xi[~mask], zi[~mask], '.', ms=1, alpha=0.5,
 		label='%02.2f%% (%02.2f%% through) at interaction # %d' % (
 		len(mask) * 100. / nphot, 
 		(-mask).sum() * 100. / nphot,
 		n_interactions ), color='blue')
 	plt.vlines(xi[mask].mean(), 0, 1, linestyle='--', color='red')
-	plt.vlines(xi[-mask].mean(), 0, 1, linestyle='--', color='blue')
+	plt.vlines(xi[~mask].mean(), 0, 1, linestyle='--', color='blue')
 	xv=sin(beta)
 	zv=cos(beta)
 	plt.plot(xv[mask],  zv[mask],  '+', color='red', ms=1)
-	plt.plot(xv[-mask], zv[-mask], '+', color='blue', ms=1)
+	plt.plot(xv[~mask], zv[~mask], '+', color='blue', ms=1)
 	
 	plt.plot(sin(beta[mask].mean()),  cos(beta[mask].mean()),  'o', color='red')
-	plt.plot(sin(beta[-mask].mean()), cos(beta[-mask].mean()), 'o', color='blue')
+	plt.plot(sin(beta[~mask].mean()), cos(beta[~mask].mean()), 'o', color='blue')
 	plt.legend(loc='best', prop=dict(size=6))
 
 def plot_path(rad_paths, theta_paths, **kwargs):
@@ -112,7 +112,7 @@ def run(prefix, nphot, nmu, geometry,
 				mask = emission['mask']
 				path = [(prev_rad[mask], prev_theta[mask]) for prev_rad, prev_theta in remainder]
 				
-				remainder = [(prev_rad[-mask], prev_theta[-mask]) 
+				remainder = [(prev_rad[~mask], prev_theta[~mask]) 
 					for prev_rad, prev_theta in remainder] + [(photons.rad, photons.theta)]
 				
 				rad_paths   = numpy.transpose([path_rad   for path_rad, path_theta in path] + [2*numpy.ones(mask.sum())])
@@ -258,6 +258,8 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	nowstr = nowstr[:nowstr.rfind('.')]
 	with h5py.File(prefix + "rdata.hdf5", 'w') as f:
 		f.create_dataset('rdata', data=rdata, compression='gzip', shuffle=True)
+		f.create_dataset('energy_lo', data=energy_lo, compression='gzip', shuffle=True)
+		f.create_dataset('energy_hi', data=energy_hi, compression='gzip', shuffle=True)
 	
 		f.attrs['CREATOR'] = """Johannes Buchner <johannes.buchner.acad@gmx.com>"""
 		f.attrs['DATE'] = nowstr
