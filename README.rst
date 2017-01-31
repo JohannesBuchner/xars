@@ -16,11 +16,13 @@ Outline of the code
 
 binning: Defines the energy binning used. 
 
-xscats.py: computes Compton scattering cross-sections, loads cross-sections for lines from xsects.dat
+xsects/__init__.py: computes Compton scattering cross-sections, loads cross-sections for lines from xsects.dat
 
-xscats.dat contains for each outcoming line its energy, yield, and a table of cross-sections leading to its emission over the energy binning.
+xsects/xscats.dat contains for each outcoming line its energy, yield, and a table of cross-sections leading to its emission over the energy binning.
 
 If you change the binning, xsects_convert.py can help you rebin xsects_orig.dat into xscats.dat.
+If you need different abundances, the Fortran code in xsects/generate/ can help you create a new xsects.dat file.
+You will need to insert the yields and line energies in the file header.
 
 To see a example usage, look at disk.py. 
 Most of it specifies that the user can run this code e.g. with "python disk.py --nevents 600000 --output=output/disk",
