@@ -124,7 +124,7 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 		progressbar.Bar(), progressbar.ETA()], maxval=nbins).start()
 
 	binrange = [range(nbins+1), range(nmu*n_nh_bins+1)]
-	for i in range(nbins):
+	for i in list(range(nbins))[::-1]:
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		for n_interactions in range(1000):
 			emission, more = photons.pump()
@@ -185,7 +185,7 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu*n_nh_bins, plot=False)
 montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu*n_nh_bins, plot=False)
-rdata_both = rdata_transmit + rdata_reflect
-del rdata_transmit, rdata_reflect
-montecarlo.store(prefix, nphot, rdata_both, nmu*n_nh_bins, plot=True)
+rdata_transmit += rdata_reflect
+del rdata_reflect
+montecarlo.store(prefix, nphot, rdata_transmit, nmu*n_nh_bins, plot=True)
 

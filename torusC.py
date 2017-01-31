@@ -176,7 +176,7 @@ rdata, nphot = run(prefix, nphot = args.nevents, nmu = nmu, n_nh_bins = n_nh_bin
 rdata_transmit, rdata_reflect = rdata
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu*n_nh_bins, plot=False)
 montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu*n_nh_bins, plot=False)
-rdata_both = rdata_transmit + rdata_reflect
-del rdata_transmit, rdata_reflect
-montecarlo.store(prefix, nphot, rdata_both, nmu*n_nh_bins, plot=True)
+rdata_transmit += rdata_reflect
+del rdata_reflect
+montecarlo.store(prefix, nphot, rdata_transmit, nmu*n_nh_bins, plot=True)
 

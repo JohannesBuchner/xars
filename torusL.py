@@ -20,7 +20,7 @@ rng = scipy.random
 from geometries.layeredconetorus import LayeredConeTorusGeometry
 import montecarlo
 
-rng.seed(0)
+#rng.seed(0)
 
 import argparse
 import sys, os
@@ -57,11 +57,12 @@ rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=
 	plot_paths=False, plot_interactions=False, verbose=args.verbose)
 
 rdata_transmit, rdata_reflect = rdata
-rdata_both = rdata_transmit + rdata_reflect
 header = dict()
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, extra_fits_header = header, plot=False)
 montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=False)
-montecarlo.store(prefix, nphot, rdata_both, nmu, extra_fits_header = header, plot=True)
+rdata_transmit += rdata_reflect
+del rdata_reflect
+montecarlo.store(prefix, nphot, rdata_transmit, nmu, extra_fits_header = header, plot=True)
 
 
 
