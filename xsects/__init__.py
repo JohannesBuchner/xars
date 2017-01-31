@@ -9,6 +9,7 @@ import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
 import binning
+import os
 
 electmass = 511. # electron rest mass in keV/c^2
 
@@ -44,7 +45,8 @@ xscatt_compton *= 1.2
 xscatt *= 1.2
 
 # photoelectric and line cross-sections
-xsectsdata = numpy.loadtxt('xsects.dat')
+# find xsects.dat file next to this file
+xsectsdata = numpy.loadtxt(os.path.join(os.path.dirname(__file__), 'xsects.dat'))
 xlines_energies = xsectsdata[0,2:]
 xlines_yields = xsectsdata[1,2:]
 xsects = xsectsdata[2:,:]
