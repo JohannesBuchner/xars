@@ -18,8 +18,8 @@ do
 	j=0
 	for o in 25.79999924  36.90000153  45.59999847  53.09999847 60. 66.40000153 72.5  78.5 84.30000305
 	do
-		[ -e $2_${i}_${j}_rdata.hdf5 ] ||
-		python torus2.py --nh=$nh --opening-angle=$o --nevents $1 --output="$2_${i}_${j}_" &
+		#[ -e $2_${i}_${j}_rdata.hdf5 ] ||
+		python torusBN.py --nh=$nh --opening-angle=$o --nevents $1 --output="$2_${i}_${j}_" &
 		((j++))
 	done
 	wait
@@ -28,13 +28,13 @@ done
 
 exit
 
-# if $2 == output/torus
+# if $2 == output/bntorus
 cd output
-python ../xspecexport/createtorustable.py wedge.fits torus_*_?_rdata.hdf5
-python ../xspecexport/createtorustable.py wedge-transmit.fits torus_*_?_transmitrdata.hdf5
-python ../xspecexport/createtorustable.py wedge-reflect.fits torus_*_?_reflectrdata.hdf5
+python ../xspecexport/createtorustable.py bntorus.fits bntorus_*_?_rdata.hdf5
+python ../xspecexport/createtorustable.py bntorus-transmit.fits bntorus_*_?_transmitrdata.hdf5
+python ../xspecexport/createtorustable.py bntorus-reflect.fits bntorus_*_?_reflectrdata.hdf5
 
-python ../xspecexport/createtoruscutofftable.py wedge-cutoff.fits torus_*_?_rdata.hdf5 
-python ../xspecexport/createtoruscutofftable.py wedge-cutoff-transmit.fits torus_*_?_transmitrdata.hdf5
-python ../xspecexport/createtoruscutofftable.py wedge-cutoff-reflect.fits torus_*_?_reflectrdata.hdf5
+python ../xspecexport/createtoruscutofftable.py bntorus-cutoff.fits bntorus_*_?_rdata.hdf5 
+python ../xspecexport/createtoruscutofftable.py bntorus-cutoff-transmit.fits bntorus_*_?_transmitrdata.hdf5
+python ../xspecexport/createtoruscutofftable.py bntorus-cutoff-reflect.fits bntorus_*_?_reflectrdata.hdf5
 
