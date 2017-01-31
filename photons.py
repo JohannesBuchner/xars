@@ -28,7 +28,7 @@ class PhotonBunch(object):
 		#self.energy = e * numpy.ones(nphot)
 		self.energy = rng.uniform(low=energy_lo, high=energy_hi, size=nphot)
 		#bin = energy2bin(self.energy)
-		#assert (bin == i).all(), (bin.max(), bin.min())
+		#assert (bin == i).all(), (bin.min(), bin.max(), self.energy.min(), self.energy.max(), energy_lo, energy_hi, self.energy[bin!=i])
 		self.bin = i * numpy.ones(nphot, dtype=numpy.uint)
 		self.stuck = self.rad != 0 # False
 	
@@ -124,7 +124,7 @@ class PhotonBunch(object):
 		
 			# Iron to photon-absorption effectiveness
 			omega = xlines_cumulative[bin[photabsorbed]] # Importance of lines compared to photon-absorption
-			#omega *= 0 # disable FeK line
+			# omega *= 0 # disable fluorescent lines
 			#print '  ..  .. omega:', omega
 			r3 = rng.uniform(size=photabsorbed.sum())
 			
@@ -163,7 +163,7 @@ class PhotonBunch(object):
 			# remove photabsorbed_line 
 		
 			absorbed = photabsorbed_notline
-			if self.verbose: print '  .. .. line emission: %3d (%3d Kalpha, %3d Kbeta)' % (is_line.sum(), (-is_Kbeta).sum(), is_Kbeta.sum())
+			if self.verbose: print '  .. .. line emission: %3d' % (is_line.sum())
 			if self.verbose: print '  .. .. absorbed: %d (%d lost)' % (photabsorbed.sum(), absorbed.sum())
 		
 		  	if self.verbose: print '  .. checking if scattered'
@@ -182,7 +182,7 @@ class PhotonBunch(object):
 			#energy = self.energy
 			# for unstuck and photabsorbed_line we have to check the energy
 			# just do it for all
-			energy_outside = numpy.logical_or(energy < 0.1, energy > 1100)
+			energy_outside = bin <= 0
 			dropouts = numpy.logical_or(energy_outside, absorbed)
 			remainders = -dropouts
 			if self.verbose: print '  .. .. outside of energy range: %d' % (energy_outside.sum())
@@ -200,7 +200,7 @@ class PhotonBunch(object):
 			#phi = atan2(yf, xf)
 			#theta = numpy.where(rad == 0, 0., acos(zf / rad))
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
-			self.stuck[-self.stuck] = photscattered[remainders]
+			self.stuck[~self.stuck] = photscattered[remainders]
 			if self.verbose: print '  .. .. %d stuck in scattering' % (self.stuck.sum())
 		else:
 			emit = None
