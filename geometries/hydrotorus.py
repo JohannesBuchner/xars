@@ -26,6 +26,7 @@ class HydroTorusGeometry(object):
 		# so multiply by m(H)/Msun, and by (pc/cm)^3
 		# in units of 1e22
 		self.rho = rho * nH_Msun / pc_cm**3 * (32 * pc_cm / 256) / 1e22
+		assert (self.rho >= 0).all()
 		#print self.rho.sum(axis=1).max()
 		self.center = f['center'].value
 		self.verbose = verbose
@@ -67,7 +68,20 @@ class HydroTorusGeometry(object):
 		cmap = 'Greens'
 		logrho = log10(self.rho[:,127,:] + 1e-3)
 		plt.imshow(logrho.transpose(), cmap=cmap, vmin=-3, vmax=+3)
-		plt.plot(self.center[2], self.center[0], 'x', color='r', ms=4, mew=2)
+		plt.plot(self.center[2], self.center[0], 'x', color='r', ms=4, mew=0.5)
 		plt.xlim(0, 256)
 		plt.ylim(0, 256)
+		"""
+		for i in numpy.linspace(1, 179, 100):
+			zero = numpy.zeros(100) + 0.
+			dist = 100 + zero
+			beta = i / 180. * pi + zero
+			alpha = numpy.linspace(0, pi, 100)
+			inside1, _, _ = self.compute_next_point((zero, zero, zero), (dist, beta, alpha))
+			inside2, _, _ = self.compute_next_point((zero, zero, zero), (dist, pi-beta, alpha))
+			NH = self.compute_los_nh(beta, alpha)
+			print '%.1f %.1f%% %.1f%% NH=%.2f' % (i, inside1.mean()*100, inside2.mean()*100, NH.mean())
+		"""
 		
+
+

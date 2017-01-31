@@ -45,7 +45,6 @@ class ClumpyTorusGeometry(object):
 	
 	def viz(self): 
 		""" Visualize the current geometry """
-		nh = log10(self.NH) + 22
 		
 		import matplotlib
 		import matplotlib.pyplot as plt
@@ -54,7 +53,7 @@ class ClumpyTorusGeometry(object):
 		import matplotlib.lines as mlines
 		
 		x, y, z = self.x, self.y, self.z
-		NH = self.NH
+		NH = log10(self.NH) + 22
 		r = self.r
 		intersecting = numpy.abs(y) < r
 
@@ -68,10 +67,11 @@ class ClumpyTorusGeometry(object):
 			r2 = r - numpy.abs(y)
 			circle = plt.Circle((x,z),r2)
 			patches.append(circle)
-			colors.append(min(26, max(20, NH))/(26-20))
-	
+			colors.append((min(26, max(20, NH))-20)/(26-20.))
+		
 		collection = PatchCollection(patches, cmap=plt.cm.gray_r, edgecolors="none")
 		collection.set_array(numpy.array(colors))
+		collection.set_clim(0, 1)
 		plt.gca().add_collection(collection)
 
 		plt.plot(0, 0, 'x ', color='r', ms=4, mew=2)
