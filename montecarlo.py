@@ -65,7 +65,7 @@ def run(prefix, nphot, nmu, geometry,
 		progressbar.Bar(), progressbar.ETA()], maxval=nbins).start()
 
 	binrange = [range(nbins+1), range(nmu+1)]
-	for i in range(nbins):
+	for i in list(range(nbins))[::-1]:
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		remainder = [(photons.rad, photons.theta)]
 		if plot_paths:
