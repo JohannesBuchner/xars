@@ -40,9 +40,12 @@ norm_prefix = sys.argv[3]
 #sigmav = [10,15,20,30,40,60,90]
 #Theta_tors = [80, 75, 70, 60, 50, 30,  0]
 #sigmas  = ['5_gexp', '10_gexp', '30_gexp', '60_gexp', 'sphere']
-sigmas  = ['5_gexp2', '10_gexp2', '30_gexp2', 'sphere']
-sigmav  = [5, 10, 30, 90]
-Theta_tors = [85, 80, 60, 0]
+#sigmas  = ['5_gexp2', '10_gexp2', '30_gexp2', 'sphere']
+#sigmav  = [5, 10, 30, 90]
+#Theta_tors = [85, 80, 60, 0]
+#sigmas  = ['5_gexp4core', '20_gexp4core', '60_gexp4core']
+sigmas  = ['5_f4_gexp5core', '20_f6_gexp5core', '60_f4_gexp5core']
+Theta_tors = [83, 62, 6]
 filenames = [prefix % o for o in sigmas]
 norm_filenames = [norm_prefix % o for o in sigmas]
 nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [90,60,0]]
@@ -133,9 +136,9 @@ parameters = numpy.array([
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
-	('Theta_tor', 0, 50.0, 5.0, 0.0, 0, 85, 85.0, 4, numpy.array([ 0,  60,  80,
-		85        ,  0,  0     ,  0.       , 0.,
-		 0,   0.        ,   0.        ,   0.        ,
+	('Theta_tor', 0, 62.0, 20.0, 6., 6., 83., 83., 3, numpy.array([ 6,  62,  83, 0,
+		 0.        ,   0.        ,   0.        ,   0.        ,
+		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,
