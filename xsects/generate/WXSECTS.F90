@@ -1,0 +1,208 @@
+	PROGRAM WXSECTS
+
+
+	IMPLICIT NONE
+
+
+	INTEGER I,K	! Do loop variables
+	INTEGER Z(17)	! Atomic numbers 
+	INTEGER NPAR2	! Number of values per parameter
+	INTEGER FEABX
+	INTEGER NBINS
+
+        INTEGER PHOTO_STATUS
+	
+	DOUBLE PRECISION, ALLOCATABLE :: E(:)		! Energy
+	DOUBLE PRECISION, ALLOCATABLE :: DELTAE(:)		! Bin width	
+	DOUBLE PRECISION, ALLOCATABLE :: XPHOT(:,:)	! Absorption cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKN(:)		! Klein Nishina scattering cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKFE(:,:)	! Iron-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKC(:)		! Carbon-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKO(:)		! Oxygen-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKNE(:)		! Neon-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKMG(:)		! Magnesium-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKSI(:)		! Silicon-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKAR(:)		! Argon-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKCA(:)		! Calcium-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKCR(:)		! Cromium-K cross section
+	DOUBLE PRECISION, ALLOCATABLE :: XKNI(:)		! Nickel-K cross section
+
+	DOUBLE PRECISION FEABUND	! Iron abundance
+	DOUBLE PRECISION N,DN
+	DOUBLE PRECISION PH
+	DOUBLE PRECISION ABUND(17)
+	DOUBLE PRECISION ABUND0
+
+        DOUBLE PRECISION DBLE_PHOTO
+
+	REAL S	! Output cross section from PHFIT2
+	
+	REAL, EXTERNAL:: PHOTO
+
+	ABUND0=1
+	NPAR2=7
+	NBINS=1250
+
+	ALLOCATE(E(0:NBINS))
+	ALLOCATE(DELTAE(0:NBINS-1))
+	ALLOCATE(XPHOT(0:NBINS-1,1:9))
+	ALLOCATE(XKN(0:NBINS-1))
+	ALLOCATE(XKFE(0:NBINS-1,1:9))	
+	ALLOCATE(XKC(0:NBINS-1))	
+	ALLOCATE(XKO(0:NBINS-1))		
+	ALLOCATE(XKNE(0:NBINS-1))	
+	ALLOCATE(XKMG(0:NBINS-1))		
+	ALLOCATE(XKSI(0:NBINS-1))	
+	ALLOCATE(XKAR(0:NBINS-1))		
+	ALLOCATE(XKCA(0:NBINS-1))		
+	ALLOCATE(XKCR(0:NBINS-1))		
+	ALLOCATE(XKNI(0:NBINS-1))		
+
+	Z=(/1,2,6,7,8,10,11,12,13,14,16,17,18,20,24,26,28/)
+	ABUND=(/1.D0,9.77D-2,3.63D-4,1.12D-4,8.51D-4,1.23D-4,2.14D-6,3.80D-5,2.95D-6,3.55D-5,1.62D-5,&
+	1.88D-7,3.63D-6,2.29D-6,4.84D-7,4.68D-5,1.78D-6/)
+	! Fe Kalpha yield fraction: 0.866D0, Kbeta yield
+	! LENERG=(/6.40D0/0.277D0/0.525D0/0.849D0/1.25D0/1.74D0/2.96D0/3.69D0/5.41D0/7.06D0/7.48D0/)
+
+
+	DO K=1,17
+		ABUND(K)=ABUND0*ABUND(K)
+	END DO
+				
+
+	DO I=0,NBINS-1
+		DN=0.01D0
+		N=I*DN
+		IF (N.GE.8.34D0) THEN	
+			DN=0.022D0
+			N=8.34D0+(I-834.D0)*DN
+			IF (N.GE.9.308D0) THEN	
+				DN=0.05D0
+				N=9.308D0+(I-878.D0)*DN
+				IF (N.GE.10.258D0) THEN	
+					DN=0.1D0
+					N=10.258D0+(I-897.D0)*DN
+					IF (N.GE.11.158D0) THEN
+						DN=0.35D0
+						N=11.158D0+(I-906.D0)*DN
+					END IF
+				ENDIF
+			END IF
+		END IF
+		E(I)=23.4D0*10**(N/70.D0)-23.3D0
+		E(I+1)=23.4D0*10**((N+1*DN)/70.D0)-23.3D0
+		DELTAE(I)=E(I+1)-E(I)
+!  WRITE(*,*)I,E(I)
+
+! Scattering cross section array
+		XKN(I)=(E(I)+0.5D0*DELTAE(I))
+			
+		DO FEABX=1,NPAR2
+			PH=0.D0
+			FEABUND=4.68D-5*10.D0**(-1.D0+(2.D0*(DBLE(FEABX)-1.D0)/(NPAR2-1.D0)))
+! Photoelectric absorption cross section array
+			ABUND(16)=FEABUND
+			PH=0.D0
+			DO K=1,17
+                                DBLE_PHOTO=DBLE(PHOTO(REAL(E(I)),REAL(E(I+1)),Z(K),2,PHOTO_STATUS))
+				PH=PH+ABUND(K)*DBLE_PHOTO
+				END DO
+			XPHOT(I,FEABX)=PH*1.D21
+! Iron-K cross section array
+			IF (E(I).GE.7.124D0) THEN
+				CALL PHFIT2(26,26,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+				XKFE(I,FEABX)=DBLE(S)*1.D3*FEABUND	
+				ELSE
+				XKFE(I,FEABX)=0.D0
+				END IF
+
+			END DO
+
+! Carbon-K cross section array
+		IF (E(I).GE.0.2910D0) THEN
+			CALL PHFIT2(6,6,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKC(I)=DBLE(S)*1.D3*ABUND(3)	
+			ELSE
+			XKC(I)=0.D0
+			END IF
+
+! Oxygen-K cross section array
+		IF (E(I).GE.0.5380D0) THEN
+			CALL PHFIT2(8,8,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKO(I)=DBLE(S)*1.D3*ABUND(5)	
+			ELSE
+			XKO(I)=0.D0
+			END IF
+
+! Neon-K cross section array
+		IF (E(I).GE.0.8701D0) THEN
+			CALL PHFIT2(10,10,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKNE(I)=DBLE(S)*1.D3*ABUND(6)	
+			ELSE
+			XKNE(I)=0.D0
+			END IF
+
+! Magnesium-K cross section array
+		IF (E(I).GE.1.311D0) THEN
+			CALL PHFIT2(12,12,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKMG(I)=DBLE(S)*1.D3*ABUND(8)	
+			ELSE
+			XKMG(I)=0.D0
+			END IF
+
+! Silicon-K cross section array
+		IF (E(I).GE.1.846D0) THEN
+			CALL PHFIT2(14,14,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKSI(I)=DBLE(S)*1.D3*ABUND(10)	
+			ELSE
+			XKSI(I)=0.D0
+			END IF
+
+! Argon-K cross section array
+		IF (E(I).GE.3.203D0) THEN
+			CALL PHFIT2(18,18,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKAR(I)=DBLE(S)*1.D3*ABUND(13)	
+			ELSE
+			XKAR(I)=0.D0
+			END IF
+
+! Calcium-K cross section array
+		IF (E(I).GE.4.043D0) THEN
+			CALL PHFIT2(20,20,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKCA(I)=DBLE(S)*1.D3*ABUND(14)
+			ELSE
+			XKCA(I)=0.D0
+			END IF
+
+! Chromium-K cross section array
+		IF (E(I).GE.5.996D0) THEN
+			CALL PHFIT2(24,24,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKCR(I)=DBLE(S)*1.D3*ABUND(15)
+			ELSE
+			XKCR(I)=0.D0
+			END IF
+
+! Nickel-K cross section array
+		IF (E(I).GE.8.348D0) THEN
+			CALL PHFIT2(28,28,1,REAL((E(I)+0.5D0*DELTAE(I))*1000.D0),S)
+			XKNI(I)=DBLE(S)*1.D3*ABUND(17)	
+			ELSE
+			XKNI(I)=0.D0
+			END IF
+		END DO
+	
+	OPEN(UNIT=1,FILE='xphot.dat')
+	OPEN(UNIT=2,FILE='xkfe.dat')
+	OPEN(UNIT=3,FILE='xsects.dat')
+
+        DO I=0,NBINS-1
+           WRITE(1,*)E(I),XPHOT(I,4)
+           WRITE(2,*)E(I),XKFE(I,4)
+           WRITE(3,*)E(I),XPHOT(I,4),XKFE(I,4),XKC(I),XKO(I),XKNE(I),XKMG(I),XKSI(I),XKAR(I),XKCA(I),XKCR(I),XKNI(I)
+	END DO
+
+ 
+	STOP
+	END PROGRAM
+
+
