@@ -19,31 +19,11 @@ energy_lo, energy_hi = binning.bin2energy(range(binning.nbins))
 energy = (energy_hi + energy_lo)/2.
 deltae = energy_hi - energy_lo
 
-nbins = 1250 # number of energy bins
-
-def bin2energy_lo(i):
-	i = numpy.asarray(i).reshape((-1,))
-	dn = 0.01 * numpy.ones_like(i)
-	n = i * dn
-	m1 = n > 8.34
-	dn[m1] = 0.022
-	n[m1] = 8.34 + (i[m1] - 834.0) * dn[m1]
-	m2 = n > 9.308
-	dn[m2] = 0.05
-	n[m2] = 9.308+(i[m2]-878.0)*dn[m2]
-	m3 = n > 10.258
-	dn[m3] = 0.1
-	n[m3] = 10.258 + (i[m3]-897.0)*dn[m3]
-	m4 = n > 11.158
-	dn[m4] = 0.35
-	n[m4] = 11.158+(i[m4] - 906.0)*dn[m4]
-	
-	return 23.4 * 10**(n/70.0)-23.3
-
+from binning.bn import nbins, bin2energy_lo
 def bin2energy_hi(i):
 	return bin2energy_lo(i+1)
 
-i = numpy.arange(1250)
+i = numpy.arange(nbins)
 emid = (bin2energy_lo(i) + bin2energy_hi(i)) / 2.
 
 # photoelectric and line cross-sections

@@ -33,6 +33,11 @@ term4=(1.+3.*x)/(t1**2)
 xscatt_compton = 0.75*xthom*(term1*(term2-log(t1))+term3-term4)
 xscatt = numpy.where(x < 0.05, xscatt_thomson, xscatt_compton)
 
+# convert to units of 1e-22 cm^2 (from 1e-21)
+xscatt *= 10
+xscatt_thomson *= 10
+xscatt_compton *= 10
+
 # When applied the cross section is 120% larger
 xscatt_thomson *= 1.2
 xscatt_compton *= 1.2
@@ -43,6 +48,8 @@ xsectsdata = numpy.loadtxt('xsects.dat')
 xlines_energies = xsectsdata[0,2:]
 xlines_yields = xsectsdata[1,2:]
 xsects = xsectsdata[2:,:]
+# convert to units of 1e-22 cm^2 (from 1e-21)
+xsects[:,1:] *= 10
 e1 = xsects[:,0]
 xphot = xsects[:,1]
 e70 = e1 > 70.
@@ -60,12 +67,6 @@ assert (xlines >= 0).all()
 assert (xlines_relative >= 0).all()
 assert (xlines_cumulative >= 0).all()
 
-# from units 1e-21 to 1e-22
-xphot *= 10
-xlines *= 10
-xscatt *= 10
-xscatt_thomson *= 10
-xscatt_compton *= 10
 xboth = xphot + xscatt
 absorption_ratio = xphot / xboth
 
@@ -77,7 +78,7 @@ def test():
 
 if __name__ == '__main__':
 	#xscatt[:] = 1e-6
-	xkfe = xsects[:,2] * 10
+	xkfe = xlines.sum(axis=1)
 	import matplotlib.pyplot as plt
 	#energy = energy_lo
 	plt.figure()
@@ -93,16 +94,16 @@ if __name__ == '__main__':
 	plt.plot(energy, xphot, label='absorption')
 	for i in range(xlines.shape[1]):
 		plt.plot(energy, xlines[:,i], label='Fluorescent Line %.2f keV' % (xlines_energies[i]))
-	plt.plot(energy, numpy.where(xkfe < 1e-5, 1e-5, xkfe), '--', label=r'Fe $K\alpha$')
+	plt.plot(energy, numpy.where(xkfe < 1e-5, 1e-5, xkfe), '--', label=r'sum')
 	plt.ylim(xscatt.min() / 10000, None)
-	print 'absorption cross-section:', xphot
+	#print 'absorption cross-section:', xphot
 	plt.plot(energy, xscatt, label='scattering')
-	print 'scattering cross-section:', xscatt
+	#print 'scattering cross-section:', xscatt
 	plt.plot(energy, xboth, label='both')
 	plt.gca().set_yscale('log')
 	plt.gca().set_xscale('log')
 	plt.legend(loc='best', ncol=2, prop=dict(size=6))
-	plt.ylabel('cross section')
+	plt.ylabel('cross section [${10}^{-22}$cm$^2$]')
 	plt.xlabel('energy [keV]')
 	plt.subplot(3, 1, 2)
 	#def comparison(nH, **kwargs):
