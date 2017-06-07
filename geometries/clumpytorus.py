@@ -13,7 +13,7 @@ def sigma_convert(sigma):
 class ClumpyTorusGeometry(object):
 	def __init__(self, filename, verbose = False):
 		f = h5py.File(filename, 'r')
-		self.sigma = f['sigma']
+		self.sigma = f.get('sigma')
 		# load spheres
 		self.x, self.y, self.z = f['x'].value, f['y'].value, f['z'].value
 		self.r = f['radius'].value
@@ -59,7 +59,8 @@ class ClumpyTorusGeometry(object):
 
 		plt.figure(figsize=(5,5), frameon=False)
 		plt.axis('off')
-		plt.title(r'$\sigma=%d^\circ$' % (sigma_convert(self.sigma.value)))
+		if self.sigma is not None:
+			plt.title(r'$\sigma=%d^\circ$' % (sigma_convert(self.sigma.value)))
 		cmap = plt.cm.gray_r
 		patches = []
 		colors = []
@@ -67,15 +68,24 @@ class ClumpyTorusGeometry(object):
 			r2 = r - numpy.abs(y)
 			circle = plt.Circle((x,z),r2)
 			patches.append(circle)
-			colors.append((min(26, max(20, NH))-20)/(26-20.))
+			#colors.append((min(26, max(20, NH))-20)/(26-20.))
+			colors.append((min(26, max(20, NH))))
 		
 		collection = PatchCollection(patches, cmap=plt.cm.gray_r, edgecolors="none")
 		collection.set_array(numpy.array(colors))
-		collection.set_clim(0, 1)
-		plt.gca().add_collection(collection)
-
+		collection.set_clim(20, 26)
+		coll = plt.gca().add_collection(collection)
+		
 		plt.plot(0, 0, 'x ', color='r', ms=4, mew=2)
 		plt.ylim(-1, 1)
 		plt.xlim(-1, 1)
 		
-		
+		if self.sigma.value < 30:
+			# add colorbar
+			ax = plt.axes([0.1, 0.1, 0.8, 0.02], frameon=False)
+			cbar = plt.colorbar(coll, cax=ax, ticks=[20, 21, 22, 23, 24, 25, 26],
+				cmap=plt.cm.gray_r, orientation='horizontal')
+			cbar.solids.set_edgecolor("face")
+			cbar.outline.set_linewidth(0)
+			cbar.set_label('Cloud column density')
+			
