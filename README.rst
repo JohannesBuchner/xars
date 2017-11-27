@@ -1,15 +1,27 @@
 XARS X-ray Monte-carlo simulator
 ------------------------------------
 
-XARS simulates X-rays passing through matter in user-defined geometries.
+.. image:: logo3-large.png
 
-Photo-electric absorption, compton scattering and fluorescent line processes are
-modelled.
+XARS simulates X-rays propagating through matter in user-defined geometries.
+
+Features:
+
+* Photo-electric absorption
+* Compton scattering 
+* Fluorescent line emission (self-consistent with absorption above)
+* Arbitrary user-defined geometries (included examples: toroid, sphere, disk)
+* Arbitrary geometries made from many spherical blobs/clumps (when combined with LightRayRider)
+* Arbitrary grid geometries from hydrodynamic simulations (when combined with LightRayRider)
+
+XARS stands for X-ray Absorption, Re-emission and Scattering.
+
+The code-base is small (few hundred lines) and written in pure Python. New contributions are welcome.
 
 How to cite XARS correctly
 ---------------------------
 
-Please reference Buchner et al (in prep).
+Please reference Buchner et al (in prep). 
 
 Models
 --------------------------------------
@@ -40,7 +52,7 @@ to understand how the code works. See below for detailed description.
 
 
 Tutorial: Part II: Irradiating a geometry made up of spheres
----------------------------------------------------------
+---------------------------------------------------------------
 
 In part II, we assume that your geometry can be expressed as many spheres.
 
@@ -163,5 +175,15 @@ arrays into fits model tables that xspec can read.
 These scripts (in xspecexport, e.g. createtorustable.py) assume a input 
 photon spectrum (e.g. a powerlaw) and store the output spectrum into a fits file.
 
+Questions and Problems
+--------------------------------------------
+
+For any questions or problems with the software, please open an issue.
+This helps other people google the same question.
+
+License
+-------------------
+
+AGPLv3. Contact me if you need a different license.
 
 
