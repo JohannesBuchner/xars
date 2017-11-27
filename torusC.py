@@ -81,6 +81,7 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 	if verbose:
 		print '   computing LOS NH ... done'
 	nh[nh<1e-2] = 1e-2
+	# make the bins from 0 to 6 spread out over n_nh_bins
 	kbin = ((log10(nh) + 2) * n_nh_bins / (4 + 2)).astype(int)
 	kbin[kbin == n_nh_bins] = n_nh_bins - 1
 

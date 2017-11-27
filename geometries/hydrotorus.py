@@ -62,15 +62,18 @@ class HydroTorusGeometry(object):
 		""" Visualize the current geometry """
 		import matplotlib.pyplot as plt
 		
-		plt.figure(figsize=(5,5), frameon=False)
+		fig = plt.figure(figsize=(5,5), frameon=False)
 		plt.axis('off')
+		ax = plt.gca()
+		ax.get_xaxis().set_visible(False)
+		ax.get_yaxis().set_visible(False)
 		cmap = plt.cm.gray_r
 		cmap = 'Greens'
 		logrho = log10(self.rho[:,127,:] + 1e-3)
 		plt.imshow(logrho.transpose(), cmap=cmap, vmin=-3, vmax=+3)
 		plt.plot(self.center[2], self.center[0], 'x', color='r', ms=4, mew=0.5)
-		plt.xlim(0, 256)
-		plt.ylim(0, 256)
+		plt.xlim(0, len(logrho))
+		plt.ylim(0, len(logrho))
 		"""
 		for i in numpy.linspace(1, 179, 100):
 			zero = numpy.zeros(100) + 0.
