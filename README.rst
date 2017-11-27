@@ -71,11 +71,11 @@ This will create a ray.so object.
 
 To irradiate the output files, e.g. torusblob23.0.hdf5, run::
 
-	PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
+	$ PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
 
-To use parallelise over 10 CPUs, run with 
+To use parallelise over 10 CPUs, run with::
 
-	OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
+	$ OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
 
 Tutorial: Part III: Irradiating a simulation grid
 -------------------------------------------------------------
@@ -98,11 +98,11 @@ This will create a ray.so object.
 
 To irradiate the output files, e.g. warpeddisk_1.hdf5, run::
 
-	PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusG.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
+	$ PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusG.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
 
-To use parallelise over 10 CPUs, run with 
+To use parallelise over 10 CPUs, run with::
 
-	OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
+	$ OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
 
 
 
