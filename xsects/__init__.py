@@ -76,7 +76,7 @@ absorption_ratio = xphot / xboth
 def test():
 	assert e1.shape == energy.shape, (e1.shape, energy.shape)
 	for i in range(len(energy)):
-		assert (numpy.isclose(e1[i], energy_lo[i])), (e1[i], energy[i], energy_lo[i], energy_hi[i])
+		assert (numpy.isclose(e1[i], energy[i])), (e1[i], energy[i], energy_lo[i], energy_hi[i])
 
 if __name__ == '__main__':
 	#xscatt[:] = 1e-6

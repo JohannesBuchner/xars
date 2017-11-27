@@ -11,6 +11,89 @@ How to cite XARS correctly
 
 Please reference Buchner et al (in prep).
 
+Models
+--------------------------------------
+
+In Buchner et al. (in prep) we irradiated the following geometries,
+and you can download xspec table models.
+
+* Unified X-ray Clumpy model UXCLUMPY: https://zenodo.org/record/582674
+* Warped Disk obscurer: https://zenodo.org/record/823729
+* Wada hydrodynamic simulation
+* Response of a single blob
+
+See the paper for description of the parameters and model assumptions.
+
+Tutorial: Part I: Irradiating a programmed geometry
+---------------------------------------------------
+
+In part I we look at a irradiating a user-specified geometry. Part II will look at 
+a geometry made up of clumps/blobs. 
+
+The bash script runsphere.sh simulates a spherical obscurer with various
+column densities. To run a single one, run, for example::
+
+	$ python torus2.py --log10nh=24.2 --opening-angle=0 --nevents=1000000 --output=myoutput
+
+You can study torus2.py, and in particular its geometry definition geometries/spheretorus.py
+to understand how the code works. See below for detailed description.
+
+
+Tutorial: Part II: Irradiating a geometry made up of spheres
+---------------------------------------------------------
+
+In part II, we assume that your geometry can be expressed as many spheres.
+
+The example-blobs/generate_blobs.py demonstrates how to generate a hdf5 input 
+file which describes the blobs, with their x/y/z positions and column densities.
+In this simple case, there is only one; in general, just enlarge the arrays.
+
+To irradiate such models, you need to install the LightRayRider library
+which performs fast photon propagation via optimized C functions.
+Download from https://github.com/JohannesBuchner/LightRayRider, for example to
+$HOME/Downloads/LightRayRider/. Then compile with::
+
+	$ make -C $HOME/Downloads/LightRayRider/
+
+This will create a ray.so object.
+
+To irradiate the output files, e.g. torusblob23.0.hdf5, run::
+
+	PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
+
+To use parallelise over 10 CPUs, run with 
+
+	OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
+
+Tutorial: Part III: Irradiating a simulation grid
+-------------------------------------------------------------
+
+In part III we assume that you have created a hydrodynamic simulation on a 
+3d uniform grid, and want to irradiate this with X-rays.
+
+The example-grid/generate_warpeddisk.py demonstrates how to generate a hdf5 input 
+file which describes the grid and its density, as well as the irradiation 
+location.
+
+To irradiate such models, you need to install the LightRayRider library
+which performs fast photon propagation via optimized C functions.
+Download from https://github.com/JohannesBuchner/LightRayRider, for example to
+$HOME/Downloads/LightRayRider/. Then compile with::
+
+	$ make -C $HOME/Downloads/LightRayRider/
+
+This will create a ray.so object.
+
+To irradiate the output files, e.g. warpeddisk_1.hdf5, run::
+
+	PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusG.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
+
+To use parallelise over 10 CPUs, run with 
+
+	OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
+
+
+
 Outline of the code
 ----------------------
 
@@ -67,6 +150,10 @@ Parallelisation
 
 runtorus.sh shows how an array of simulations is run, exploring a grid of 
 geometry configurations.
+
+* Irradiating different geometries is embarrassingly parallel. 
+* For irradiating the same geometry, XARS can take advantage of multiple CPUs (see OMP_NUM_THREADS).
+* To parallelise over multiple machines, make sure the output files are named differently. You can combine the rdata output files with the rdataaddmultiple.py script.
 
 Xspec table models
 -------------------
