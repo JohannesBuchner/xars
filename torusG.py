@@ -59,8 +59,8 @@ prefix = args.geometry + '_out'
 
 geometry = HydroTorusGeometry(args.geometry, verbose=args.verbose)
 geometry.viz()
-plt.savefig(prefix + "geometry.pdf")
-plt.savefig(prefix + "geometry.png")
+plt.savefig(prefix + "geometry.pdf", bbox_inches='tight', pad_inches = 0)
+plt.savefig(prefix + "geometry.png", bbox_inches='tight', pad_inches = 0)
 plt.close()
 
 def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
