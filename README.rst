@@ -29,19 +29,17 @@ Models
 In Buchner et al. (in prep) we irradiated the following geometries,
 and you can download xspec table models.
 
-* Unified X-ray Clumpy model UXCLUMPY: https://zenodo.org/record/582674
-* Warped Disk obscurer: https://zenodo.org/record/823729
-* Wada hydrodynamic simulation
-* Response of a single blob
+* Sphere, Sphere with Bi-conical cut-out
+* Clumpy model: Unified X-ray Clumpy model UXCLUMPY
+* Radiative fountain (hydrodynamic simulation)
+* Warped Disk
 
-See `Models <doc/README.rst>`_
-
-See the paper for description of the parameters and model assumptions.
+More details on the `Models <doc/README.rst>`_ page!
 
 Usage
 ---------------------------------------------------
 
-See `Code Tutorial <doc/xars.rst>`_
+See the `Code Tutorial <doc/xars.rst>`_ to understand the code.
 
 Questions and Problems
 --------------------------------------------
