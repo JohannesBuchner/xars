@@ -2,17 +2,26 @@
 Radiative Fountain model
 =================================
 
-If you have any issues or questions, please check the FAQ or open a github issue!
+.. image:: wadageometry.png
+  :target: wada.rst
+  :align: right
+  :width: 350
 
-To go to the corresponding infrared model go back to ´models.rst´_.
+If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
+
+To go to the corresponding infrared model go back to `Models <README.rst>`_.
 
 Visualisation
 ---------------
 
-- Simulation movie: http://astrophysics.jp/Circinus/
-- Infrared model: http://astrophysics.jp/Circinus/movie_theta_phi720.mov
+- Simulation movie: http://astrophysics.jp/Circinus/ 
 
-Important references: `Wada (2012) <http://adsabs.harvard.edu/abs/2016ApJ...828L..19W>`_, `Wada, Schartmann, & Meijerink (2016) <http://adsabs.harvard.edu/abs/2012ApJ...758...66W>`_
+  - Reference: `Wada (2012) <http://adsabs.harvard.edu/abs/2016ApJ...828L..19W>`_
+
+- Infrared model: http://astrophysics.jp/Circinus/movie_theta_phi720.mov 
+
+  - Reference: `Wada, Schartmann, & Meijerink (2016) <http://adsabs.harvard.edu/abs/2012ApJ...758...66W>`_
+
 
 Components
 --------------

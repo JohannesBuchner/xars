@@ -9,7 +9,7 @@ modelled.
 
 Usage
 --------------------------
-see `doc/xars.rst`_
+see `Code Documentation <xars.rst>`_
 
 How to cite XARS correctly
 ---------------------------
@@ -31,24 +31,36 @@ See the paper for description of the parameters and model assumptions.
 UXCLUMPY
 --------------------
 
+.. image:: uxclumpy.png
+  :target: https://vimeo.com/218031864
+  :align: right
+  :width: 350
+
 The Unified X-ray Clumpy model (UXCLUMPY) features:
 
 * Unification: Can produce unobscured, obscured and Compton-thick AGN in the right proportions.
 * Eclipse events: The frequency and sizes of eclipses are reproduced by clumps on Keplerian orbits.
 * X-ray spectra can fit observations well
 
+Here you can access:
+
 * Geometry movies: https://vimeo.com/218031864 and 360 VR https://vimeo.com/253036759
-* X-ray table model available at: `uxclumpy.rst`_
+* X-ray table model available at: `UXCLUMPY page <uxclumpy.rst>`_
 * Infrared model available at: http://clumpy.org 
 * More information: Buchner et al. (submitted) (or send me an email)
 
 Warped disk
 --------------------
 
+.. image:: warpgeometry.png
+  :target: warpeddisk.rst
+  :align: right
+  :width: 350
+
 A simple warped disk geometry
 
-* Geometry images: `warpeddisk.rst`_
-* X-ray table model available at: `warpeddisk.rst`_
+* Geometry images: `Warped Disk page <warpeddisk.rst>`_
+* X-ray table model available at: `Warped Disk page <warpeddisk.rst>`_
 * Infrared model: see `Jud et al (2017) <http://cdsads.u-strasbg.fr/abs/2017MNRAS.465..248J>`_
 * More information: Buchner et al. (in prep) (or send me an email)
 
@@ -56,9 +68,14 @@ A simple warped disk geometry
 Radiative fountain (Wada 2012)
 -------------------------------
 
-* Geometry images: `wada.rst`_
-* X-ray table model available at: `wada.rst`_
-* Infrared model: `wada.rst`_
+.. image:: wadageometry.png
+  :target: wada.rst
+  :align: right
+  :width: 350
+
+* Geometry images: `Radiative fountain page <wada.rst>`_
+* X-ray table model available at: `Radiative fountain page <wada.rst>`_
+* Infrared model: `Radiative fountain page <wada.rst>`_
 * More information: Buchner et al. (in prep) (or send me an email)
 
 
@@ -71,9 +88,11 @@ Reflection from a single sphere with
 * Exponential density profile
 * Gaussian density profile
 
-X-ray spectral model available on request (open a github issue).
+X-ray spectral model available on request (open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_).
 
-
+* Geometry images: (imagine a sphere)
+* X-ray table model available on request (open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_).
+* Infrared model: https://en.wikipedia.org/wiki/Planck%27s_law
 
 
 

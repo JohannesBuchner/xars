@@ -1,7 +1,12 @@
 XARS
 ==================
 
-How to use and modify XARS.
+.. image:: ../logo3-mid.png
+  :align: right
+
+Code tutorial explaining how to use and modify XARS.
+
+To find existing models, go back to `Models <README.rst>`_.
 
 Tutorial: Part I: Irradiating a programmed geometry
 ---------------------------------------------------
@@ -19,7 +24,7 @@ to understand how the code works. See below for detailed description.
 
 
 Tutorial: Part II: Irradiating a geometry made up of spheres
----------------------------------------------------------
+-------------------------------------------------------------
 
 In part II, we assume that your geometry can be expressed as many spheres.
 

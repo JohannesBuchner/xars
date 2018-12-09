@@ -2,9 +2,14 @@
 UXCLUMPY - Unified Clumpy model
 =================================
 
-If you have any issues or questions, please check the FAQ or open a github issue!
+.. image:: uxclumpy.png
+  :target: https://vimeo.com/218031864
+  :align: right
+  :width: 350
 
-To go to the corresponding infrared model go back to ´models.rst´_.
+If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
+
+To go to the corresponding infrared model go back to ´README.rst´_.
 
 Visualisation
 ---------------
