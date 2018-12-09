@@ -72,7 +72,7 @@ for model in models:
 		matrix_mu = matrix[:,:,mu] * 1. / nphot / max(norm, 1e-6)
 		#print '   ', nh, ThetaInc
 		widgets[1] = '| op=%d cloud=%.1f nh=%.3f inc=%02d ' % (Theta_tor, ThetaCloud, nh, ThetaInc)
-		pbar.update(pbar.currval + 1)
+		pbar.update(getattr(pbar, 'currval', getattr(pbar, 'value')) + 1)
 		for PhoIndex in PhoIndices:
 			for Ecut in Ecuts:
 				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
@@ -205,6 +205,6 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 hdus = pyfits.HDUList(hdus)
 
-hdus.writeto(outfilename, clobber=True)
+hdus.writeto(outfilename, overwrite=True)
 
 

@@ -162,6 +162,6 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 hdus = pyfits.HDUList(hdus)
 
-hdus.writeto("xspecmodel.fits", clobber=True)
+hdus.writeto("xspecmodel.fits", overwrite=True)
 
 

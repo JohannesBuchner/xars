@@ -1,0 +1,64 @@
+language: python
+
+sudo: false
+
+python:
+  - "2.7"
+  - "3.6"
+
+git:
+  depth: 10000
+
+install:
+  - sudo apt-get install -qq cmake build-essential git
+  # Fetch and install conda
+  # -----------------------
+  - export CONDA_BASE="http://repo.continuum.io/miniconda/Miniconda"
+  - if [[ "${TRAVIS_PYTHON_VERSION}" == 2* ]]; then
+      wget ${CONDA_BASE}2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget ${CONDA_BASE}3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p ${HOME}/miniconda
+  - export PATH="${HOME}/miniconda/bin:${PATH}"
+
+  # Create the testing environment
+  # ------------------------------
+  - conda config --set always_yes true
+  - conda config --set changeps1 no
+  - conda config --set show_channel_urls true
+  - conda config --add channels conda-forge
+  - conda update --quiet conda
+  - ENV_NAME="test-environment"
+  - conda create --quiet -n ${ENV_NAME} python=${TRAVIS_PYTHON_VERSION}
+  - source activate ${ENV_NAME}
+
+  # Customise the testing environment
+  # ---------------------------------
+  - conda install --quiet --file conda-requirements.txt
+  - pip install coveralls progressbar2 h5py numpy
+
+  # Summerise environment
+  # ---------------------
+  - conda list
+  - conda info -a
+
+script:
+  - python torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=myoutput
+  
+  - git clone https://github.com/JohannesBuchner/LightRayRider
+  - make -C LightRayRider/
+
+  - cd example-blobs/
+  - python generate_blobs.py
+  - PYTHONPATH=../LightRayRider/ python ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
+  - OMP_NUM_THREADS=3 PYTHONPATH=../LightRayRider/ python ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
+  - cd ..
+
+  - cd example-grid
+  - python generate_warpeddisk.py
+  - PYTHONPATH=../LightRayRider/ python ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
+  - OMP_NUM_THREADS=3 PYTHONPATH=../LightRayRider/ python ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
+  - cd ..
+
+#after_success: coveralls

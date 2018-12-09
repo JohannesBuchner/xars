@@ -100,7 +100,7 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 	hdu.header['NPHOT'] = nphot
 	if verbose:
 		print('   saving ...')
-	hdu.writeto(prefix + "normalisation.fits", clobber=True)
+	hdu.writeto(prefix + "normalisation.fits", overwrite=True)
 	if verbose:
 		print('   saving ... done')
 	return normalisation
@@ -120,10 +120,10 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 	
 	pbar = progressbar.ProgressBar(widgets=[
 		progressbar.Percentage(), progressbar.Counter(), 
-		progressbar.Bar(), progressbar.ETA()], maxval=nbins).start()
+		progressbar.Bar(), progressbar.ETA()])
 
 	binrange = [list(range(nbins+1)), list(range(nmu*n_nh_bins+1))]
-	for i in list(range(nbins))[::-1]:
+	for i in pbar(list(range(nbins))[::-1]):
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		for n_interactions in range(1000):
 			emission, more = photons.pump()
@@ -174,8 +174,6 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 			if not more:
 				break
 		del photons
-		pbar.update(pbar.currval + 1)
-	pbar.finish()
 
 	return (rdata_transmit, rdata_reflect), nphot
 

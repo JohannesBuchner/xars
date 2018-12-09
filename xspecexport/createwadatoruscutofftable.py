@@ -42,7 +42,7 @@ nmu = len(nh_bins_ThetaInc)
 deltae0 = deltae[energy >= 1][0]
 
 widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
-pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(nh_bins_ThetaInc)).start()
+pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(nh_bins_ThetaInc))
 
 f = h5py.File(filename)
 normalisations = pyfits.open(norm_filename)[0].data
@@ -53,12 +53,11 @@ a, b, nmu = matrix.shape
 assert a == nbins, matrix.shape
 assert b == nbins, matrix.shape
 
-for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations)):
+for mu, ((nh, ThetaInc), norm) in pbar(enumerate(zip(nh_bins_ThetaInc, normalisations))):
 	# go through viewing angles
 	matrix_mu = matrix[:,:,mu]
 	#print '   ', nh, ThetaInc
 	widgets[1] = '| nh=%.3f inc=%02d ' % (nh, ThetaInc)
-	pbar.update(pbar.currval + 1)
 	for PhoIndex in PhoIndices:
 		for Ecut in Ecuts:
 			weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
@@ -66,7 +65,6 @@ for mu, ((nh, ThetaInc), norm) in enumerate(zip(nh_bins_ThetaInc, normalisations
 			#print '    ', (weights * matrix[:,:,mu]).sum(axis=0), deltae, (nphot / 1000000.)
 			#assert numpy.any(y > 0), y
 			table.append(((nh, PhoIndex, Ecut, ThetaInc), y))
-pbar.finish()
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -173,6 +171,6 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 hdus = pyfits.HDUList(hdus)
 
-hdus.writeto(outfilename, clobber=True)
+hdus.writeto(outfilename, overwrite=True)
 
 

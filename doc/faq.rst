@@ -13,7 +13,8 @@ Output spectra are accumulated in these column density bins.
 This makes spectral fitting less degenerate, 
 because LOS NH predominantly shapes the spectrum.
 
-It also allows very similar viewing angles to have very different column densities.
+It also allows very similar viewing angles to have very different column densities,
+as see in cloud eclipse events. IT enables fitting variable absorption with the exact same geometry.
 
 How is the photon path solved in XARS? Is it a Monte Carlo integration?
 ------------------------------------------------------------------------

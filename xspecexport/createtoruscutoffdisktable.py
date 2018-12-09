@@ -62,7 +62,7 @@ for filename in models:
 	for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
 		matrix_mu = matrix[:,:,mu]
 		widgets[1] = '| op=%d nh=%.3f inc=%02d ' % (opening, nh, ThetaInc)
-		pbar.update(pbar.currval + 1)
+		pbar.update(getattr(pbar, 'currval', getattr(pbar, 'value')) + 1)
 		for PhoIndex in PhoIndices:
 			for Ecut in Ecuts:
 				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
@@ -185,6 +185,6 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 hdus = pyfits.HDUList(hdus)
 
-hdus.writeto(outfilename, clobber=True)
+hdus.writeto(outfilename, overwrite=True)
 
 

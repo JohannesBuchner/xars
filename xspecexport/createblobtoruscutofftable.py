@@ -26,10 +26,10 @@ models = ['torusblob%.1f.hdf5' % blobnh for blobnh in blobnhs]
 deltae0 = deltae[energy >= 1][0]
 
 widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
-pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(models)).start()
+pbar = progressbar.ProgressBar(widgets=widgets)
 
 
-for NHcloud, model in zip(blobnhs, models):
+for NHcloud, model in pbar(zip(blobnhs, models)):
 	#print 'loading', model
 	#m = h5py.File(model, 'r')
 	#NHcloud = m['NH'].value
@@ -47,14 +47,12 @@ for NHcloud, model in zip(blobnhs, models):
 	
 	# go through viewing angles
 	widgets[1] = '| NHblob=%.1f' % (NHcloud)
-	pbar.update(pbar.currval + 1)
 	matrix_mu = matrix_noinc * 1. / nphot
 	for PhoIndex in PhoIndices:
 		for Ecut in Ecuts:
 			weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))
 			y = (weights * matrix_mu).sum(axis=0)
 			table.append(((PhoIndex, Ecut, NHcloud), y))
-pbar.finish()
 
 hdus = []
 hdu = pyfits.PrimaryHDU()
@@ -147,6 +145,6 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdus.append(hdu)
 hdus = pyfits.HDUList(hdus)
 
-hdus.writeto(outfilename, clobber=True)
+hdus.writeto(outfilename, overwrite=True)
 
 
