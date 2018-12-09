@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy, scipy
 from numpy import exp, log, log10
 
@@ -69,5 +70,5 @@ if __name__ == '__main__':
 	plt.savefig('binning.pdf')
 	
 	for b in bins:
-		print b, bin2energy(b)[0], energy2bin(bin2energy(b)[0])
+		print(b, bin2energy(b)[0], energy2bin(bin2energy(b)[0]))
 	

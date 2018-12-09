@@ -1,5 +1,6 @@
+====================================
 XARS X-ray Monte-carlo simulator
-------------------------------------
+====================================
 
 XARS simulates X-rays passing through matter in user-defined geometries.
 
@@ -40,6 +41,7 @@ The Unified X-ray Clumpy model (UXCLUMPY) features:
 * Unification: Can produce unobscured, obscured and Compton-thick AGN in the right proportions.
 * Eclipse events: The frequency and sizes of eclipses are reproduced by clumps on Keplerian orbits.
 * X-ray spectra can fit observations well
+* Compatible with CLUMPY infrared models
 
 Here you can access:
 

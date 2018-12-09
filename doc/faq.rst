@@ -1,3 +1,4 @@
+===========================
 Frequently asked questions
 ===========================
 
@@ -14,7 +15,6 @@ because LOS NH predominantly shapes the spectrum.
 
 It also allows very similar viewing angles to have very different column densities.
 
-
 How is the photon path solved in XARS? Is it a Monte Carlo integration?
 ------------------------------------------------------------------------
 
@@ -25,12 +25,12 @@ In simple geometries (such as spheres, cones), the necessary line integral
 can be computed and programmed analytically.
 
 For geometries with many spheres, there is optimized, parallelised C code
- to determine which spheres intersect, and how they are ordered. 
- This is implemented in https://github.com/JohannesBuchner/LightRayRider
+to determine which spheres intersect, and how they are ordered. 
+This is implemented in https://github.com/JohannesBuchner/LightRayRider
 
 For general geometries based on grids, there is optimized, parallelised C code
- to traverse the grid.
- This is implemented in https://github.com/JohannesBuchner/LightRayRider
+to traverse the grid.
+This is implemented in https://github.com/JohannesBuchner/LightRayRider
 
 
 I have a question

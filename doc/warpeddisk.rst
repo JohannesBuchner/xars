@@ -8,7 +8,7 @@ Warped disk model
 
 If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
 
-To go to the corresponding infrared model go back to ´README.rst´_.
+To go to the corresponding infrared model go back to `Models <README.rst>`_.
 
 Visualisation: https://zenodo.org/record/1193541/files/warpgeometry.pdf
 

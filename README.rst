@@ -1,5 +1,6 @@
+====================================
 XARS X-ray Monte-carlo simulator
-------------------------------------
+====================================
 
 .. image:: logo3-large.png
 
@@ -7,14 +8,17 @@ XARS simulates X-rays propagating through matter in user-defined geometries.
 
 Features:
 
-* Photo-electric absorption
-* Compton scattering 
-* Fluorescent line emission (self-consistent with absorption above)
-* Arbitrary user-defined geometries (included examples: toroid, sphere, disk)
-* Arbitrary geometries made from many spherical blobs/clumps (when combined with LightRayRider)
-* Arbitrary grid geometries from hydrodynamic simulations (when combined with LightRayRider)
+* Physical processes:
 
-XARS stands for X-ray Absorption, Re-emission and Scattering.
+  * Photo-electric absorption
+  * Compton scattering 
+  * Fluorescent line emission (self-consistent with absorption above)
+
+* Geometries:
+
+  * Arbitrary user-defined geometries (included examples: toroid, sphere, disk)
+  * Arbitrary geometries made from many spherical blobs/clumps (when combined with LightRayRider)
+  * Arbitrary grid geometries from hydrodynamic simulations (when combined with LightRayRider)
 
 The code-base is small (few hundred lines) and written in pure Python. New contributions are welcome.
 
@@ -27,14 +31,14 @@ Models
 --------------------------------------
 
 In Buchner et al. (in prep) we irradiated the following geometries,
-and you can download xspec table models.
+and you can download xspec table models here.
 
 * Sphere, Sphere with Bi-conical cut-out
 * Clumpy model made from 100,000 spheres: Unified X-ray Clumpy model UXCLUMPY
 * Radiative fountain, from a hydrodynamic grid simulation
 * Warped Disk
 
-More details on the `Models <doc/README.rst>`_ page!
+Downloads, movies and more details on the `Models <doc/README.rst>`_ page.
 
 Usage
 ---------------------------------------------------
