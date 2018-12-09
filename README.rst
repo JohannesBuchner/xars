@@ -30,8 +30,8 @@ In Buchner et al. (in prep) we irradiated the following geometries,
 and you can download xspec table models.
 
 * Sphere, Sphere with Bi-conical cut-out
-* Clumpy model: Unified X-ray Clumpy model UXCLUMPY
-* Radiative fountain (hydrodynamic simulation)
+* Clumpy model made from 100,000 spheres: Unified X-ray Clumpy model UXCLUMPY
+* Radiative fountain, from a hydrodynamic grid simulation
 * Warped Disk
 
 More details on the `Models <doc/README.rst>`_ page!
@@ -44,13 +44,14 @@ See the `Code Tutorial <doc/xars.rst>`_ to understand the code.
 Questions and Problems
 --------------------------------------------
 
-For any questions or problems with the software, please open an issue.
-This helps other people google the same question.
+If you have any questions or issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_. This helps other people google the same question.
 
 License
 -------------------
 
-AGPLv3. Contact me if you need a different license.
+Free and Open Source software under AGPLv3. 
+
+Contact me if you need a different license.
 
 
 
