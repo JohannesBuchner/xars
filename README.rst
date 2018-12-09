@@ -43,9 +43,13 @@ Downloads, movies and more details on the `Models <doc/README.rst>`_ page.
 Installation
 ------------------
 
+.. image:: https://travis-ci.org/JohannesBuchner/xars.svg?branch=master
+    :target: https://travis-ci.org/JohannesBuchner/xars
+    :align: right
+
 XARS requires the following python modules:
 
-   numpy scipy matplotlib h5py astropy progressbar-latest
+   numpy scipy matplotlib h5py astropy progressbar2
 
 You can install them with pip or conda as usual.
 
