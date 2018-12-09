@@ -60,5 +60,8 @@ script:
   - PYTHONPATH=../LightRayRider/ python ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
   - OMP_NUM_THREADS=3 PYTHONPATH=../LightRayRider/ python ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
   - cd ..
+  
+  # Run entire BNTorus geometry
+  - bash runtorus.sh 100
 
 #after_success: coveralls
