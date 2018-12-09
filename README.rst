@@ -28,7 +28,7 @@ How to cite XARS correctly
 Please reference Buchner et al (in prep). 
 
 Models
---------------------------------------
+------------------
 
 In Buchner et al. (in prep) we irradiated the following geometries,
 and you can download xspec table models here.
@@ -39,6 +39,17 @@ and you can download xspec table models here.
 * Warped Disk
 
 Downloads, movies and more details on the `Models <doc/README.rst>`_ page.
+
+Installation
+------------------
+
+XARS requires the following python modules:
+
+   numpy scipy matplotlib h5py astropy progressbar-latest
+
+You can install them with pip or conda as usual.
+
+Once these are installed, you just run the scripts from this directory.
 
 Usage
 ---------------------------------------------------
