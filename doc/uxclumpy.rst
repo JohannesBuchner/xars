@@ -5,7 +5,6 @@ UXCLUMPY - Unified Clumpy model
 .. image:: uxclumpy.png
   :target: https://vimeo.com/218031864
   :align: right
-  :width: 350
 
 If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
 

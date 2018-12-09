@@ -5,7 +5,6 @@ Radiative Fountain model
 .. image:: wadageometry.png
   :target: wada.rst
   :align: right
-  :width: 350
 
 If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
 

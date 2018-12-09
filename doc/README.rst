@@ -34,7 +34,6 @@ UXCLUMPY
 .. image:: uxclumpy.png
   :target: https://vimeo.com/218031864
   :align: right
-  :width: 350
 
 The Unified X-ray Clumpy model (UXCLUMPY) features:
 
@@ -55,7 +54,6 @@ Warped disk
 .. image:: warpgeometry.png
   :target: warpeddisk.rst
   :align: right
-  :width: 350
 
 A simple warped disk geometry
 
@@ -71,7 +69,6 @@ Radiative fountain (Wada 2012)
 .. image:: wadageometry.png
   :target: wada.rst
   :align: right
-  :width: 350
 
 * Geometry images: `Radiative fountain page <wada.rst>`_
 * X-ray table model available at: `Radiative fountain page <wada.rst>`_

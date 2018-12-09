@@ -44,7 +44,7 @@ See the `Code Tutorial <doc/xars.rst>`_ to understand the code.
 Questions and Problems
 --------------------------------------------
 
-If you have any questions or issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_. This helps other people google the same question.
+If you have any questions or issues or questions, please check the `FAQ <doc/faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_. This helps other people google the same question.
 
 License
 -------------------

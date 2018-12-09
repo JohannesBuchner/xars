@@ -5,7 +5,6 @@ Warped disk model
 .. image:: warpgeometry.png
   :target: warpeddisk.rst
   :align: right
-  :width: 350
 
 If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
 
