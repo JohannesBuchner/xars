@@ -62,6 +62,6 @@ script:
   - cd ..
   
   # Run entire BNTorus geometry
-  - bash runtorus.sh 100
+  #- bash runtorus.sh 100
 
 #after_success: coveralls
