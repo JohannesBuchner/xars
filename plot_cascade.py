@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import matplotlib.pyplot as plt
 import os, sys
@@ -12,7 +13,7 @@ ticks = [0.1,0.5,1, 2, 5, 10, 20, 50, 100]
 ticks_labels = [str(t) for t in ticks]
 ticks_values = energy2bin(ticks)
 
-energy_hi, energy_lo = bin2energy(range(a.shape[0]))
+energy_hi, energy_lo = bin2energy(list(range(a.shape[0])))
 weights = (energy_hi - energy_lo)
 X, Y = numpy.meshgrid(weights, weights)
 weights = X * Y
@@ -28,10 +29,10 @@ view_matrices = [a[:,:,m] / weights for m in range(nmu)]
 vmax = numpy.log10(max([maxoffdiagonal(m) for m in view_matrices]))
 #vmax = numpy.max(view_matrices)
 
-print [maxoffdiagonal(m) for m in view_matrices]
-print [numpy.mean(m) for m in view_matrices]
-print vmax
-for b, m in zip(view_matrices, range(nmu)):
+print([maxoffdiagonal(m) for m in view_matrices])
+print([numpy.mean(m) for m in view_matrices])
+print(vmax)
+for b, m in zip(view_matrices, list(range(nmu))):
 	#b =  # / 1e6
 	#b /= a.max()
 	#numpy.fill_diagonal(b, 0)

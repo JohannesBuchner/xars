@@ -1,9 +1,10 @@
+from __future__ import print_function, division
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
-import conetorus
+from . import conetorus
 import progressbar
 import matplotlib.pyplot as plt
 
@@ -28,15 +29,17 @@ class GradientConeTorusGeometry(conetorus.ConeTorusGeometry):
 		self.verbose = verbose
 		super(GradientConeTorusGeometry, self).__init__(Theta_tor, 1)
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
 		#print 'beta, zg', beta, self.zg
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		f = log(10) * cos(beta) / self.zg
 		#print 'f, dist', f, dist
 		logval = f / dist * 10**(-self.NH0 - (zi + self.z0)/self.zg)  + 1
 		#print 'logval', logval
 		
 		self.NH = numpy.where(logval < 0, 1e-100, f / log(logval))
-		assert numpy.all(self.NH > 0), [self.NH[-(self.NH > 0)], f, logval]
+		assert numpy.all(self.NH > 0), [self.NH[~(self.NH > 0)], f, logval]
 		#print zi, beta, self.NH
 		return super(GradientConeTorusGeometry, self).compute_next_point(
 			(xi, yi, zi), (dist, beta, alpha))

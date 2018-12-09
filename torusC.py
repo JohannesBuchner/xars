@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 """
 Monte-Carlo simulator for X-ray obscurer geometries
 
@@ -67,7 +68,7 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 	# use 40000 rays in random directions
 	import astropy.io.fits as pyfits
 	if verbose:
-		print 'computing normalisation ...'
+		print('computing normalisation ...')
 	photons = PhotonBunch(i=100, nphot=nphot, verbose=verbose, geometry=geometry)
 	# vertical bin, i.e. which viewing angle can see this photon?
 	mbin = numpy.asarray(binmapfunction(beta=photons.beta, alpha=photons.alpha)).astype(numpy.uint)
@@ -76,10 +77,10 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 
 	# bin in NH
 	if verbose:
-		print '   computing LOS NH ...'
+		print('   computing LOS NH ...')
 	nh = geometry.compute_los_nh(photons.beta, photons.alpha)
 	if verbose:
-		print '   computing LOS NH ... done'
+		print('   computing LOS NH ... done')
 	nh[nh<1e-2] = 1e-2
 	# make the bins from 0 to 6 spread out over n_nh_bins
 	kbin = ((log10(nh) + 2) * n_nh_bins / (4 + 2)).astype(int)
@@ -88,9 +89,9 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 	mkbin = kbin * nmu + mbin
 
 	# compute fraction in the given NH/mu bins
-	counts, xedges = numpy.histogram(mkbin, bins=range(nmu*n_nh_bins+1))
+	counts, xedges = numpy.histogram(mkbin, bins=list(range(nmu*n_nh_bins+1)))
 	normalisation = counts * 1. / len(mkbin)
-	print normalisation, normalisation.shape
+	print(normalisation, normalisation.shape)
 	hdu = pyfits.PrimaryHDU(normalisation)
 	import datetime, time
 	now = datetime.datetime.fromtimestamp(time.time())
@@ -101,10 +102,10 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 	hdu.header['METHOD'] = 'Monte-Carlo simulation code'
 	hdu.header['NPHOT'] = nphot
 	if verbose:
-		print '   saving ...'
+		print('   saving ...')
 	hdu.writeto(prefix + "normalisation.fits", clobber=True)
 	if verbose:
-		print '   saving ... done'
+		print('   saving ... done')
 	return normalisation
 
 if not os.path.exists(prefix + "normalisation.fits"):
@@ -114,15 +115,15 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 	rdata_transmit = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
 	rdata_reflect = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
 	#rdata = [0] * nbins
-	energy_lo, energy_hi = bin2energy(range(nbins))
+	energy_lo, energy_hi = bin2energy(list(range(nbins)))
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
 	
 	pbar = progressbar.ProgressBar(widgets=[
-		progressbar.Percentage(), progressbar.Counter('%5d'), 
+		progressbar.Percentage(), progressbar.Counter(), 
 		progressbar.Bar(), progressbar.ETA()], maxval=nbins).start()
 
-	binrange = [range(nbins+1), range(nmu*n_nh_bins+1)]
+	binrange = [list(range(nbins+1)), list(range(nmu*n_nh_bins+1))]
 	for i in range(nbins):
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		for n_interactions in range(1000):
@@ -135,7 +136,7 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 				if not more:
 					break
 				continue
-			if verbose: print ' received %d emitted photons (after %d interactions)' % (len(emission['energy']), n_interactions)
+			if verbose: print(' received %d emitted photons (after %d interactions)' % (len(emission['energy']), n_interactions))
 			beta = emission['beta']
 			alpha = emission['alpha']
 			assert (beta <= pi).all(), beta

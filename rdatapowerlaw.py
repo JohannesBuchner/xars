@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 """
 converts a rdata fits file into spectra using a input powerlaw
 """
@@ -8,7 +9,7 @@ from numpy import pi, arccos, tan, round, exp, log, log10, sin, cos, logical_and
 from binning import nbins, energy2bin, bin2energy
 import matplotlib.pyplot as plt
 
-energy_lo, energy_hi = bin2energy(range(nbins))
+energy_lo, energy_hi = bin2energy(numpy.arange(nbins)))
 energy = (energy_hi + energy_lo)/2.
 deltae = energy_hi - energy_lo
 
@@ -57,7 +58,7 @@ plt.figure(figsize=(7,5))
 results = []
 
 for mu in range(nmu):
-	print 'viewing pos', mu
+	print('viewing pos', mu)
 	# we assume a quadratic matrix, i.e. x * x
 	o = []
 	for j in range(rdata.shape[1]):

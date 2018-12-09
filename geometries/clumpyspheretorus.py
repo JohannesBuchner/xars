@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
@@ -13,9 +14,11 @@ class ClumpySphereTorusGeometry(object):
 		self.clumpNH = self.NH * 1. / nclumps
 		self.verbose = verbose
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
 		#lam = int(dist / self.clumpNH)
 		# generate random number of clumps to encounter
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		k = numpy.random.poisson(self.nclumps)
 		NHfull = k * self.clumpNH
 		#d = dist / self.NH
@@ -24,14 +27,14 @@ class ClumpySphereTorusGeometry(object):
 			d = 10
 		elif dist < NHfull:
 			# we go as far as we get
-			j = int(dist / clumpNH)
-			NHremainder = numpy.fmod(dist, clumpNH)
+			j = int(dist / self.clumpNH)
+			NHremainder = numpy.fmod(dist, self.clumpNH)
 			d = NHfull / self.NH
 		
 		# how deep do we go into the k-th cloud
 		d = (NHfull + NHremainder) / self.NH
 		
-		if self.verbose: print '  .. .. mean in nH units: ', d.mean()
+		if self.verbose: print('  .. .. mean in nH units: ', d.mean())
 		# compute relative vector traveled
 		xv, yv, zv = to_cartesian((d, beta, alpha))
 		

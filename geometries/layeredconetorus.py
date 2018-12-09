@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arccos
@@ -12,7 +13,9 @@ class LayeredConeTorusGeometry(object):
 		self.NHs = numpy.array(NHs, dtype=float)
 		self.verbose = verbose
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		a, b, c = to_cartesian((1, beta, alpha))
 		
 		t = cone_raytrace_finite(self.Theta_tors, self.NHs, xi, yi, zi, a, b, c, dist)
@@ -134,7 +137,7 @@ def test_origin_xyz():
 	assert numpy.allclose(yf, 0.35355339*dist), yf
 	assert numpy.allclose(zf, 0.38268343*dist), zf
 	assert numpy.all(inside == [True, True, False]), inside
-	print rad, theta, phi
+	print(rad, theta, phi)
 	assert numpy.allclose(rad, dist), rad
 	assert numpy.allclose(theta, beta), (beta, theta)
 	assert numpy.allclose(phi, alpha), (alpha, phi)
@@ -219,11 +222,11 @@ def test_horizontal_x_farside():
 	dist  = numpy.array([1.0, 1.5, 3])
 	xskipped = zi * 2 # in 45 degree torus x=z
 	inside, (xf,yf,zf), (rad, theta, phi) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
-	print 'expectation:'
-	print 'naive:', xi + dist
-	print 'skipped:', xskipped
-	print xi + dist + xskipped
-	print 'testing:'
+	print('expectation:')
+	print('naive:', xi + dist)
+	print('skipped:', xskipped)
+	print(xi + dist + xskipped)
+	print('testing:')
 	assert numpy.all(inside == [True, True, False]), inside
 	assert numpy.allclose(yf, 0), yf
 	assert numpy.allclose(zf, 0.001), zf

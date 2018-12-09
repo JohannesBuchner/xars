@@ -1,17 +1,22 @@
+from __future__ import print_function, division
 import numpy
 from numpy import pi, tan, round, log, log10, sin, cos, logical_and, logical_or, arccos, arctan, arctan2
 
-def to_spherical((xf, yf, zf)):
+def to_spherical(cartesian_location):
+	(xf, yf, zf) = cartesian_location
 	xf = numpy.asarray(xf).reshape((-1,))
 	yf = numpy.asarray(yf).reshape((-1,))
 	zf = numpy.asarray(zf).reshape((-1,))
 	rad = (xf**2+yf**2+zf**2)**0.5
 	#phi = numpy.fmod(numpy.arctan2(yf, xf) + 2*pi, pi)
 	phi = numpy.arctan2(yf, xf)
-	theta = numpy.where(rad == 0, 0., arccos(zf / rad))
+	mask = ~(rad == 0)
+	theta = numpy.zeros_like(rad)
+	theta[mask] = arccos(zf[mask] / rad[mask])
 	return (rad, theta, phi)
 
-def to_cartesian((rad, theta, phi)):
+def to_cartesian(spherical_location):
+	(rad, theta, phi) = spherical_location
 	xv = rad * sin(theta) * cos(phi)
 	yv = rad * sin(theta) * sin(phi)
 	zv = rad * cos(theta)

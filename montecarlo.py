@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arctan2 as atan2, exp
@@ -24,7 +25,7 @@ def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
 	plt.plot(xi[~mask], zi[~mask], '.', ms=1, alpha=0.5,
 		label='%02.2f%% (%02.2f%% through) at interaction # %d' % (
 		len(mask) * 100. / nphot, 
-		(-mask).sum() * 100. / nphot,
+		(~mask).sum() * 100. / nphot,
 		n_interactions ), color='blue')
 	plt.vlines(xi[mask].mean(), 0, 1, linestyle='--', color='red')
 	plt.vlines(xi[~mask].mean(), 0, 1, linestyle='--', color='blue')
@@ -42,12 +43,13 @@ def plot_path(rad_paths, theta_paths, **kwargs):
 	for rad, theta in zip(rad_paths, theta_paths):
 		xi=rad*sin(theta)
 		zi=rad*cos(theta)
-		print theta, rad, xi, zi
+		print(theta, rad, xi, zi)
 		plt.plot(xi, zi, 'o:', **kwargs)
-	print
+	print()
+
 
 def run(prefix, nphot, nmu, geometry, 
-	binmapfunction = lambda beta: numpy.floor(nmu * beta / pi),
+	binmapfunction,
 	plot_paths = False, plot_interactions = False, verbose = False):
 	
 	if plot_paths or plot_interactions:
@@ -56,16 +58,16 @@ def run(prefix, nphot, nmu, geometry,
 	rdata_transmit = numpy.zeros((nbins, nbins, nmu))
 	rdata_reflect = numpy.zeros((nbins, nbins, nmu))
 	#rdata = [0] * nbins
-	energy_lo, energy_hi = bin2energy(range(nbins))
+	energy_lo, energy_hi = bin2energy(list(range(nbins)))
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
 	
 	pbar = progressbar.ProgressBar(widgets=[
-		progressbar.Percentage(), progressbar.Counter('%5d'), 
-		progressbar.Bar(), progressbar.ETA()], maxval=nbins).start()
+		progressbar.Percentage(), progressbar.Counter(), 
+		progressbar.Bar(), progressbar.ETA()])
 
-	binrange = [range(nbins+1), range(nmu+1)]
-	for i in list(range(nbins))[::-1]:
+	binrange = [list(range(nbins+1)), list(range(nmu+1))]
+	for i in pbar(list(range(nbins))[::-1]):
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		remainder = [(photons.rad, photons.theta)]
 		if plot_paths:
@@ -80,7 +82,7 @@ def run(prefix, nphot, nmu, geometry,
 				if not more:
 					break
 				continue
-			if verbose: print ' received %d emitted photons (after %d interactions)' % (len(emission['energy']), n_interactions)
+			if verbose: print(' received %d emitted photons (after %d interactions)' % (len(emission['energy']), n_interactions))
 			beta = emission['beta']
 			alpha = emission['alpha']
 			#beta = numpy.abs(beta)
@@ -123,12 +125,12 @@ def run(prefix, nphot, nmu, geometry,
 					alpha=1 - 0.75*numpy.exp(-n_interactions/5.))
 			
 			if plot_interactions:
-				print 'plotting %d photons ...' % len(beta)
+				print('plotting %d photons ...' % len(beta))
 				plot_interaction(nphot=nphot, n_interactions=n_interactions, **emission)
 				#plt.savefig(prefix + "rdata_%d_%d.pdf" % (i, n_interactions))
 				plt.savefig(prefix + "rdata_%d_%d.png" % (i, n_interactions))
 				plt.close()
-				print 'plotting ... done'
+				print('plotting ... done')
 			if not more:
 				break
 		if plot_paths:
@@ -139,34 +141,32 @@ def run(prefix, nphot, nmu, geometry,
 			#plt.savefig(prefix + "paths_%d.pdf" % (i))
 			plt.savefig(prefix + "paths_%d.png" % (i))
 			plt.close()
-			
-		pbar.update(pbar.currval + 1)
 	pbar.finish()
 
 	return (rdata_transmit, rdata_reflect), nphot
 
 def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	
-	energy_lo, energy_hi = bin2energy(range(nbins))
+	energy_lo, energy_hi = bin2energy(list(range(nbins)))
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
 	import h5py
 	try:
-		print 'Loading previous file "%s" if exists ...' % (prefix + "rdata.hdf5")
+		print('Loading previous file "%s" if exists ...' % (prefix + "rdata.hdf5"))
 		with h5py.File(prefix + "rdata.hdf5", 'r') as old_file:
-			print '  reading values'
+			print('  reading values')
 			rdata_old = old_file['rdata'].value
-			print '  reading header value'
+			print('  reading header value')
 			prev_nphot = old_file.attrs['NPHOT']
-			print 'Accumulating onto previous result ...'
+			print('Accumulating onto previous result ...')
 			rdata = rdata + rdata_old
 			del rdata_old
 	except Exception as e:
-		if "error message = 'no such file or directory'" not in e.message:
-			print 'updating file failed; writing fresh. Error:', e
+		if "error message = 'no such file or directory'" not in str(e):
+			print('updating file failed; writing fresh. Error:', e)
 		prev_nphot = 0
 	nphot_total = nphot + prev_nphot
-	print '  storing ...'
+	print('  storing ...')
 	import datetime, time
 	now = datetime.datetime.fromtimestamp(time.time())
 	nowstr = now.isoformat()
@@ -180,10 +180,10 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		f.attrs['DATE'] = nowstr
 		f.attrs['METHOD'] = 'Monte-Carlo simulation code'
 		f.attrs['NPHOT'] = nphot_total
-		for k,v in extra_fits_header.iteritems():
+		for k,v in extra_fits_header.items():
 			f.attrs[k] = v
 	
-	print '  total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins)
+	print('  total of %d input / %d output photons across %d bins' % (nphot_total, rdata.sum(), nbins))
 	
 	if not plot:
 		return nphot_total, rdata
@@ -229,7 +229,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		plt.savefig(prefix + "_%d.png" % mu)
 		#numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
 		plt.close()
-	print
+	print()
 	return nphot_total, rdata
 
 

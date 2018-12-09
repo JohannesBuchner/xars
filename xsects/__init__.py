@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 """
 Cross sections
 ---------------
@@ -15,7 +16,7 @@ electmass = 511. # electron rest mass in keV/c^2
 
 xscatt = numpy.zeros(binning.nbins)
 
-energy_lo, energy_hi = binning.bin2energy(range(binning.nbins))
+energy_lo, energy_hi = binning.bin2energy(numpy.arange(binning.nbins))
 energy = (energy_hi + energy_lo)/2.
 deltae = energy_hi - energy_lo
 

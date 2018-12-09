@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arccos
@@ -12,10 +13,12 @@ class ConeTorusGeometry(object):
 		self.NH = NH
 		self.verbose = verbose
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		d = dist / self.NH # distance in units of nH
 		
-		if self.verbose: print '  .. .. mean in nH units: ', d.mean()
+		if self.verbose: print('  .. .. mean in nH units: ', d.mean())
 
 		# compute relative vector traveled
 		xv, yv, zv = to_cartesian((1, beta, alpha))
@@ -28,8 +31,9 @@ class ConeTorusGeometry(object):
 		quad = b**2 - 4.*a*c
 		
 		# compute the two solutions
-		e1=(-b-quad**0.5)/(2.*a)
-		e2=(-b+quad**0.5)/(2.*a)
+		with numpy.errstate(invalid='ignore'):
+			e1=(-b-quad**0.5)/(2.*a)
+			e2=(-b+quad**0.5)/(2.*a)
 		# if both are positive and e1<1
 		#assert (quad >= 0).all()
 		x1 = xi + e1 * xv
@@ -40,8 +44,9 @@ class ConeTorusGeometry(object):
 		z2 = zi + e2 * zv
 		
 		# check if those points are outside the sphere
-		ri1 = x1**2 + y1**2 + z1**2 <= 1
-		ri2 = x2**2 + y2**2 + z2**2 <= 1
+		with numpy.errstate(invalid='ignore'):
+			ri1 = x1**2 + y1**2 + z1**2 <= 1
+			ri2 = x2**2 + y2**2 + z2**2 <= 1
 		#print 'cone points radius', ri1, ri2
 		
 		# compute intersection with sphere
@@ -63,8 +68,9 @@ class ConeTorusGeometry(object):
 		sz2 = zi + se2 * zv
 
 		# check if inside cone
-		r1 = sx1**2 + sy1**2 + sz1**2
-		r2 = sx2**2 + sy2**2 + sz2**2
+		with numpy.errstate(invalid='ignore'):
+			r1 = sx1**2 + sy1**2 + sz1**2
+			r2 = sx2**2 + sy2**2 + sz2**2
 		theta1 = numpy.where(r1 == 0, 0., arccos(sz1 / r1))
 		theta2 = numpy.where(r2 == 0, 0., arccos(sz2 / r2))
 		theta1[theta1 > pi/2] = pi - theta1[theta1 > pi/2]
@@ -78,7 +84,8 @@ class ConeTorusGeometry(object):
 		#print es, 'es'
 		good = numpy.transpose([ri1, ri2, si1, si2])
 		# they will be ignored, because we go in the pos direction
-		good[~(es > 0)] = False
+		with numpy.errstate(invalid='ignore'):
+			good[~(es > 0)] = False
 		es[~good] = -1
 		nsol = good.sum(axis=1)
 		#assert nsol.shape == xi.shape, (nsol.shape, xi.shape)
@@ -121,12 +128,12 @@ class ConeTorusGeometry(object):
 				# have to add to the distance we are allowed to travel
 				# the distance between t1 and t2 
 				es_3 = es_2
-				es_3[es_3] = -inside_2 # select those cases
+				es_3[es_3] = ~inside_2 # select those cases
 				#print 'd', d, es_3, d[es_3].shape, t2.shape, t1.shape, inside_2.shape
 				#print 't:', t1, t2, t3
 				#assert es_3.shape == (len(xi),)
-				#assert es_3.sum() == (-inside_2).sum(), (es_3, -inside_2)
-				#assert d[es_3].size == (-inside_2).sum(), (es_3, -inside_2)
+				#assert es_3.sum() == (~inside_2).sum(), (es_3, ~inside_2)
+				#assert d[es_3].size == (~inside_2).sum(), (es_3, ~inside_2)
 				dmod = d[es_3] + t2[~inside_2] - t1[~inside_2]
 				xf[es_3] = xi[es_3] + dmod * xv[es_3]
 				yf[es_3] = yi[es_3] + dmod * yv[es_3]
@@ -309,20 +316,16 @@ def test_horizontal_x_farside():
 	dist  = numpy.array([1.0, 1.5, 3])
 	xskipped = zi * 2 # in 45 degree torus x=z
 	inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
-	print 'expectation:'
-	print 'naive:', xi + dist
-	print 'skipped:', xskipped
-	print xi + dist + xskipped
-	print 'testing:'
+	print('expectation:')
+	print('naive:', xi + dist)
+	print('skipped:', xskipped)
+	print(xi + dist + xskipped)
+	print('testing:')
 	assert numpy.allclose(xf, xi + dist + xskipped), xf
 	assert numpy.allclose(yf, 0), yf
 	assert numpy.allclose(zf, 0.001), zf
 	assert numpy.all(inside == [True, True, False]), inside
 
-if __name__ == '__main__':
-	test()	
-	
-	
 	
 
 

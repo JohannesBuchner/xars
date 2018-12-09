@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 """
 Monte-Carlo simulator for X-ray obscurer geometries
 

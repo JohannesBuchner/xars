@@ -1,3 +1,6 @@
+nphot=$1
+prefix=output/torus
+mkdir -p output
 
 i=0
 for nh in 9.99999978e-03   1.41000003e-02   1.99999996e-02 \
@@ -19,7 +22,7 @@ do
 	for o in 25.79999924  36.90000153  45.59999847  53.09999847 60. 66.40000153 72.5  78.5 84.30000305
 	do
 		[ -e $2_${i}_${j}_rdata.hdf5 ] ||
-		python torus2.py --nh=$nh --opening-angle=$o --nevents $1 --output="$2_${i}_${j}_" &
+		python torus2.py --nh=$nh --opening-angle=$o --nevents $nphot --output="${prefix}_${i}_${j}_" &
 		((j++))
 	done
 	wait
@@ -28,7 +31,6 @@ done
 
 exit
 
-# if $2 == output/torus
 cd output
 python ../xspecexport/createtorustable.py wedge.fits torus_*_?_rdata.hdf5
 python ../xspecexport/createtorustable.py wedge-transmit.fits torus_*_?_transmitrdata.hdf5

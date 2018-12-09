@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 from numpy import exp, pi, log, log10, cos, sin
 import sys
@@ -46,7 +47,7 @@ for diskfraction in 16, 4, 2, 1:
 		rho[i,j,k] = CTrho
 		k -= 1
 		rho[i,j,k] = CTrho
-	print diskfraction, rho[tuple(center.astype(int))]
+	print(diskfraction, rho[tuple(center.astype(int))])
 
 
 	with h5py.File('warpeddisk_%s.hdf5' % diskfraction, 'w') as fout:

@@ -4,7 +4,7 @@ from numpy import exp, log, log10
 
 #from bn import nbins, bin2energy_lo, energy2bin
 #from uniform import nbins, bin2energy_lo, energy2bin
-from bending import nbins, bin2energy_lo, energy2bin
+from .bending import nbins, bin2energy_lo, energy2bin
 
 def bin2energy_hi(i):
 	return bin2energy_lo(i+1)

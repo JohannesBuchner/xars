@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
@@ -10,10 +11,12 @@ class DiskGeometry(object):
 		self.verbose = verbose
 		self.NH = 1
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		d = dist / self.NH # distance in units of nH
 		
-		if self.verbose: print '  .. .. mean in nH units: ', d.mean()
+		if self.verbose: print('  .. .. mean in nH units: ', d.mean())
 		# compute relative vector traveled
 		xv, yv, zv = to_cartesian((d, beta, alpha))
 		

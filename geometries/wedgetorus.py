@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, tan, round, log, log10, sin, cos, logical_and, logical_or, arccos, arctan, arctan2
@@ -81,8 +82,10 @@ class WedgeTorusGeometry(object):
 		return True, None
 		
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
 		# d = dist / self.NH # distance in units of nH
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		(xi, yi, zi) = (
 			numpy.asarray(xi, dtype=numpy.float).reshape((-1,)), 
 			numpy.asarray(yi, dtype=numpy.float).reshape((-1,)), 
@@ -95,7 +98,7 @@ class WedgeTorusGeometry(object):
 		radi, thetai, phii = to_spherical((xi, yi, zi))
 		
 		xv, yv, zv = to_cartesian((1, beta, alpha))
-		if self.verbose: print 'ray from', (xi, yi, zi), 'to', (xv, yv, zv)
+		if self.verbose: print('ray from', (xi, yi, zi), 'to', (xv, yv, zv))
 		
 		intersections = []
 		
@@ -113,7 +116,7 @@ class WedgeTorusGeometry(object):
 			already_inside = numpy.logical_and(
 				numpy.logical_and(thetai >= self.Theta_low[i], thetai <= self.Theta_high[i]),
 				numpy.logical_and(radi >= self.r_inner[i], radi <= self.r_outer[i]))
-			if self.verbose: print 'already inside %d' % i, already_inside
+			if self.verbose: print('already inside %d' % i, already_inside)
 			intersections.append((i * numpy.ones_like(already_inside, dtype=numpy.uint), numpy.where(already_inside, 0, numpy.nan)))
 			
 			# sphere intersections
@@ -122,10 +125,10 @@ class WedgeTorusGeometry(object):
 			
 			for inter in d1i, d2i, d1o, d2o:
 				rf, thetaf, phif = to_spherical((xi+inter*xv, yi+inter*yv, zi+inter*zv))
-				if self.verbose: print '   potential sphere surface intersection with %d:' % i, inter, (rf, thetaf, phif)
+				if self.verbose: print('   potential sphere surface intersection with %d:' % i, inter, (rf, thetaf, phif))
 				relevant = numpy.logical_and(thetaf <= self.Theta_high[i], thetaf >= self.Theta_low[i])
 				inter[~relevant] = numpy.nan
-				if self.verbose: print '   sphere surface intersection with %d:' % i, inter, relevant
+				if self.verbose: print('   sphere surface intersection with %d:' % i, inter, relevant)
 				intersections.append((i * numpy.ones_like(inter, dtype=numpy.uint), inter))
 				
 			# cone intersections
@@ -134,12 +137,12 @@ class WedgeTorusGeometry(object):
 			# is in sphere?
 			for inter in d1l, d2l, d1h, d2h:
 				rf, thetaf, phif = to_spherical((xi+inter*xv, yi+inter*yv, zi+inter*zv))
-				if self.verbose: print '   potential cone surface intersection with %d:' % i, inter, (rf, thetaf, phif)
+				if self.verbose: print('   potential cone surface intersection with %d:' % i, inter, (rf, thetaf, phif))
 				relevant = numpy.logical_and(
 					numpy.logical_and(rf <= self.r_outer[i], rf >= self.r_inner[i]),
 					numpy.logical_and( thetaf - 1e-6 <= self.Theta_high[i], thetaf + 1e-6 >= self.Theta_low[i]))
 				inter[~relevant] = numpy.nan
-				if self.verbose: print '   cone surface intersection with %d:' % i, inter, relevant
+				if self.verbose: print('   cone surface intersection with %d:' % i, inter, relevant)
 				intersections.append((i * numpy.ones_like(inter, dtype=numpy.uint), inter))
 		
 		# here we need something that goes through the intersections in the correct order, skipping nans
@@ -153,9 +156,9 @@ class WedgeTorusGeometry(object):
 			plt.savefig(self.plot)
 		# compute sequence of densities
 		if self.verbose: 
-			print 'found intersections:'
+			print('found intersections:')
 			for oi, di in intersections:
-				print '   ', oi, di
+				print('   ', oi, di)
 		
 		# find pairs of entry/exit, skipping nans
 		#   find entry:
@@ -168,7 +171,7 @@ class WedgeTorusGeometry(object):
 		yf = yi.copy()
 		zf = zi.copy()
 		
-		if self.verbose: print 'handling intersections; distance to go:', dist
+		if self.verbose: print('handling intersections; distance to go:', dist)
 		for i in range(len(intersections)):
 			oi, di = intersections[i]
 			# if di is nan, do nothing
@@ -190,7 +193,7 @@ class WedgeTorusGeometry(object):
 			assert numpy.all(last_o[point_exit] == oi[point_exit])
 			
 			distance = di - last_d
-			if self.verbose: print 'within %d for %f [%f .. %f]', (oi[point_exit], distance[point_exit], last_d[point_exit], di[point_exit])
+			if self.verbose: print('within %d for %f [%f .. %f]', (oi[point_exit], distance[point_exit], last_d[point_exit], di[point_exit]))
 			
 			if self.plot:
 				plt.plot([0.4 + 0.3 * (xi[point_exit] + last_d[point_exit] * xv[point_exit]), 
@@ -200,7 +203,7 @@ class WedgeTorusGeometry(object):
 					'+-', color='red', lw=4, alpha=0.3)
 			
 			nh = self.density[oi] * distance
-			if self.verbose: print 'NH: ', nh
+			if self.verbose: print('NH: ', nh)
 			
 			assert dist.shape == nh.shape, (dist.shape, nh.shape)
 			assert point_exit.shape == terminated.shape, (point_exit.shape, terminated.shape)
@@ -227,7 +230,7 @@ class WedgeTorusGeometry(object):
 			assert numpy.all(d_interaction >= t_last_d)
 			assert numpy.all(d_interaction <= t_this_d)
 			
-			if self.verbose: print 'terminating %d, at' % termination.sum(), d_interaction
+			if self.verbose: print('terminating %d, at' % termination.sum(), d_interaction)
 			if numpy.any(termination):
 				xf[termination] = t_xi + d_interaction * t_xv
 				yf[termination] = t_yi + d_interaction * t_yv
@@ -246,18 +249,18 @@ class WedgeTorusGeometry(object):
 				# we actually do terminate inside now
 				terminate_inside_scene[termination] = True
 				terminated[termination] = True
-				if self.verbose: print 'termination update:', terminate_inside_scene
+				if self.verbose: print('termination update:', terminate_inside_scene)
 			
 			dist[gothrough] -= nh[gothrough]
-			if self.verbose: print 'distance left:', dist[gothrough]
+			if self.verbose: print('distance left:', dist[gothrough])
 			last_d[point_exit] = numpy.nan
 			last_o[point_exit] = numpy.nan
 		
 		# we leave the scene
-		if self.verbose: print 'termination inside:', terminate_inside_scene
+		if self.verbose: print('termination inside:', terminate_inside_scene)
 		return terminate_inside_scene, (xf,yf,zf), (rfinal, beta, alpha)
 	
-	def line_sphere_intersection(self, (xi, yi, zi), (xv, yv, zv), R):
+	def line_sphere_intersection(self, xxx_todo_changeme2, xxx_todo_changeme3, R):
 		# compute sphere intersections
 		# (xi + d * xv)**2 + (yi + d * yv)**2 + (zi + d * zv)**2 = R**2
 		# 
@@ -266,6 +269,8 @@ class WedgeTorusGeometry(object):
 		# zi**2 + 2 * zi * d * zv + d**2 + d**2 * zv**2 = R**2
 		# 
 		# a * x^2 + b * x + c = 0
+		(xi, yi, zi) = xxx_todo_changeme2
+		(xv, yv, zv) = xxx_todo_changeme3
 		c = xi**2 + yi**2 + zi**2 - R**2
 		b = 2 * (xi*xv + yi*yv + zi*zv)
 		a = (xv**2 + yv**2 + zv**2)
@@ -285,10 +290,12 @@ class WedgeTorusGeometry(object):
 		d2[~have_soln] = numpy.nan
 		return d1, d2
 
-	def line_cone_intersection(self, (xi, yi, zi), (xv, yv, zv), theta):
+	def line_cone_intersection(self, xxx_todo_changeme4, xxx_todo_changeme5, theta):
 		# compute cone intersections
 		# cos(theta) = (zi + d * zv) / ((xi + d * xv)**2 + (yi + d * yv)**2 + (zi + d * zv)**2)**0.5
 		#assert theta >= 0, theta
+		(xi, yi, zi) = xxx_todo_changeme4
+		(xv, yv, zv) = xxx_todo_changeme5
 		a = zv**2 - (xv**2 + yv**2)*tan(pi/2 - theta)**2
 		b = 2.*zi*zv - (2.*xi*xv + 2.*yi*yv)*tan(pi/2 - theta)**2
 		c = zi**2 - (xi**2 + yi**2)*tan(pi/2 - theta)**2
@@ -297,7 +304,7 @@ class WedgeTorusGeometry(object):
 		have_soln = quad >= 0
 		d1 = (-b - quad**0.5)/(2. * a)
 		d2 = (-b + quad**0.5)/(2. * a)
-		if self.verbose: print 'cone intersection distances', d1, d2
+		if self.verbose: print('cone intersection distances', d1, d2)
 		
 		for di in d1, d2:
 			xf = xi + di * xv
@@ -400,7 +407,7 @@ def test_random_wedge():
 				geo = WedgeTorusGeometry(**d)
 				break
 			except AssertionError as e:
-				print e
+				print(e)
 				continue
 		geo.viz()
 		plt.savefig('wedgetestrand.pdf')
@@ -671,9 +678,9 @@ def speed_run():
 				geo = WedgeTorusGeometry(**d)
 				break
 			except AssertionError as e:
-				print e
+				print(e)
 				continue
-		print ' --- setup %02d random geometry using:' % i, d
+		print(' --- setup %02d random geometry using:' % i, d)
 		if plotting:
 			geo.plot = "raytestrand_%02d.pdf" % i
 			geo.viz()

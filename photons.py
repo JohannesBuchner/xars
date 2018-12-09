@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arctan2 as atan2, exp
@@ -24,7 +25,7 @@ class PhotonBunch(object):
 		self.geometry = geometry
 		energy_lo, energy_hi = bin2energy(i)
 		e = (energy_lo + energy_hi) / 2.
-		if self.verbose: print 'PhotonBunch of size %d with energy %.2f keV' % (nphot, e)
+		if self.verbose: print('PhotonBunch of size %d with energy %.2f keV' % (nphot, e))
 		#self.energy = e * numpy.ones(nphot)
 		self.energy = rng.uniform(low=energy_lo, high=energy_hi, size=nphot)
 		#bin = energy2bin(self.energy)
@@ -41,7 +42,7 @@ class PhotonBunch(object):
 	
 	def cut_free(self, free_mask):
 		"""cut the free photons according to free_mask """
-		free = -self.stuck
+		free = ~self.stuck
 		free[free] = free_mask
 		self.cut(free)
 		return free
@@ -53,11 +54,11 @@ class PhotonBunch(object):
 		return self.phi, self.theta, self.rad, self.alpha, self.beta, self.energy, self.bin
 	
 	def get_free(self):
-		free = -self.stuck
+		free = ~self.stuck
 		return self.phi[free], self.theta[free], self.rad[free], self.alpha[free], self.beta[free], self.energy[free], self.bin[free]
 
 	def update_free(self, phi, theta, rad, alpha, beta, energy, bin):
-		free = -self.stuck
+		free = ~self.stuck
 		self.phi[free], self.theta[free], self.rad[free], self.alpha[free], self.beta[free], self.energy[free], self.bin[free] =  phi, theta, rad, alpha, beta, energy, bin
 	
 	def get_stuck(self):
@@ -72,34 +73,34 @@ class PhotonBunch(object):
 		#self.stuck[self.stuck] = freed 
 	
 	def pump(self):
-		if self.verbose: print 'photon iteration: %d free photons, %d scattering %s' % ((-self.stuck).sum(), self.stuck.sum(), '_'*20)
+		if self.verbose: print('photon iteration: %d free photons, %d scattering %s' % ((~self.stuck).sum(), self.stuck.sum(), '_'*20))
 		phi, theta, rad, alpha, beta, energy, bin = self.get_free()
 		
 		
 		# first half deals with free photons
 		if len(energy) > 0:
-			if self.verbose: print '  .. distance travelled'
+			if self.verbose: print('  .. distance travelled')
 			nphot = len(energy)
 			r1 = rng.uniform(size=nphot)
 			taur = - log(1. - r1) # effective tau
 			dist = taur / xboth[bin] # distance travelled
 			#if self.verbose: print '  .. .. tau min: %f mean: %f max: %f ' % (taur.min(), taur.mean(), taur.max())
-			if self.verbose: print '  .. .. dist min: %f mean: %f max: %f ' % (dist.min(), dist.mean(), dist.max())
+			if self.verbose: print('  .. .. dist min: %f mean: %f max: %f ' % (dist.min(), dist.mean(), dist.max()))
 		
 			phi0 = phi
 			theta0 = theta
 			rad0 = rad
-		  	xi, yi, zi = to_cartesian((rad0, theta0, phi0))
-		  	
-		  	#if self.verbose: print '  .. computing position'
+			xi, yi, zi = to_cartesian((rad0, theta0, phi0))
+			
+			#if self.verbose: print '  .. computing position'
 			# compute position
 			inside, (xf,yf,zf), (rad, phi, theta) = self.geometry.compute_next_point((xi, yi, zi), (dist, beta, alpha))
-			outside = -inside
+			outside = ~inside
 
 			# emit
-			if self.verbose: print '  .. emitting %d to outside, %d inside material' % ((-inside).sum(), inside.sum())
+			if self.verbose: print('  .. emitting %d to outside, %d inside material' % ((~inside).sum(), inside.sum()))
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
-			mask = -self.stuck
+			mask = ~self.stuck
 			mask[mask] = outside
 			self.cut_free(inside)
 			emit = dict(phi=phi0[outside], theta=theta0[outside], rad=rad0[outside], 
@@ -113,7 +114,7 @@ class PhotonBunch(object):
 			nphot = len(energy)
 			assert nphot == inside.sum()
 		
-		  	if self.verbose: print '  .. checking if absorbed'
+			if self.verbose: print('  .. checking if absorbed')
 			# what effect are we dealing with
 			r2 = rng.uniform(size=nphot)
 		
@@ -138,7 +139,7 @@ class PhotonBunch(object):
 			photabsorbed_notline = photabsorbed.copy()
 			# set the absorbed ones (where we have true) to the criterion
 			photabsorbed_line[photabsorbed] = is_line
-			photabsorbed_notline[photabsorbed] = -is_line
+			photabsorbed_notline[photabsorbed] = ~is_line
 		
 			r4 = rng.uniform(size=photabsorbed_line.sum())
 			
@@ -159,34 +160,34 @@ class PhotonBunch(object):
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
 
 			# no, we are just being swallowed (photon-absorption).
-			# photabsorbed & -is_line
+			# photabsorbed & ~is_line
 			# remove photabsorbed_line 
 		
 			absorbed = photabsorbed_notline
-			if self.verbose: print '  .. .. line emission: %3d' % (is_line.sum())
-			if self.verbose: print '  .. .. absorbed: %d (%d lost)' % (photabsorbed.sum(), absorbed.sum())
+			if self.verbose: print('  .. .. line emission: %3d' % (is_line.sum()))
+			if self.verbose: print('  .. .. absorbed: %d (%d lost)' % (photabsorbed.sum(), absorbed.sum()))
 		
-		  	if self.verbose: print '  .. checking if scattered'
+			if self.verbose: print('  .. checking if scattered')
 			# Were we compton-scattered?
-			photscattered = (-photabsorbed)
+			photscattered = (~photabsorbed)
 			nphotscattered = photscattered.sum()
 			#assert nphotscattered.shape == energy.shape
 			if nphotscattered > 0:
-				if self.verbose: print '  .. .. scattered: %d' % nphotscattered
+				if self.verbose: print('  .. .. scattered: %d' % nphotscattered)
 			
 			#self.energy[free] = energy
 			#self.bin[free] = bin
 			
-		  	if self.verbose: print '  .. checking if outside of energy range'
+			if self.verbose: print('  .. checking if outside of energy range')
 			# if in relevant energy range, find right bin
 			#energy = self.energy
 			# for unstuck and photabsorbed_line we have to check the energy
 			# just do it for all
 			energy_outside = bin <= 0
 			dropouts = numpy.logical_or(energy_outside, absorbed)
-			remainders = -dropouts
-			if self.verbose: print '  .. .. outside of energy range: %d' % (energy_outside.sum())
-			if self.verbose: print '  .. .. %d left' % (remainders.sum())
+			remainders = ~dropouts
+			if self.verbose: print('  .. .. outside of energy range: %d' % (energy_outside.sum()))
+			if self.verbose: print('  .. .. %d left' % (remainders.sum()))
 		
 			# cut to remainders (so that we only have to compute new positions for few)
 			#self.set(phi, theta, rad, alpha, beta, energy, bin)
@@ -201,7 +202,7 @@ class PhotonBunch(object):
 			#theta = numpy.where(rad == 0, 0., acos(zf / rad))
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
 			self.stuck[~self.stuck] = photscattered[remainders]
-			if self.verbose: print '  .. .. %d stuck in scattering' % (self.stuck.sum())
+			if self.verbose: print('  .. .. %d stuck in scattering' % (self.stuck.sum()))
 		else:
 			emit = None
 		
@@ -210,7 +211,7 @@ class PhotonBunch(object):
 		alpha, beta, energy, bin = self.get_stuck()
 		nphotscattered = len(energy)
 		if nphotscattered > 0:
-			if self.verbose: print '  scattering: %d' % nphotscattered
+			if self.verbose: print('  scattering: %d' % nphotscattered)
 			a = rng.uniform(size=nphotscattered)
 			# compute new direction:
 			alpha_new = a * 2. * pi # left-right angle uniform randomly
@@ -231,22 +232,22 @@ class PhotonBunch(object):
 			# new energy
 			#if self.verbose: print '  .. .. mus: %.2f' % (mus.mean())
 			loss = (1. + (1. - mus) * energy / electmass)
-			if self.verbose: print '  .. .. energy loss: %.3f, %.3f, %.3f' % (
-				loss.min(), loss.mean(), loss.max())
+			if self.verbose: print('  .. .. energy loss: %.3f, %.3f, %.3f' % (
+				loss.min(), loss.mean(), loss.max()))
 			E = energy / loss
-			if self.verbose: print '  .. .. new energy: %.3f, %.3f, %.3f' % (
-				E.min(), E.mean(), E.max())
+			if self.verbose: print('  .. .. new energy: %.3f, %.3f, %.3f' % (
+				E.min(), E.mean(), E.max()))
 			processed = E >= 0
 			self.update_and_free_stuck(alpha_new, beta_new, E, energy2bin(E), processed)
 		
-	  	if self.verbose: print '  .. finally checking all, if outside of energy range'
+		if self.verbose: print('  .. finally checking all, if outside of energy range')
 
 		phi, theta, rad, alpha, beta, energy, bin = self.get()
 		energy_outside = numpy.logical_or(energy < 0.1, energy > 1800)
 		dropouts = energy_outside
-		remainders = -dropouts
-		if self.verbose: print '  .. .. outside of energy range: %d' % (energy_outside.sum())
-		if self.verbose: print '  .. .. %d left' % (remainders.sum())
+		remainders = ~dropouts
+		if self.verbose: print('  .. .. outside of energy range: %d' % (energy_outside.sum()))
+		if self.verbose: print('  .. .. %d left' % (remainders.sum()))
 		# cut out
 		if dropouts.any():
 			self.cut(remainders)

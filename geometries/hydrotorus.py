@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
@@ -5,7 +6,7 @@ from coordtrans import to_spherical, to_cartesian
 import progressbar
 import h5py
 import matplotlib.pyplot as plt
-from raytrace import grid_raytrace_finite, grid_raytrace
+from raytrace import grid_raytrace_finite_flat, grid_raytrace_flat
 
 class HydroTorusGeometry(object):
 	"""
@@ -26,17 +27,21 @@ class HydroTorusGeometry(object):
 		# so multiply by m(H)/Msun, and by (pc/cm)^3
 		# in units of 1e22
 		self.rho = rho * nH_Msun / pc_cm**3 * (32 * pc_cm / 256) / 1e22
+		self.rho_flat = numpy.array(self.rho.flatten())
+		self.rho = self.rho_flat.reshape(self.rho.shape)
 		assert (self.rho >= 0).all()
 		#print self.rho.sum(axis=1).max()
 		self.center = f['center'].value
 		self.verbose = verbose
 	
-	def compute_next_point(self, (xi, yi, zi), (dist, beta, alpha)):
+	def compute_next_point(self, location, direction):
+		(xi, yi, zi) = location
+		(dist, beta, alpha) = direction
 		a, b, c = to_cartesian((1, beta, alpha))
 		x = xi + self.center[0]
 		y = yi + self.center[1]
 		z = zi + self.center[2]
-		t = grid_raytrace_finite(self.rho, x, y, z, a, b, c, dist)
+		t = grid_raytrace_finite_flat(self.rho_flat, self.rho.shape[0], x, y, z, a, b, c, dist)
 		
 		# are we still inside?
 		inside = t >= 0
@@ -55,7 +60,7 @@ class HydroTorusGeometry(object):
 		x = a*0 + self.center[0]
 		y = b*0 + self.center[1]
 		z = c*0 + self.center[2]
-		NH = grid_raytrace(self.rho, x, y, z, a, b, c)
+		NH = grid_raytrace_flat(self.rho_flat, self.rho.shape[0], x, y, z, a, b, c)
 		return NH
 	
 	def viz(self): 

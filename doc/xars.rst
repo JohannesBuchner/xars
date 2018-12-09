@@ -156,10 +156,6 @@ Questions and Problems
 For any questions or problems with the software, please open an issue.
 This helps other people google the same question.
 
-License
--------------------
-
-AGPLv3. Contact me if you need a different license.
 
 
 

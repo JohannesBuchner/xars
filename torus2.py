@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 """
 Monte-Carlo simulator for X-ray obscurer geometries
 
@@ -51,7 +52,7 @@ else:
 		sys.exit(-1)
 	nh = args.nh
 	nh_in = log10(nh)+22
-print '  NH                : 10^%.1f (%.3fe22)' % (nh_in, nh)
+print('  NH                : 10^%.1f (%.3fe22)' % (nh_in, nh))
 if args.covering_fraction is not None:
 	cone = acos(args.covering_fraction) # current torus opening angle
 	cone_in = args.covering_fraction
@@ -62,7 +63,7 @@ else:
 		sys.exit(-1)
 	cone = args.opening_angle / 180. * pi # current torus opening angle
 	cone_in = cos(cone)
-print '  opening angle: %.1f degrees (covering fraction %.1f)' % (cone * 180. / pi, cone_in)
+print('  opening angle: %.1f degrees (covering fraction %.1f)' % (cone * 180. / pi, cone_in))
 assert cone * 180. / pi >= 0, 'Opening angle should be above 0 degrees'
 assert cone * 180. / pi <= 90, 'Opening angle should be below 90 degrees'
 assert nh_in >= 19, 'NH should be above 20'

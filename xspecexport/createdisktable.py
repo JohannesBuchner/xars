@@ -1,3 +1,4 @@
+from __future__ import print_function, division
 import numpy
 from numpy import pi, exp
 import astropy.io.fits as pyfits
@@ -22,7 +23,7 @@ data = {}
 outfilename = sys.argv[1]
 
 for filename in sys.argv[2:]:
-	print 'loading', filename
+	print('loading', filename)
 	#f = pyfits.open(filename)
 	#nphot = int(f[0].header['NPHOT'])
 	#matrix = f[0].data
@@ -37,7 +38,7 @@ for filename in sys.argv[2:]:
 	for mu, ThetaInc in enumerate(ThetaIncs[::-1]):
 		# go through viewing angles
 		matrix_mu = matrix[:,:,mu]
-		print ThetaInc
+		print(ThetaInc)
 		for PhoIndex in PhoIndices:
 			for Ecut in Ecuts:
 				weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae).reshape((-1,1))
