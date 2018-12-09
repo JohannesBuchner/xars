@@ -3,4 +3,4 @@ scipy
 matplotlib
 h5py
 astropy
-progressbar-latest
+progressbar2
