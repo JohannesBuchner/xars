@@ -1,10 +1,12 @@
-XARS
-==================
+XARS X-ray Monte-carlo simulator
+------------------------------------
 
 .. image:: ../logo3-mid.png
   :align: right
 
-Code tutorial explaining how to use and modify XARS.
+XARS simulates X-rays propagating through matter in user-defined geometries.
+
+This code tutorial explains how to use and modify XARS.
 
 To find existing models, go back to `Models <README.rst>`_.
 
@@ -24,7 +26,7 @@ to understand how the code works. See below for detailed description.
 
 
 Tutorial: Part II: Irradiating a geometry made up of spheres
--------------------------------------------------------------
+---------------------------------------------------------------
 
 In part II, we assume that your geometry can be expressed as many spheres.
 
@@ -43,11 +45,11 @@ This will create a ray.so object.
 
 To irradiate the output files, e.g. torusblob23.0.hdf5, run::
 
-	PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
+	$ PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
 
-To use parallelise over 10 CPUs, run with 
+To use parallelise over 10 CPUs, run with::
 
-	OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
+	$ OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000000
 
 Tutorial: Part III: Irradiating a simulation grid
 -------------------------------------------------------------
@@ -70,11 +72,11 @@ This will create a ray.so object.
 
 To irradiate the output files, e.g. warpeddisk_1.hdf5, run::
 
-	PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusG.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
+	$ PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusG.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
 
-To use parallelise over 10 CPUs, run with 
+To use parallelise over 10 CPUs, run with::
 
-	OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
+	$ OMP_NUM_THREADS=10 PYTHONPATH=$HOME/Downloads/LightRayRider/ python torusC.py --geometry=warpeddisk_1.hdf5 --nevents=1000000
 
 
 
@@ -147,5 +149,17 @@ arrays into fits model tables that xspec can read.
 These scripts (in the xspecexport folder, e.g. createtorustable.py) assume a input 
 photon spectrum (e.g. a powerlaw) and store the output spectrum into a fits file.
 Adjust to additional parameters and input spectra as needed.
+
+Questions and Problems
+--------------------------------------------
+
+For any questions or problems with the software, please open an issue.
+This helps other people google the same question.
+
+License
+-------------------
+
+AGPLv3. Contact me if you need a different license.
+
 
 
