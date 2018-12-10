@@ -77,6 +77,14 @@ Radiative fountain (Wada 2012)
 * Infrared model: `Radiative fountain page <wada.rst>`_
 * More information: Buchner et al. (in prep) (or send me an email)
 
+CAT3D+WIND
+---------------------------
+
+* Geometry images: ...
+* Infrared model: http://www.sungrazer.org/cat3d.html
+* X-ray model: To be uploaded.
+
+
 
 Response of a single spherical blob
 -------------------------------------
