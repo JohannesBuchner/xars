@@ -34,7 +34,7 @@ In Buchner et al. (in prep) we irradiated the following geometries,
 and you can download xspec table models here.
 
 * Sphere, Sphere with Bi-conical cut-out
-* Clumpy model made from 100,000 spheres: Unified X-ray Clumpy model UXCLUMPY
+* Clumpy model made from 100,000 spheres: Unified X-ray Clumpy model UXCLUMPY, CAT3D-WIND
 * Radiative fountain, from a hydrodynamic grid simulation
 * Warped Disk
 

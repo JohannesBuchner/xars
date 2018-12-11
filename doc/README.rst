@@ -22,11 +22,10 @@ Models
 ==================
 
 In Buchner et al. (in prep) we irradiated the following geometries,
-and you can download xspec table models for them. 
-
-They also have infrared models associated with them.
-
+and you can **download xspec table models here** for them. 
 See the paper for description of the parameters and model assumptions.
+
+**Each of these models also has a infrared model associated with it.**
 
 
 UXCLUMPY
@@ -77,7 +76,7 @@ Radiative fountain (Wada 2012)
 * Infrared model: `Radiative fountain page <wada.rst>`_
 * More information: Buchner et al. (in prep) (or send me an email)
 
-CAT3D+WIND
+CAT3D-WIND
 ---------------------------
 
 * Geometry images: `CAT3D+WIND page <cat3d.rst>`_

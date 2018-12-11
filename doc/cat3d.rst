@@ -1,5 +1,5 @@
 ===========================
-CAT3D+WIND clumpy model
+CAT3D-WIND clumpy model
 ===========================
 
 Contact: Johannes Buchner <johannes.buchner.acad@gmx.com>
