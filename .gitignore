@@ -1,3 +1,8 @@
 *.pdf
 *~
 *.pyc
+*output*.png
+example*/*.png
+*.hdf5
+*.fits
+output

@@ -80,9 +80,9 @@ Radiative fountain (Wada 2012)
 CAT3D+WIND
 ---------------------------
 
-* Geometry images: ...
+* Geometry images: `CAT3D+WIND page <cat3d.rst>`_
 * Infrared model: http://www.sungrazer.org/cat3d.html
-* X-ray model: To be uploaded.
+* X-ray model: `CAT3D+WIND page <cat3d.rst>`_
 
 
 

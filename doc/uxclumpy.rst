@@ -60,7 +60,7 @@ Model setup
 
 Initially, freeze Ecut=400, Theta_inc=90. 
 
-Link the omni component parameters to the main model, const should be free between 1e-5 and 0.1.
+Link the omni component parameters to the main model parameters, const should be free between 1e-5 and 0.1.
 
 
 Fitting
