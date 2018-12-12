@@ -2,6 +2,9 @@
 CAT3D-WIND clumpy model
 ===========================
 
+.. image:: CAT3D-WIND.gif
+  :align: right
+
 Contact: Johannes Buchner <johannes.buchner.acad@gmx.com>
 
 Geometry information: http://www.sungrazer.org/cat3d.html
