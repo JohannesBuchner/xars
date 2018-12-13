@@ -148,9 +148,12 @@ Clumpybox3
 .. image:: clumpybox.png
   :align: right
 
-* crate of 3x3x3 spheres (without the center)
+* crate of spheres, just touching each other
 * With many free parameters; useful for exploring clumpy geometries
-* Parameters: Photon index, Energy cut-off, LOS NH, NH through the spheres (mean and variance across the spheres), filling (1 if touching, otherwise radii are smaller), Inclination angle
+* Geometry parameters: 
+  * NH through the spheres (mean and variance across the spheres), 
+  * filling: 1 if spheres are just touching (like in the illustration), otherwise radii are smaller by that factor.
+* Parameters: Photon index, Energy cut-off, LOS NH, Inclination angle
 * Download link: https://doi.org/10.5281/zenodo.2245188
 * clumpy/clumpybox3.fits
 
