@@ -79,10 +79,11 @@ Radiative fountain (Wada 2012)
 CAT3D-WIND
 ---------------------------
 
-* Geometry images: `CAT3D+WIND page <cat3d.rst>`_
+.. image:: CAT3D-WIND.gif
+  :align: right
+
 * Infrared model: http://www.sungrazer.org/cat3d.html
 * X-ray model: `CAT3D+WIND page <cat3d.rst>`_
-
 
 
 Response of a single spherical blob
@@ -143,7 +144,10 @@ Disk
 
 Clumpybox3
 ----------------
- 
+
+.. image:: clumpybox.png
+  :align: right
+
 * crate of 3x3x3 spheres (without the center)
 * With many free parameters; useful for exploring clumpy geometries
 * Parameters: Photon index, Energy cut-off, LOS NH, NH through the spheres (mean and variance across the spheres), filling (1 if touching, otherwise radii are smaller), Inclination angle
