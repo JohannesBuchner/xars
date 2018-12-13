@@ -10,7 +10,7 @@ If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a
 
 To go to the corresponding infrared model go back to `Models <README.rst>`_.
 
-Visualisation: https://zenodo.org/record/1193541/files/warpgeometry.pdf
+Visualisation: https://zenodo.org/record/1193939/files/warpgeometry.pdf
 
 Components
 --------------

@@ -25,11 +25,11 @@ Visualisation
 Components
 --------------
 
-Download: https://doi.org/10.5281/zenodo.602282
+Download: https://doi.org/10.5281/zenodo.2235504
 
-``atable{uxclumpy.fits}``:
+``atable{wada-cutoff.fits}``:
 
-	Clumpy torus transmitted and reflected component with fluorescent lines
+	Radiative fountain transmitted and reflected component with fluorescent lines
 	
 	Incident radiation parameters:
 		
@@ -43,11 +43,15 @@ Download: https://doi.org/10.5281/zenodo.602282
 	- Theta_inc: Viewing angle, relative to the inner (flat) disk portion.
 	
 	Geometry parameters:
+
+	These are variations of the model:
 	
-	- TORsigma: vertical extent of the cloud population. sigma is the width of a gaussian distribution (see `CLUMPY model <https://www.clumpy.org/pages/model-description.html>`_). The number of clouds remains constant, so low sigmas yield slightly higher covering factors (2%-5%).
-	- CTKcover: covering factor of inner Compton-thick ring of clouds. If low, many small clouds form a thin ring. If high, few large clouds are used. The column densities of these clouds are logNH=25+-0.5.
+	- wadac-cutoff.fits: pmc0012 simulation, corresponds to Circinus, Wada, Schartmann, & Meijerink (2016)
+	- wada-cutoff.fits: pma0129 simulation, Wada (2012)
+	- wada+ring-cutoff.fits: same as wada-cutoff.fits, but with a Compton-thick ring in the innermost grid elements.
+
 	
-``atable{uxclumpy-omni.fits}``:
+``atable{wada-cutoff-omni.fits}``:
 
 	Warm mirror emission. This is the angle-averaged (omni-directional) spectrum, 
 	containing mostly the incident powerlaw from unobscured sightlines.
@@ -62,7 +66,7 @@ Download: https://doi.org/10.5281/zenodo.602282
 Model setup
 -------------
 
-``atable{uxclumpy.fits} + atable{uxclumpy-omni.fits}*const``
+``atable{wada-cutoff.fits} + atable{wada-cutoff-omni.fits}*const``
 
 Initially, freeze Ecut=400, Theta_inc=90. 
 

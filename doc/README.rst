@@ -88,17 +88,74 @@ CAT3D-WIND
 Response of a single spherical blob
 -------------------------------------
 
+.. image:: blob.png
+  :align: right
+
 Reflection from a single sphere with
 
 * Isotropic density
 * Exponential density profile
 * Gaussian density profile
 
+Spectrum gives
+
+* Angle-averaged reflection off a blob with uniform, gaussian or exponentialdensity profile.
+* Parameters: Photon index, Energy cut-off, NH across the blob.
+* Files: blob_uniform.fits, blob_gaussian.fits, blob_exponential.fits
+
 X-ray spectral model available on request (open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_).
 
-* Geometry images: (imagine a sphere)
-* X-ray table model available on request (open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_).
+* X-ray table model: https://doi.org/10.5281/zenodo.2235456
 * Infrared model: https://en.wikipedia.org/wiki/Planck%27s_law
 
+
+Wedge model
+----------------
+
+.. image:: overview_spectra2.png
+  :align: right
+
+Download from: https://doi.org/10.5281/zenodo.2224650
+
+ * Single wedge
+ 
+   * Sphere with bi-conical cut-out (see also `BORUS02 <http://www.astro.caltech.edu/~mislavb/download/index.html>`_; Buchner et al., submitted)
+   * Parameters: Photon index, Energy cut-off, Torus Opening angle, Viewing angle.
+ 
+ * Gradient wedge model
+ 
+   * Sphere with bi-conical cut-out, but gradually increasing density (see Buchner et al., submitted)
+   * Parameters: Photon index, Energy cut-off, Torus Opening angle, Viewing angle.
+   * Files: gradientwedge.fits gradientwedge-reflect.fits gradientwedge-reflect.fits
+
+Disk
+-----------------------
+
+.. image:: disk.png
+  :align: right
+  
+
+* Infinitely thick disk (similar to pexrav or pexmon, put self-consistently computed with XARS)
+* Parameters: Photon index, Energy cut-off, viewing angle.
+* Download link: https://doi.org/10.5281/zenodo.2224471
+* Files: disk.fits diskreflect.fits disktransmit.fits
+ 
+
+Clumpybox3
+----------------
+ 
+* crate of 3x3x3 spheres (without the center)
+* With many free parameters; useful for exploring clumpy geometries
+* Parameters: Photon index, Energy cut-off, LOS NH, NH through the spheres (mean and variance across the spheres), filling (1 if touching, otherwise radii are smaller), Inclination angle
+* Download link: https://doi.org/10.5281/zenodo.2245188
+* clumpy/clumpybox3.fits
+
+Other torus models
+--------------------
+
+* a constant-density donut-shaped geometry, 60° opening angle: `MYTORUS<http://mytorus.com/mytorus-instructions.html>`_ and also `RXTorus <https://www.astro.unige.ch/reflex/xspec-models>`_.
+* Another cone-cutout geometry `e-torus<https://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/models/etorus.html>`_ (logNH=22-25 range only)
+* Clumps in a donut outline `Ctorus<https://heasarc.gsfc.nasa.gov/xanadu/xspec/models/Ctorus.html>`_ (logNH=22-25, E=1-450keV only)
+* 
 
 

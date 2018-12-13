@@ -18,7 +18,7 @@ To go to the corresponding infrared model go back to `Models <README.rst>`_.
 Components
 --------------
 
-Download: https://zenodo.org/record/2211263
+Download: https://doi.org/10.5281/zenodo.2211262
 
 ``atable{CAT3D-WIND.fits}``:
 
