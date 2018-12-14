@@ -39,7 +39,7 @@ and you can download xspec table models here.
 * Clumpy model made from 100,000 spheres: Unified X-ray Clumpy model UXCLUMPY, CAT3D-WIND
 * Radiative fountain, from a hydrodynamic grid simulation
 * Warped Disk
-* .. and many others 
+* ... and many others 
 
 Downloads, movies and more details on the `Models <doc/README.rst>`_ page.
 
