@@ -160,9 +160,9 @@ Clumpybox3
 Other torus models
 --------------------
 
-* a constant-density donut-shaped geometry, 60° opening angle: `MYTORUS<http://mytorus.com/mytorus-instructions.html>`_ and also `RXTorus <https://www.astro.unige.ch/reflex/xspec-models>`_.
-* Another cone-cutout geometry `e-torus<https://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/models/etorus.html>`_ (logNH=22-25 range only)
-* Clumps in a donut outline `Ctorus<https://heasarc.gsfc.nasa.gov/xanadu/xspec/models/Ctorus.html>`_ (logNH=22-25, E=1-450keV only)
-* 
+* a constant-density donut-shaped geometry, 60° opening angle: `MYTORUS <http://mytorus.com/mytorus-instructions.html>`_ and also `RXTorus <https://www.astro.unige.ch/reflex/xspec-models>`_.
+* Another cone-cutout geometry `e-torus <https://heasarc.gsfc.nasa.gov/docs/xanadu/xspec/models/etorus.html>`_ (logNH=22-25 range only)
+* Clumps in a donut outline `Ctorus <https://heasarc.gsfc.nasa.gov/xanadu/xspec/models/Ctorus.html>`_ (logNH=22-25, E=1-450keV only)
+
 
 
