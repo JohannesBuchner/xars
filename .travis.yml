@@ -50,14 +50,14 @@ script:
   - make -C LightRayRider/
 
   - cd example-blobs/
-  - echo 'backend: Agg' > matplotlibrc
+  - 'echo "backend: Agg" > matplotlibrc'
   - python generate_blobs.py
   - PYTHONPATH=../LightRayRider/ python ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
   - OMP_NUM_THREADS=3 PYTHONPATH=../LightRayRider/ python ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
   - cd ..
 
   - cd example-grid
-  - echo 'backend: Agg' > matplotlibrc
+  - 'echo "backend: Agg" > matplotlibrc'
   - python generate_warpeddisk.py
   - PYTHONPATH=../LightRayRider/ python ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
   - OMP_NUM_THREADS=3 PYTHONPATH=../LightRayRider/ python ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
