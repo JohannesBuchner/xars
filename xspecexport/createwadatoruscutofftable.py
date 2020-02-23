@@ -4,7 +4,7 @@ from numpy import pi, exp
 import h5py
 import astropy.io.fits as pyfits
 import sys
-import progressbar
+import tqdm
 from binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
@@ -41,9 +41,6 @@ nh_bins_ThetaInc = [(nh, ThetaInc) for nh in nh_bins for ThetaInc in [90,60,0]]
 nmu = len(nh_bins_ThetaInc)
 deltae0 = deltae[energy >= 1][0]
 
-widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
-pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(nh_bins_ThetaInc))
-
 f = h5py.File(filename)
 normalisations = pyfits.open(norm_filename)[0].data
 nphot = f.attrs['NPHOT']
@@ -53,11 +50,12 @@ a, b, nmu = matrix.shape
 assert a == nbins, matrix.shape
 assert b == nbins, matrix.shape
 
-for mu, ((nh, ThetaInc), norm) in pbar(enumerate(zip(nh_bins_ThetaInc, normalisations))):
+pbar = tqdm.tqdm(list(enumerate(zip(nh_bins_ThetaInc, normalisations))))
+for mu, ((nh, ThetaInc), norm) in pbar:
 	# go through viewing angles
 	matrix_mu = matrix[:,:,mu]
 	#print '   ', nh, ThetaInc
-	widgets[1] = '| nh=%.3f inc=%02d ' % (nh, ThetaInc)
+	pbar.set_description('| nh=%.3f inc=%02d ' % (nh, ThetaInc))
 	for PhoIndex in PhoIndices:
 		for Ecut in Ecuts:
 			weights = (energy**-PhoIndex * exp(-energy / Ecut) * deltae / deltae0).reshape((-1,1))

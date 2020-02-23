@@ -10,7 +10,7 @@ from __future__ import print_function, division
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
-import progressbar
+import tqdm
 from binning import nbins, energy2bin, bin2energy
 import matplotlib as mpl
 mpl.use('Agg')
@@ -25,7 +25,7 @@ from photons import PhotonBunch
 #rng.seed(0)
 
 import argparse
-import sys, os
+import os
 
 parser = argparse.ArgumentParser(
 	description="""Monte-Carlo simulator for X-ray obscurer geometries""",
@@ -115,15 +115,9 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 	rdata_reflect = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
 	#rdata = [0] * nbins
 	energy_lo, energy_hi = bin2energy(list(range(nbins)))
-	energy = (energy_hi + energy_lo)/2.
-	deltae = energy_hi - energy_lo
 	
-	pbar = progressbar.ProgressBar(widgets=[
-		progressbar.Percentage(), progressbar.Counter(), 
-		progressbar.Bar(), progressbar.ETA()])
-
 	binrange = [list(range(nbins+1)), list(range(nmu*n_nh_bins+1))]
-	for i in pbar(list(range(nbins))[::-1]):
+	for i in tqdm.trange(nbins - 1, -1, -1):
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		for n_interactions in range(1000):
 			emission, more = photons.pump()

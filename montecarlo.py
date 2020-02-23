@@ -4,7 +4,7 @@ import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arctan2 as atan2, exp
 from binning import nbins, energy2bin, bin2energy
 from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
-import progressbar
+import tqdm
 from photons import PhotonBunch
 
 rng = scipy.random
@@ -62,12 +62,8 @@ def run(prefix, nphot, nmu, geometry,
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
 	
-	pbar = progressbar.ProgressBar(widgets=[
-		progressbar.Percentage(), progressbar.Counter(), 
-		progressbar.Bar(), progressbar.ETA()])
-
 	binrange = [list(range(nbins+1)), list(range(nmu+1))]
-	for i in pbar(list(range(nbins))[::-1]):
+	for i in tqdm.trange(nbins-1, -1, -1):
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		remainder = [(photons.rad, photons.theta)]
 		if plot_paths:
@@ -141,7 +137,6 @@ def run(prefix, nphot, nmu, geometry,
 			#plt.savefig(prefix + "paths_%d.pdf" % (i))
 			plt.savefig(prefix + "paths_%d.png" % (i))
 			plt.close()
-	pbar.finish()
 
 	return (rdata_transmit, rdata_reflect), nphot
 
@@ -162,7 +157,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 			rdata = rdata + rdata_old
 			del rdata_old
 	except Exception as e:
-		if "error message = 'no such file or directory'" not in str(e):
+		if "error message = 'no such file or directory'" not in str(e).lower():
 			print('updating file failed; writing fresh. Error:', e)
 		prev_nphot = 0
 	nphot_total = nphot + prev_nphot
@@ -191,9 +186,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 	import sys
 	PhoIndex = 2
 	matrix = rdata
-	x = energy
 	total = nphot_total
-	xwidth = deltae
 	deltae0 = deltae[energy >= 1][0]
 	NH = 1e24/1e22
 	weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1)) # * deltae.reshape((1, -1)) / deltae.reshape((-1, 1))

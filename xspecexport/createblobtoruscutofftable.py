@@ -21,7 +21,8 @@ data = {}
 
 outfilename = 'blobs.fits'
 rdataname = '%s_outreflectrdata.hdf5'
-blobnhs = numpy.linspace(22, 26, 21)
+blobnhs = numpy.arange(22, 26.1, 1)
+fcovs = numpy.arange(-5, 0.1, 1)
 models = ['torusblob%.1f.hdf5' % blobnh for blobnh in blobnhs]
 deltae0 = deltae[energy >= 1][0]
 

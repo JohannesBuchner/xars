@@ -5,7 +5,6 @@ import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
 from . import conetorus
-import progressbar
 import matplotlib.pyplot as plt
 
 """

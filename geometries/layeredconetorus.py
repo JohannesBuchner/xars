@@ -4,7 +4,6 @@ import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arccos
 from coordtrans import to_spherical, to_cartesian
 from raytrace import cone_raytrace_finite
-import progressbar
 import matplotlib.pyplot as plt
 
 class LayeredConeTorusGeometry(object):

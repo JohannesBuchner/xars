@@ -9,7 +9,7 @@ from numpy import pi, arccos, tan, round, exp, log, log10, sin, cos, logical_and
 from binning import nbins, energy2bin, bin2energy
 import matplotlib.pyplot as plt
 
-energy_lo, energy_hi = bin2energy(numpy.arange(nbins)))
+energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
 energy = (energy_hi + energy_lo)/2.
 deltae = energy_hi - energy_lo
 
