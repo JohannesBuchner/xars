@@ -36,7 +36,7 @@ for filename in pbar(sys.argv[2:]):
 	assert b == nbins, matrix.shape
 	
 	# go through viewing angles
-	matrix_mu = matrix.value.sum(axis=2)
+	matrix_mu = matrix[()].sum(axis=2)
 	for PhoIndex in PhoIndices:
 		spectrum = energy**-PhoIndex
 		spectrum[1150:] = 0

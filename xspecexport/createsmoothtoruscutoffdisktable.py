@@ -44,7 +44,7 @@ filenames = [prefix % o for o in sigmas]
 
 f = h5py.File(diskfilename, 'r')
 nphot = f.attrs['NPHOT']
-matrix = f['rdata'].value
+matrix = f['rdata'][()]
 # response of disk reflection
 # 2x -- from top and bottom
 matrix_disk = matrix.sum(axis=2) * 1. / nphot * 2

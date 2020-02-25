@@ -18,7 +18,7 @@ for a in sys.argv[1:-1]:
 		method = fa.attrs['METHOD']
 		creator = fa.attrs['CREATOR']
 		nphot = nphot + fa.attrs['NPHOT']
-		rdata = rdata + fa['rdata'].value
+		rdata = rdata + fa['rdata'][()]
 		print('total of %d input / %d output photons' % (nphot, rdata.sum()))
 
 

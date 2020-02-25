@@ -50,7 +50,7 @@ pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(models)*len(nh_bins_T
 
 f = h5py.File(diskfilename, 'r')
 nphot = f.attrs['NPHOT']
-matrix = f['rdata'].value
+matrix = f['rdata'][()]
 # response of disk reflection
 # 2x -- from top and bottom
 matrix_disk = matrix.sum(axis=2) * 1. / nphot * 2
@@ -58,8 +58,8 @@ matrix_disk = matrix.sum(axis=2) * 1. / nphot * 2
 for model in models:
 	#print 'loading', model
 	m = h5py.File(model, 'r')
-	sigma = m['sigma'].value * 2**0.5
-	Ntot = m['Ntot'].value
+	sigma = m['sigma'][()] * 2**0.5
+	Ntot = m['Ntot'][()]
 	ThetaCloud = (Ntot / 100000.)**-0.5
 	Theta_tor = 90 - sigma
 	

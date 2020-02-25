@@ -150,7 +150,7 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		print('Loading previous file "%s" if exists ...' % (prefix + "rdata.hdf5"))
 		with h5py.File(prefix + "rdata.hdf5", 'r') as old_file:
 			print('  reading values')
-			rdata_old = old_file['rdata'].value
+			rdata_old = old_file['rdata'][()]
 			print('  reading header value')
 			prev_nphot = old_file.attrs['NPHOT']
 			print('Accumulating onto previous result ...')

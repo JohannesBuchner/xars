@@ -15,9 +15,9 @@ class ClumpyTorusGeometry(object):
 		f = h5py.File(filename, 'r')
 		self.sigma = f.get('sigma')
 		# load spheres
-		self.x, self.y, self.z = f['x'].value, f['y'].value, f['z'].value
-		self.r = f['radius'].value
-		self.NH = 10**(f['NH'].value - 22)
+		self.x, self.y, self.z = f['x'][()], f['y'][()], f['z'][()]
+		self.r = f['radius'][()]
+		self.NH = 10**(f['NH'][()] - 22)
 		# density = NH of crossing / distance of crossing
 		self.rho = self.NH / (2 * self.r)
 		self.verbose = verbose
@@ -62,7 +62,7 @@ class ClumpyTorusGeometry(object):
 		plt.figure(figsize=(5,5), frameon=False)
 		plt.axis('off')
 		if self.sigma is not None:
-			plt.title(r'$\sigma=%d^\circ$' % (sigma_convert(self.sigma.value)))
+			plt.title(r'$\sigma=%d^\circ$' % (sigma_convert(self.sigma[()])))
 		cmap = plt.cm.gray_r
 		patches = []
 		colors = []
@@ -82,7 +82,7 @@ class ClumpyTorusGeometry(object):
 		plt.ylim(-1, 1)
 		plt.xlim(-1, 1)
 		
-		if self.sigma is None or self.sigma.value < 30:
+		if self.sigma is None or self.sigma[()] < 30:
 			# add colorbar
 			ax = plt.axes([0.1, 0.1, 0.8, 0.02], frameon=False)
 			cbar = plt.colorbar(coll, cax=ax, ticks=[20, 21, 22, 23, 24, 25, 26],

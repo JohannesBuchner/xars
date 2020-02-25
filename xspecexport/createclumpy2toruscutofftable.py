@@ -50,8 +50,8 @@ pbar = progressbar.ProgressBar(widgets=widgets, maxval=len(models)*len(nh_bins_T
 for model in models:
 	#print 'loading', model
 	m = h5py.File(model, 'r')
-	sigma = m['sigma'].value * 2**0.5
-	Ntot = m['Ntot'].value
+	sigma = m['sigma'][()] * 2**0.5
+	Ntot = m['Ntot'][()]
 	ThetaCloud = (Ntot / 100000.)**-0.5
 	Theta_tor = 90 - sigma
 	

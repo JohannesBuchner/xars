@@ -33,7 +33,7 @@ pbar = progressbar.ProgressBar(widgets=widgets)
 for NHcloud, model in pbar(zip(blobnhs, models)):
 	#print 'loading', model
 	#m = h5py.File(model, 'r')
-	#NHcloud = m['NH'].value
+	#NHcloud = m['NH'][()]
 	
 	filename = rdataname % model
 	f = h5py.File(filename, 'r')

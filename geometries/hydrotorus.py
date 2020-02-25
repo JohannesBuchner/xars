@@ -13,7 +13,7 @@ class HydroTorusGeometry(object):
 	"""
 	def __init__(self, filename, verbose = False):
 		f = h5py.File(filename, 'r')
-		rho = numpy.array(f['rho'].value, dtype=numpy.float64)
+		rho = numpy.array(f['rho'][()], dtype=numpy.float64)
 		pc_cm = 3.0856776e+18
 		nH_Msun = 1.18803e+57
 	
@@ -30,7 +30,7 @@ class HydroTorusGeometry(object):
 		self.rho = self.rho_flat.reshape(self.rho.shape)
 		assert (self.rho >= 0).all()
 		#print self.rho.sum(axis=1).max()
-		self.center = f['center'].value
+		self.center = f['center'][()]
 		self.verbose = verbose
 	
 	def compute_next_point(self, location, direction):
