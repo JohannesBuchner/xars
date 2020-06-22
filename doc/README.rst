@@ -15,13 +15,14 @@ see `Code Documentation <xars.rst>`_
 How to cite XARS correctly
 ---------------------------
 
-Please reference Buchner et al (in prep).
+Please reference `Buchner et al (2019), A&A, 629, A16, 14pp.
+<https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_
 
 
 Models
 ==================
 
-In Buchner et al. (in prep) we irradiated the following geometries,
+In `Buchner+19 <https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_ we irradiated the following geometries,
 and you can **download xspec table models here** for them. 
 See the paper for description of the parameters and model assumptions.
 
@@ -47,7 +48,7 @@ Here you can access:
 * Geometry movies: https://vimeo.com/218031864 and 360 VR https://vimeo.com/253036759
 * X-ray table model available at: `UXCLUMPY page <uxclumpy.rst>`_
 * Infrared model available at: http://clumpy.org 
-* More information: Buchner et al. (submitted) (or send me an email)
+* More information: `Buchner et al. 2019 <https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_ (or send me an email)
 
 Warped disk
 --------------------
@@ -104,11 +105,12 @@ Spectrum gives
 * Parameters: Photon index, Energy cut-off, NH across the blob.
 * Files: blob_uniform.fits, blob_gaussian.fits, blob_exponential.fits
 
-X-ray spectral model available on request (open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_).
+Download:
 
 * X-ray table model: https://doi.org/10.5281/zenodo.2235456
 * Infrared model: https://en.wikipedia.org/wiki/Planck%27s_law
 
+More information in the appendix of `Buchner et al. 2019 <https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_.
 
 Wedge model
 ----------------
@@ -141,6 +143,7 @@ Disk
 * Download link: https://doi.org/10.5281/zenodo.2224471
 * Files: disk.fits diskreflect.fits disktransmit.fits
  
+Presented in `Buchner et al. 2019<https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_.
 
 Clumpybox3
 ----------------
