@@ -6,7 +6,7 @@ UXCLUMPY - Unified Clumpy model
   :target: https://vimeo.com/218031864
   :align: right
 
-If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
+This model was presented in `Buchner et al (2019) <https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_. If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
 
 To go to the corresponding infrared model go back to `Models <README.rst>`_.
 
