@@ -86,14 +86,14 @@ def binmapfunction(beta, alpha):
 	mu[mu >= nmu] = nmu - 1
 	return mu
 
-rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
+rdata, delay, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
 	binmapfunction = binmapfunction,
 	plot_paths=args.plot_paths, plot_interactions=args.plot_interactions, verbose=args.verbose)
 
 rdata_transmit, rdata_reflect = rdata
 header = dict(NH=nh, OPENING=cone)
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, extra_fits_header = header, plot=False)
-montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=False)
+montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=True, delay=delay)
 rdata_transmit += rdata_reflect
 del rdata_reflect
 montecarlo.store(prefix, nphot, rdata_transmit, nmu, extra_fits_header = header, plot=True)

@@ -111,7 +111,11 @@ def compute_normalisation(prefix, binmapfunction, verbose=False, nphot=1000000):
 if not os.path.exists(prefix + "normalisation.fits"):
 	compute_normalisation(prefix, binmapfunction=binmapfunction, verbose=True)
 
-def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
+def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):	
+	lengths_counts = numpy.zeros((nbins, nmu*n_nh_bins), dtype=int)
+	lengths_means = numpy.zeros((nbins, nmu*n_nh_bins))
+	lengths_means2 = numpy.zeros((nbins, nmu*n_nh_bins))
+
 	rdata_transmit = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
 	rdata_reflect = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
 	#rdata = [0] * nbins
@@ -144,7 +148,7 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 			# bin in NH
 			nh = geometry.compute_los_nh(beta, alpha)
 			nh[nh<1e-2] = 1e-2
-			kbin = ((log10(nh) + 2) * n_nh_bins / (4 + 2)).astype(int)
+			kbin = ((log10(nh) + 2) * n_nh_bins / (4 + 2)).astype(numpy.uint)
 			kbin[kbin == n_nh_bins] = n_nh_bins - 1
 		
 			mkbin = kbin * nmu + mbin
@@ -157,19 +161,21 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 				rdata_transmit[i] += counts
 			else:
 				rdata_reflect[i] += counts
+				montecarlo.accumulate_mean_variance(lengths_counts, lengths_means, lengths_means2, bins, mkbin, emission['distance'])
+
 			del counts, emission, bins
 			if not more:
 				break
 		del photons
 
-	return (rdata_transmit, rdata_reflect), nphot
+	return (rdata_transmit, rdata_reflect), montecarlo.finalize_mean_variance(lengths_counts, lengths_means, lengths_means2), nphot
 
-rdata, nphot = run(prefix, nphot = args.nevents, nmu = nmu, n_nh_bins = n_nh_bins, geometry=geometry, 
+rdata, delay, nphot = run(prefix, nphot = args.nevents, nmu = nmu, n_nh_bins = n_nh_bins, geometry=geometry, 
 	binmapfunction = binmapfunction, verbose=args.verbose)
 
 rdata_transmit, rdata_reflect = rdata
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu*n_nh_bins, plot=False)
-montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu*n_nh_bins, plot=False)
+montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu*n_nh_bins, plot=True, delay=delay)
 rdata_transmit += rdata_reflect
 del rdata_reflect
 montecarlo.store(prefix, nphot, rdata_transmit, nmu*n_nh_bins, plot=False)

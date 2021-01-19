@@ -52,14 +52,14 @@ def binmapfunction(beta, alpha):
 		slot[beta > theta] = i+1
 	return slot
 
-rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
+rdata, delay, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
 	binmapfunction = binmapfunction,
 	plot_paths=False, plot_interactions=False, verbose=args.verbose)
 
 rdata_transmit, rdata_reflect = rdata
 header = dict()
 montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, extra_fits_header = header, plot=False)
-montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=False)
+montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, extra_fits_header = header, plot=False, delay=delay)
 rdata_transmit += rdata_reflect
 del rdata_reflect
 montecarlo.store(prefix, nphot, rdata_transmit, nmu, extra_fits_header = header, plot=True)

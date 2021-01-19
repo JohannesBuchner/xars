@@ -4,6 +4,7 @@ import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan, arctan2 as atan2, exp
 from binning import nbins, energy2bin, bin2energy
 from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
+from coordtrans import to_spherical, to_cartesian
 import tqdm
 from photons import PhotonBunch
 
@@ -48,6 +49,41 @@ def plot_path(rad_paths, theta_paths, **kwargs):
 	print()
 
 
+import numba
+@numba.njit
+def accumulate_mean_variance(counts, means, means2, bin1, bin2, values):
+	# For a new value newValue, compute the new count, new mean, the new M2.
+	# mean accumulates the mean of the entire dataset
+	# M2 aggregates the squared distance from the mean
+	# count aggregates the number of samples seen so far
+	for i in range(len(values)):
+		j, k = bin1[i], bin2[i]
+		value = values[i]
+		counts[j,k] += 1
+		delta = value - means[j,k]
+		means[j,k] += delta / counts[j,k]
+		delta2 = value - means[j,k]
+		means2[j,k] += delta * delta2
+
+@numba.njit
+def accumulate_weighted_mean_variance(counts, means, means2, bin1, bin2, values, weight):
+	# For a new value newValue, compute the new count, new mean, the new M2.
+	# mean accumulates the mean of the entire dataset
+	# M2 aggregates the squared distance from the mean
+	# count aggregates the number of samples seen so far
+	for i in range(len(values)):
+		j, k = bin1[i], bin2[i]
+		value = values[i]
+		counts[j,k] += weight
+		delta = value - means[j,k]
+		means[j,k] += weight * delta / counts[j,k]
+		delta2 = value - means[j,k]
+		means2[j,k] += weight * delta * delta2
+
+def finalize_mean_variance(counts, means, means2):
+	# return mean and variance based on accumulated variables
+	return means, means2 / counts
+
 def run(prefix, nphot, nmu, geometry, 
 	binmapfunction,
 	plot_paths = False, plot_interactions = False, verbose = False):
@@ -55,17 +91,23 @@ def run(prefix, nphot, nmu, geometry,
 	if plot_paths or plot_interactions:
 		import matplotlib.pyplot as plt
 	
+	lengths_counts = numpy.zeros((nbins, nmu))
+	lengths_means = numpy.zeros((nbins, nmu))
+	lengths_means2 = numpy.zeros((nbins, nmu))
+
 	rdata_transmit = numpy.zeros((nbins, nbins, nmu))
 	rdata_reflect = numpy.zeros((nbins, nbins, nmu))
 	#rdata = [0] * nbins
 	energy_lo, energy_hi = bin2energy(list(range(nbins)))
 	energy = (energy_hi + energy_lo)/2.
 	deltae = energy_hi - energy_lo
+	weights2 = (energy**-2 * deltae) / (energy**-2 * deltae).sum()
 	
 	binrange = [list(range(nbins+1)), list(range(nmu+1))]
 	for i in tqdm.trange(nbins-1, -1, -1):
 		photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
 		remainder = [(photons.rad, photons.theta)]
+
 		if plot_paths:
 			plt.figure("paths", figsize=(4, 4))
 		for n_interactions in range(1000):
@@ -105,6 +147,13 @@ def run(prefix, nphot, nmu, geometry,
 			#	linebin = set(bins[emission['energy'] == 6.40])
 			#	print linebin, rdata[i][724,:], rdata[900][724,4] if i > 900 else ''
 			
+			# compute distance traveled:
+			mask = emission['mask']
+			# store emitted photons (only those with reflection):
+			if not n_interactions < 1:
+				accumulate_weighted_mean_variance(lengths_counts, lengths_means, lengths_means2,
+					emission['bin'], mbin, emission['distance'], weight=weights2[i])
+			
 			# remove the emitted photons from the remainder
 			if plot_paths:
 				mask = emission['mask']
@@ -138,9 +187,10 @@ def run(prefix, nphot, nmu, geometry,
 			plt.savefig(prefix + "paths_%d.png" % (i))
 			plt.close()
 
-	return (rdata_transmit, rdata_reflect), nphot
+	return (rdata_transmit, rdata_reflect), finalize_mean_variance(lengths_counts, lengths_means, lengths_means2), nphot
 
-def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
+
+def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False, delay=None):
 	
 	energy_lo, energy_hi = bin2energy(list(range(nbins)))
 	energy = (energy_hi + energy_lo)/2.
@@ -170,6 +220,10 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		f.create_dataset('rdata', data=rdata, compression='gzip', shuffle=True)
 		f.create_dataset('energy_lo', data=energy_lo, compression='gzip', shuffle=True)
 		f.create_dataset('energy_hi', data=energy_hi, compression='gzip', shuffle=True)
+		if delay is not None:
+			delay_means, delay_variance = delay
+			f.create_dataset('delay_means', data=delay_means, compression='gzip', shuffle=True)
+			f.create_dataset('delay_variance', data=delay_variance, compression='gzip', shuffle=True)
 	
 		f.attrs['CREATOR'] = """Johannes Buchner <johannes.buchner.acad@gmx.com>"""
 		f.attrs['DATE'] = nowstr
@@ -219,10 +273,38 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header = {}, plot=False):
 		#plt.xlim(6, 15)
 		#plt.show()
 		#plt.savefig(prefix + "_%d.pdf" % mu)
+		plt.xlabel('Energy [keV]')
+		plt.ylabel('Photon flux density')
 		plt.savefig(prefix + "_%d.png" % mu)
 		#numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
 		plt.close()
 	print()
+	
+	if delay is not None:
+		plt.figure(figsize=(10, 10))
+		delay_means, delay_variance = delay
+		#for mu in range(nmu):
+		for mu in range(nmu):
+			plt.subplot(2, 1, 1)
+			plt.plot(energy, delay_means[:,mu])
+			plt.gca().set_xscale('log')
+			plt.gca().set_yscale('log')
+			plt.xlim(1, 40)
+			plt.ylim(1e-2, None)
+			#plt.xlabel('Energy [keV]')
+			plt.ylabel('Photon travel distance mean')
+			plt.subplot(2, 1, 2)
+			plt.plot(energy, delay_variance[:,mu])
+			plt.gca().set_xscale('log')
+			plt.gca().set_yscale('log')
+			plt.xlim(1, 40)
+			plt.ylim(1e-2, None)
+			plt.xlabel('Energy [keV]')
+			plt.ylabel('Photon travel distance variance')
+		plt.savefig(prefix + "_delay.png")
+		#numpy.savetxt(prefix + "_%d.txt" % mu, numpy.vstack([energy, y]).transpose())
+		plt.close()
+	
 	return nphot_total, rdata
 
 

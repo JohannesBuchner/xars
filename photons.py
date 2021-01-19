@@ -8,6 +8,16 @@ from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xl
 
 rng = scipy.random
 
+def projected_distance(x, y, z, alpha, beta):
+	"""
+	Project point (rad, theta, phi) onto line from (0, 0, 0) in direction (alpha, beta)
+	and return the distance (which may be negative).
+	"""
+	vx, vy, vz = to_cartesian((1, alpha, beta))
+	#x, y, z = to_cartesian((rad, theta, phi))
+	return vx * x + vy * y + vz * z
+
+
 class PhotonBunch(object):
 	def __init__(self, i, # input energy bin
 		nphot, # number of photons
@@ -18,6 +28,7 @@ class PhotonBunch(object):
 		self.phi = numpy.zeros(nphot) # initial left-right angle for position
 		self.theta = numpy.zeros(nphot) # initial up-down angle for position
 		self.alpha = rng.uniform(0, 2*pi, size=nphot) # initial left-right direction for direction -- value does not matter due to symmetry
+		self.distance = numpy.zeros(nphot) # total distance travelled
 		#mu = numpy.linspace(-1, 1, nphot) # uniform distribution
 		mu = rng.uniform(-1, 1, size=nphot)
 		self.beta = acos(mu) # up-down angle for direction
@@ -38,6 +49,7 @@ class PhotonBunch(object):
 		self.phi, self.theta, self.rad = self.phi[mask], self.theta[mask], self.rad[mask]
 		self.alpha, self.beta = self.alpha[mask], self.beta[mask]
 		self.energy, self.bin = self.energy[mask], self.bin[mask]
+		self.distance = self.distance[mask]
 		self.stuck = self.stuck[mask]
 	
 	def cut_free(self, free_mask):
@@ -95,19 +107,30 @@ class PhotonBunch(object):
 			#if self.verbose: print '  .. computing position'
 			# compute position
 			inside, (xf,yf,zf), (rad, phi, theta) = self.geometry.compute_next_point((xi, yi, zi), (dist, beta, alpha))
+			distance = ((xi - xf)**2 + (yi - yf)**2 + (zi - zf)**2)**0.5
 			outside = ~inside
 
 			# emit
 			if self.verbose: print('  .. emitting %d to outside, %d inside material' % ((~inside).sum(), inside.sum()))
 			self.update_free(phi, theta, rad, alpha, beta, energy, bin)
 			mask = ~self.stuck
+			mask[mask] = inside
+			self.distance[mask] += distance[inside]
+			if self.verbose: print('  .. distance travelled: %f +- %f' % (self.distance.mean(), self.distance.std()))
+			assert (self.distance >= 0).all(), self.distance[~(self.distance >= 0)]
+			mask = ~self.stuck
 			mask[mask] = outside
-			self.cut_free(inside)
+			# normalise distance measure relative to photons
+			# directly from origin in direction of alpha, beta
+			self.distance[mask] -= projected_distance(
+				xi[outside], yi[outside], zi[outside], 
+				alpha[outside], beta[outside])
 			emit = dict(phi=phi0[outside], theta=theta0[outside], rad=rad0[outside], 
 				beta=beta[outside], alpha=alpha[outside],
 				energy=energy[outside], bin=bin[outside], 
 				x=xi[outside], y=yi[outside], z=zi[outside],
-				mask=mask)
+				mask=mask, distance=self.distance[mask])
+			self.cut_free(inside)
 			#print '   ', rad.shape, theta.shape, len(inside)
 			xf, yf, zf = xf[inside], yf[inside], zf[inside]
 			phi, theta, rad, alpha, beta, energy, bin = self.get_free()

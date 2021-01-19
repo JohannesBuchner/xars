@@ -41,14 +41,14 @@ prefix = args.output
 def binmapfunction(beta, alpha): 
 	return (numpy.round(0.5 + nmu * numpy.abs(cos(beta))) - 1).astype(int)
 
-rdata, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
+rdata, delay, nphot = montecarlo.run(prefix, nphot = args.nevents, nmu = nmu, geometry=geometry, 
 	binmapfunction = binmapfunction,
 	plot_paths=args.plot_paths, plot_interactions=args.plot_interactions, verbose=args.verbose)
 
 rdata_transmit, rdata_reflect = rdata
 rdata_both = rdata_transmit + rdata_reflect
-montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, plot=True)
-montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, plot=True)
+montecarlo.store(prefix + 'transmit', nphot, rdata_transmit, nmu, plot=False)
+montecarlo.store(prefix + 'reflect', nphot, rdata_reflect, nmu, plot=True, delay=delay)
 montecarlo.store(prefix, nphot, rdata_both, nmu, plot=True)
 
 
