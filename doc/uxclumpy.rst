@@ -16,6 +16,22 @@ Visualisation
 - 360° VR video: https://vimeo.com/253036759
 - normal video: https://vimeo.com/218031864
 
+.. figure:: covmaps.png
+    
+    Projections of the column densities as seen from the central X-ray corona.
+    Column densities vary from 20 to 26 in logarithmic units of inverse square cm.
+    
+    Parameters TORSigma and CTKcover are different in the panels.
+    
+    These line-of-sight column densities are used to divide the sky into bins
+    of similar NH.
+    The spectrum collected in the direction of such bin is the model spectrum
+    when setting NHLOS.
+    Additional to binning by NH, the binning is further subdivided into inclination angles.
+    This allows selection LOS NH and inclination angle independently.
+    An exception is of course when there is no obscuration in a chosen inclination angle 
+    (e.g., no CTK columns exist face-on). In that case, the spectrum is empty.
+
 Components
 --------------
 
@@ -93,13 +109,3 @@ Failure states
 - If you get a very low photon index (<1.5), you are probably in a bad local minimum. Start from scratch. Maybe freeze PhoIndex=2 and see how far you get.
 
 - Plot the model. If the AGN obscurer component is not present, it is because this viewing angle and this NHLOS does not exist in this geometry (zero photons). You need to change the geometry or viewing angle until you get back the model.
-
-
-
-
-
-
-
-
-
-

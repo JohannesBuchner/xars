@@ -15,12 +15,19 @@ for nh in 9.99999978e-03   1.41000003e-02   1.99999996e-02 \
          2.51000000e+03   3.55000000e+03   5.01000000e+03 \
          7.08000000e+03   1.00000000e+04
 do
-	if [ -e "output/sphere_${i}_rdata.hdf5" ]; then
-		echo "output/sphere_${i}_rdata.hdf5" already there
-		((i++))
-		continue
-	fi
-	python torus2.py --nh=$nh --opening-angle=0 --nevents $1 --output="output/sphere_${i}_" &
-	sleep 5
+	#if [ -e "output/sphere_${i}_rdata.hdf5" ]; then
+	#	echo "output/sphere_${i}_rdata.hdf5" already there
+	#	((i++))
+	#	continue
+	#fi
+	#[[ "$i" -gt 35 ]] && 
+	python3 torus2.py --nh=$nh --opening-angle=0 --nevents $1 --output="output/sphere_${i}_" &
+	sleep 1m
 	((i++))
 done
+wait
+
+pushd output
+python3 ../xspecexport/createspherecutofftable.py sphere.fits sphere_*_rdata.hdf5
+python3 ../xspecexport/createspherecutofftable.py sphere-transmit.fits sphere_*_transmitrdata.hdf5
+python3 ../xspecexport/createspherecutofftable.py sphere-reflect.fits sphere_*_reflectrdata.hdf5
