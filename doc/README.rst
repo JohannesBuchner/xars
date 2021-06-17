@@ -62,7 +62,7 @@ A simple warped disk geometry
 * Geometry images: `Warped Disk page <warpeddisk.rst>`_
 * X-ray table model available at: `Warped Disk page <warpeddisk.rst>`_
 * Infrared model: see `Jud et al (2017) <http://cdsads.u-strasbg.fr/abs/2017MNRAS.465..248J>`_
-* More information: Buchner et al. (in prep) (or send me an email)
+* More information: `Buchner et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021arXiv210608331B/abstract>`_
 
 
 Radiative fountain (Wada 2012)
@@ -75,7 +75,7 @@ Radiative fountain (Wada 2012)
 * Geometry images: `Radiative fountain page <wada.rst>`_
 * X-ray table model available at: `Radiative fountain page <wada.rst>`_
 * Infrared model: `Radiative fountain page <wada.rst>`_
-* More information: Buchner et al. (in prep) (or send me an email)
+* More information: `Buchner et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021arXiv210608331B/abstract>`_
 
 CAT3D-WIND
 ---------------------------
