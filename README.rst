@@ -6,7 +6,10 @@ XARS X-ray Monte-carlo simulator
 
 XARS simulates X-rays propagating through matter in user-defined geometries.
 
-Features:
+Features
+---------
+
+XARS is ~400 lines of pure Python code.
 
 * Physical processes:
 
@@ -20,12 +23,12 @@ Features:
   * Arbitrary geometries made from many spherical blobs/clumps (when combined with LightRayRider)
   * Arbitrary grid geometries from hydrodynamic simulations (when combined with LightRayRider)
 
-The code-base is small (few hundred lines) and written in pure Python. New contributions are welcome.
+New contributions are welcome.
 
 How to cite XARS correctly
 ---------------------------
 
-Please reference Buchner et al (in prep). 
+Please reference `Buchner et al (2019) <https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_. 
 
 Models
 ------------------
