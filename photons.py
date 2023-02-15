@@ -6,7 +6,7 @@ from coordtrans import to_spherical, to_cartesian
 from binning import nbins, energy2bin, bin2energy
 from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
 
-rng = scipy.random
+rng = numpy.random
 
 class PhotonBunch(object):
 	def __init__(self, i, # input energy bin
@@ -254,4 +254,3 @@ class PhotonBunch(object):
 		
 		# next round
 		return emit, len(self.energy) > 0
-

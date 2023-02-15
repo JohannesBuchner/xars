@@ -15,7 +15,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-rng = scipy.random
+rng = numpy.random
 
 from geometries.layeredconetorus import LayeredConeTorusGeometry
 import montecarlo

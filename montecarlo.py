@@ -7,7 +7,7 @@ from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xl
 import tqdm
 from photons import PhotonBunch
 
-rng = scipy.random
+rng = numpy.random
 
 def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
 	import matplotlib.pyplot as plt
