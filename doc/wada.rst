@@ -6,6 +6,7 @@ Radiative Fountain model
   :target: wada.rst
   :align: right
 
+This model was presented in `Buchner et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021arXiv210608331B/abstract>`_. 
 If you have any issues or questions, please check the `FAQ <faq.rst>`_ or open a `Github issue <http://github.com/JohannesBuchner/xars/issues>`_!
 
 To go to the corresponding infrared model go back to `Models <README.rst>`_.
