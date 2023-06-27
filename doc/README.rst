@@ -143,7 +143,7 @@ Disk
 * Download link: https://doi.org/10.5281/zenodo.2224471
 * Files: disk.fits diskreflect.fits disktransmit.fits
  
-Presented in `Buchner et al. 2019<https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_.
+Presented in `Buchner et al. 2019 <https://ui.adsabs.harvard.edu/abs/2019A%26A...629A..16B/abstract>`_.
 
 Clumpybox3
 ----------------

@@ -32,6 +32,15 @@ Visualisation
     An exception is of course when there is no obscuration in a chosen inclination angle 
     (e.g., no CTK columns exist face-on). In that case, the spectrum is empty.
 
+.. figure:: uxclumpy_hump.png
+
+    The Comptom-hump near 20keV is highly diverse in UXCLUMPY! 
+    The plot shows the reflection-dominated model spectrum under a Compton-thick line-of-sight. 
+    The Comptom-hump strength and shape depends on the geometry parameters 
+    (TORSigma and CTKcover, illustrated above).
+    This has implications for the cosmic X-ray background and the inference and modelling of
+    heavily obscured AGN.
+
 Components
 --------------
 
