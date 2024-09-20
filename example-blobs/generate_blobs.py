@@ -4,7 +4,7 @@ import numpy
 
 # make unit spheres at distance 3 with various densities
 
-for nh in numpy.linspace(22, 26, 21):
+for nh in numpy.arange(22, 26.1, 0.2):
 	with h5py.File('torusblob%.1f.hdf5' % nh, 'w') as f:
 		x = numpy.array([0.3])
 		y = numpy.array([0.])

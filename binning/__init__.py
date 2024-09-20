@@ -4,7 +4,7 @@ from numpy import exp, log, log10
 
 #from bn import nbins, bin2energy_lo, energy2bin
 #from uniform import nbins, bin2energy_lo, energy2bin
-from .bending import nbins, bin2energy_lo, energy2bin
+from .xrismbending import nbins, bin2energy_lo, energy2bin
 
 def bin2energy_hi(i):
 	return bin2energy_lo(i+1)
@@ -51,24 +51,3 @@ def test_reversible():
 	ihi = energy2bin(ehi - 0.0001)
 	assert (ihi == allbins).all(), (allbins[(ihi != allbins)], ihi[(ihi != allbins)])
 
-if __name__ == '__main__':
-	import matplotlib.pyplot as plt
-	energy = numpy.logspace(log10(0.1), log10(1100), 10000)
-	results = energy2bin(energy)
-	bins = numpy.arange(nbins)
-	numpy.savetxt('binning_current.txt', numpy.transpose([bin2energy_lo(bins), bin2energy_hi(bins)]))
-	plt.figure()
-	#plt.plot(energy, results, '-')
-	#plt.plot(energy, numpy.round(400*numpy.log10(energy)), '+-')
-	plt.plot(bin2energy(bins)[0], bins, '+-')
-	plt.gca().set_xscale('log')
-	#plt.gca().set_yscale('log')
-	plt.xlabel('Energy [keV]')
-	plt.ylabel('Bin number')
-	#plt.ylim(800, 1000)
-	#plt.xlim(8, 12)
-	plt.savefig('binning.pdf')
-	
-	for b in bins:
-		print(b, bin2energy(b)[0], energy2bin(bin2energy(b)[0]))
-	

@@ -1,20 +1,17 @@
 from __future__ import print_function, division
 import numpy
-from numpy import pi, exp
+from numpy import exp
 import h5py
 import astropy.io.fits as pyfits
-import sys
-import progressbar
-from binning import nbins, energy2bin, bin2energy
+import tqdm
+from binning import nbins, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
 energy = (energy_hi + energy_lo) / 2
 deltae = energy_hi - energy_lo
 
 table = []
-PhoIndices = [ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
-		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
-		3. ]
+PhoIndices = numpy.arange(1, 3.01, 0.1)
 Ecuts = [ 40, 60, 100, 140, 200, 400 ]
 
 data = {}
@@ -26,11 +23,8 @@ fcovs = numpy.arange(-5, 0.1, 1)
 models = ['torusblob%.1f.hdf5' % blobnh for blobnh in blobnhs]
 deltae0 = deltae[energy >= 1][0]
 
-widgets = [progressbar.Percentage(), " starting ... ", progressbar.Bar(), progressbar.ETA()]
-pbar = progressbar.ProgressBar(widgets=widgets)
-
-
-for NHcloud, model in pbar(zip(blobnhs, models)):
+pbar = tqdm.tqdm(list(zip(blobnhs, models)))
+for NHcloud, model in pbar:
 	#print 'loading', model
 	#m = h5py.File(model, 'r')
 	#NHcloud = m['NH'][()]
@@ -47,7 +41,7 @@ for NHcloud, model in pbar(zip(blobnhs, models)):
 	matrix_noinc = numpy.sum(matrix, axis=2)
 	
 	# go through viewing angles
-	widgets[1] = '| NHblob=%.1f' % (NHcloud)
+	pbar.set_description('| NHblob=%.1f' % (NHcloud))
 	matrix_mu = matrix_noinc * 1. / nphot
 	for PhoIndex in PhoIndices:
 		for Ecut in Ecuts:
@@ -75,18 +69,29 @@ hdu.header['HDUVERS1'] = '1.0.0'
 hdu.header['HDUCLASS'] = 'OGIP'
 hdus.append(hdu)
 
+num_values = 41
 # NAME, METHOD, INITIAL, DELTA, MINIMUM, BOTTOM, TOP, MAXIMUM, NUMBVALS, VALUE (41)
-dtype = [('NAME', 'S12'), ('METHOD', '>i4'), ('INITIAL', '>f4'), ('DELTA', '>f4'), ('MINIMUM', '>f4'), ('BOTTOM', '>f4'), ('TOP', '>f4'), ('MAXIMUM', '>f4'), ('NUMBVALS', '>i4'), ('VALUE', '>f4', (41,))]
+dtype = [('NAME', 'S12'), ('METHOD', '>i4'), ('INITIAL', '>f4'), ('DELTA', '>f4'), ('MINIMUM', '>f4'), ('BOTTOM', '>f4'), ('TOP', '>f4'), ('MAXIMUM', '>f4'), ('NUMBVALS', '>i4'), ('VALUE', '>f4', (num_values,))]
 
+pyparameters = [
+	('PhoIndex', 0, 2.0,   0.0099999998, 1.2, 2.8, PhoIndices),
+	('Ecut',     0, 100.0, 10.0,        40, 400, Ecuts),
+	('NH_blob',  0, 25.0,  0.5,         22, 26, blobnhs),
+]
+param_list = []
+for paramname, a, default, step, lo, hi, values in pyparameters:
+	padded_values = numpy.zeros(num_values)
+	padded_values[:len(values)] = values
+	param_list.append((paramname, a, default, step, numpy.min(values), lo, hi, numpy.max(values), len(values), padded_values))
+
+parameters = numpy.array(param_list, dtype=dtype)
+"""
 parameters = numpy.array([
-	('PhoIndex', 0, 2.0, 0.0099999998, 1.0, 1.2, 2.8, 3.0, 11, numpy.array([ 1.        ,  1.20000005,  1.39999998,  1.60000002,  1.79999995,
-		2.        ,  2.20000005,  2.4000001 ,  2.5999999 ,  2.79999995,
-		3.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+	('PhoIndex', 0, 2.0, 0.0099999998, 1.0, 1.2, 2.8, 3.0, 11, numpy.array([ 1.  ,  1.1, 1.2, 1.3, 1.4,  1.5, 1.6,  1.7, 1.8, 1.9, 2. , 2.1, 2.2,  2.3, 2.4,  2.5, 2.6 , 2.7, 2.8, 2.9, 3.,
+                0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
+		0.        ,  0.        ,  0.        ,  0.        ,  0.        ])),
 	('Ecut', 0, 100.0, 10.0, 40, 40, 400, 400, 6, numpy.array([ 40,  60,  100,
 		140        ,  200,  400 ,  0 ,  0, 0, 0,
 		0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
@@ -106,6 +111,8 @@ parameters = numpy.array([
 		 0.        ,   0.        ,   0.        ,   0.        ,
 		 0.        ,   0.        ,   0.        ,   0.        ,   0.        ])),
 ], dtype=dtype)
+"""
+
 assert numpy.product(parameters['NUMBVALS']) == len(table), ('parameter definition does not match spectra table', parameters['NUMBVALS'], numpy.product(parameters['NUMBVALS']), len(table))
 hdu = pyfits.BinTableHDU(data=parameters)
 hdu.header['DATE'] = nowstr

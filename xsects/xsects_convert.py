@@ -33,7 +33,7 @@ xlines_energies = xsectsdata[0,2:]
 xlines_yields = xsectsdata[1,2:]
 xsects = xsectsdata[2:,:]
 e1 = xsects[:,0]
-assert len(e1) == len(emid)
+assert len(e1) == len(emid), (len(e1), len(emid))
 xphot = xsects[:,1]
 e70 = e1 > 70.
 lines_max = numpy.max(xsects[:,2:], axis=1)
