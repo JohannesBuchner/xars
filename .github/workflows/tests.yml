@@ -32,10 +32,10 @@ jobs:
       run: python -m pip install .
 
     - name: Lint with flake8
-      run: flake8 lightrayrider/*.py
+      run: flake8 xars/*.py xars/*/*.py
 
     - name: Check code style
-      run: pycodestyle lightrayrider/*.py lightrayrider/*.pyx
+      run: pycodestyle xars/*.py xars/*/*.py
 
     - name: Check doc style
       run: pydocstyle lightrayrider/*.py lightrayrider/*.pyx
@@ -44,7 +44,16 @@ jobs:
       run: python3 -m coverage run -a -m pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
 
     - name: Test package
-      run: cd examples; python3 -m coverage run torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=myoutput
+      run: |
+        cd scripts
+        python3 -m coverage run vizfek2.py
+        cd ..
+    
+    - name: Test package
+      run: |
+        cd examples
+        python3 -m coverage run torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=myoutput
+        python3 -m coverage run disk.py --nevents=100 --output=output-disk
     
     - name: Test on blobs
       run: |
