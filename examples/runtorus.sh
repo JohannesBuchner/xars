@@ -1,4 +1,3 @@
-set -euo pipefail
 nphot=$1
 prefix=output/torus
 mkdir -p output
@@ -22,22 +21,24 @@ do
 	j=0
 	for o in 25.79999924  36.90000153  45.59999847  53.09999847 60. 66.40000153 72.5  78.5 84.30000305
 	do
-		[ -e "${prefix}_${i}_${j}_rdata.hdf5" ] ||
-		python torus2.py --nh=$nh --opening-angle=$o --nevents $nphot --output="${prefix}_${i}_${j}_" &
+		if [ -e "${prefix}_${i}_${j}_rdata.hdf5" ]
+		then
+			echo $i $j
+		else
+			python3 torus2.py --nh=$nh --opening-angle=$o --nevents $nphot --output="${prefix}_${i}_${j}_" &
+		fi
 		((j++))
 	done
 	wait
 	((i++))
 done
 
-exit
-
 cd output
-python ../xspecexport/createtorustable.py wedge.fits torus_*_?_rdata.hdf5
-python ../xspecexport/createtorustable.py wedge-transmit.fits torus_*_?_transmitrdata.hdf5
-python ../xspecexport/createtorustable.py wedge-reflect.fits torus_*_?_reflectrdata.hdf5
+python ../xspecexport/createtorustable.py wedge.fits ${prefix}_*_?_rdata.hdf5
+python ../xspecexport/createtorustable.py wedge-transmit.fits ${prefix}_*_?_transmitrdata.hdf5
+python ../xspecexport/createtorustable.py wedge-reflect.fits ${prefix}_*_?_reflectrdata.hdf5
 
-python ../xspecexport/createtoruscutofftable.py wedge-cutoff.fits torus_*_?_rdata.hdf5 
-python ../xspecexport/createtoruscutofftable.py wedge-cutoff-transmit.fits torus_*_?_transmitrdata.hdf5
-python ../xspecexport/createtoruscutofftable.py wedge-cutoff-reflect.fits torus_*_?_reflectrdata.hdf5
+python ../xspecexport/createtoruscutofftable.py wedge-cutoff.fits ${prefix}_*_?_rdata.hdf5 
+python ../xspecexport/createtoruscutofftable.py wedge-cutoff-transmit.fits ${prefix}_*_?_transmitrdata.hdf5
+python ../xspecexport/createtoruscutofftable.py wedge-cutoff-reflect.fits ${prefix}_*_?_reflectrdata.hdf5
 
