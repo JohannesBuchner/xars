@@ -3,6 +3,11 @@
 *.pyc
 *output*.png
 example*/*.png
+example*/*/*.png
 *.hdf5
 *.fits
 output
+*.so
+*.pyx.py
+build
+

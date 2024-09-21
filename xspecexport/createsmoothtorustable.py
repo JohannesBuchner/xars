@@ -1,6 +1,4 @@
-from __future__ import print_function, division
 import numpy
-from numpy import pi, exp
 import astropy.io.fits as pyfits
 import h5py
 import sys
