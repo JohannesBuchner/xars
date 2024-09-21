@@ -1,6 +1,6 @@
 from __future__ import print_function, division
-import numpy
-from numpy import exp, log, log10
+from jax import numpy
+from jax.numpy import exp, log, log10
 
 nbins = 1000
 

@@ -1,9 +1,9 @@
 from __future__ import print_function, division
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import numpy
+from jax import numpy
 import scipy
-from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
+from jax.numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
 from . import conetorus
 import matplotlib.pyplot as plt
 

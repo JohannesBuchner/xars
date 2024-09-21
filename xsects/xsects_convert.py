@@ -6,9 +6,9 @@ Cross sections
 Convert cross-section input file to right energy grid
 """
 
-import numpy
+from jax import numpy
 import scipy
-from numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
+from jax.numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
 import binning
 
 def interpolate(etarget, e, y):

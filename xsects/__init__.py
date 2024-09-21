@@ -6,9 +6,10 @@ Cross sections
 Loading and computation of neutral, solar-abundance cross-sections.
 """
 
-import numpy
+from jax import numpy
+from numpy import loadtxt
 import scipy
-from numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
+from jax.numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
 import binning
 import os
 
@@ -47,7 +48,7 @@ xscatt *= 1.2
 
 # photoelectric and line cross-sections
 # find xsects.dat file next to this file
-xsectsdata = numpy.loadtxt(os.path.join(os.path.dirname(__file__), 'xsects.dat'))
+xsectsdata = loadtxt(os.path.join(os.path.dirname(__file__), 'xsects.dat'))
 xlines_energies = xsectsdata[0,2:]
 xlines_yields = xsectsdata[1,2:]
 xsects = xsectsdata[2:,:]
@@ -70,8 +71,8 @@ assert (xlines >= 0).all()
 assert (xlines_relative >= 0).all()
 assert (xlines_cumulative >= 0).all()
 
-xboth = xphot + xscatt
-absorption_ratio = xphot / xboth
+xboth = numpy.array(xphot + xscatt)
+absorption_ratio = numpy.array(xphot / xboth)
 
 
 def test():

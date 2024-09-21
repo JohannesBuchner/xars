@@ -1,7 +1,7 @@
 from __future__ import print_function, division
-import numpy
+from jax import numpy
 import scipy
-from numpy import pi, tan, round, log, log10, sin, cos, logical_and, logical_or, arccos, arctan, arctan2
+from jax.numpy import pi, tan, round, log, log10, sin, cos, logical_and, logical_or, arccos, arctan, arctan2
 
 import matplotlib.pyplot as plt
 import matplotlib

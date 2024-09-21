@@ -1,6 +1,6 @@
 from __future__ import print_function, division
-import numpy, scipy
-from numpy import exp, log, log10
+from jax import numpy, scipy
+from jax.numpy import exp, log, log10
 
 #from bn import nbins, bin2energy_lo, energy2bin
 #from uniform import nbins, bin2energy_lo, energy2bin
