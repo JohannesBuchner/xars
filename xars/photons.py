@@ -1,9 +1,8 @@
-from __future__ import print_function, division
 import numpy
 from numpy import pi, log, cos, arccos as acos, sin
-from coordtrans import to_spherical, to_cartesian
-from binning import nbins, energy2bin, bin2energy
-from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
+from .coordtrans import to_spherical, to_cartesian
+from .binning import nbins, energy2bin, bin2energy
+from .xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
 
 rng = numpy.random
 

@@ -1,5 +1,5 @@
 from numpy import log10
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 import matplotlib.pyplot as plt
 
 class SphereTorusGeometry(object):

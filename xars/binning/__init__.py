@@ -1,4 +1,3 @@
-from __future__ import print_function, division
 import numpy, scipy
 from numpy import exp, log, log10
 

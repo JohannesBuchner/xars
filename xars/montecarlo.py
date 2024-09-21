@@ -1,9 +1,9 @@
 import numpy
 from numpy import pi, cos, sin, exp
-from binning import nbins, energy2bin, bin2energy
-from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
+from .binning import nbins, energy2bin, bin2energy
+from .xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, electmass
 import tqdm
-from photons import PhotonBunch
+from .photons import PhotonBunch
 
 rng = numpy.random
 

@@ -1,6 +1,6 @@
 import numpy
 from numpy import pi, tan, log10, logical_and
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 
 
 class BNTorusGeometry(object):

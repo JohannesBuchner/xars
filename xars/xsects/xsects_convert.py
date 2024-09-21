@@ -1,4 +1,3 @@
-from __future__ import print_function, division
 """
 Cross sections
 ---------------
@@ -9,7 +8,7 @@ Convert cross-section input file to right energy grid
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
-import binning
+from xars import binning
 
 def interpolate(etarget, e, y):
 	ytarget = 10**numpy.interp(x=log10(etarget), xp=log10(e), fp=log10(y))
@@ -20,7 +19,7 @@ energy_lo, energy_hi = binning.bin2energy(numpy.arange(binning.nbins))
 energy = (energy_hi + energy_lo)/2.
 deltae = energy_hi - energy_lo
 
-from binning.bn import nbins, bin2energy_lo
+from xars.binning.bn import nbins, bin2energy_lo
 def bin2energy_hi(i):
 	return bin2energy_lo(i+1)
 

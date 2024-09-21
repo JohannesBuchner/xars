@@ -40,6 +40,9 @@ jobs:
     - name: Check doc style
       run: pydocstyle lightrayrider/*.py lightrayrider/*.pyx
     
+    - name: Test with pytest
+      run: python3 -m coverage run -a -m pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
+
     - name: Test package
       run: cd examples; python3 -m coverage run torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=myoutput
     
@@ -64,9 +67,6 @@ jobs:
     - name: Run entire BNTorus geometry
       run: |
          bash runtorus.sh 100
-
-    - name: Test with pytest
-      run: python3 -m coverage run -a -m pytest
 
     - name: Convert coverage output to lcov for coveralls
       run: |

@@ -1,6 +1,6 @@
 import numpy
 from numpy import pi, log10
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 from lightrayrider import cone_raytrace_finite
 import matplotlib.pyplot as plt
 

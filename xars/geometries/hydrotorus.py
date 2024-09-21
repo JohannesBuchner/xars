@@ -1,7 +1,7 @@
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, log, log10, sin, cos, logical_and, logical_or, arctan as atan
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 import h5py
 import matplotlib.pyplot as plt
 from lightrayrider import grid_raytrace_finite_flat, grid_raytrace_flat

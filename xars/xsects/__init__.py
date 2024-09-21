@@ -9,7 +9,7 @@ Loading and computation of neutral, solar-abundance cross-sections.
 import numpy
 import scipy
 from numpy import pi, arccos as acos, tan, round, exp, log, log10, sin, cos, logical_and, logical_or
-import binning
+from xars import binning
 import os
 
 electmass = 511. # electron rest mass in keV/c^2

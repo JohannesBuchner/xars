@@ -30,4 +30,4 @@ Homepage = "https://github.com/JohannesBuchner/LightRayRider"
 
 
 [tool.setuptools]
-packages = ["xars"]
+packages = ["xars", "xars.geometries", "xars.binning", "xars.xsects"]

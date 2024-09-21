@@ -1,4 +1,4 @@
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 
 class DiskGeometry(object):
 	def __init__(self, verbose = False):

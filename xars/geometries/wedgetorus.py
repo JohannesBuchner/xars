@@ -7,15 +7,15 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 font = 'sans-serif'
 
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 
 def intersection_sort(intersections):
 	#print 'sorting intersections ...'
 	for i, (oa, da) in enumerate(intersections):
-		assert da.dtype == numpy.float, da.dtype
+		assert da.dtype == float, da.dtype
 		for j in range(i+1, len(intersections)):
 			(ob, db) = intersections[j]
-			assert db.dtype == numpy.float, db.dtype
+			assert db.dtype == float, db.dtype
 			move_forward = db < da
 			if not numpy.any(move_forward):
 				continue
@@ -81,13 +81,13 @@ class WedgeTorusGeometry(object):
 		(xi, yi, zi) = location
 		(dist, beta, alpha) = direction
 		(xi, yi, zi) = (
-			numpy.asarray(xi, dtype=numpy.float).reshape((-1,)), 
-			numpy.asarray(yi, dtype=numpy.float).reshape((-1,)), 
-			numpy.asarray(zi, dtype=numpy.float).reshape((-1,)))
+			numpy.asarray(xi, dtype=float).reshape((-1,)), 
+			numpy.asarray(yi, dtype=float).reshape((-1,)), 
+			numpy.asarray(zi, dtype=float).reshape((-1,)))
 		(dist, beta, alpha) = (
-			numpy.asarray(dist, dtype=numpy.float).reshape((-1,)), 
-			numpy.asarray(beta, dtype=numpy.float).reshape((-1,)), 
-			numpy.asarray(alpha, dtype=numpy.float).reshape((-1,)))
+			numpy.asarray(dist, dtype=float).reshape((-1,)), 
+			numpy.asarray(beta, dtype=float).reshape((-1,)), 
+			numpy.asarray(alpha, dtype=float).reshape((-1,)))
 		
 		radi, thetai, phii = to_spherical((xi, yi, zi))
 		
@@ -176,9 +176,9 @@ class WedgeTorusGeometry(object):
 			#    this is an exit. reduce nh, check if end of trajectory
 			#    oi must be last_o
 			#    set last_d to nan
-			point = -numpy.isnan(di)
+			point = ~numpy.isnan(di)
 			point_entry = numpy.logical_and(point,  numpy.isnan(last_d))
-			point_exit  = numpy.logical_and(point, -numpy.isnan(last_d))
+			point_exit  = numpy.logical_and(point, ~numpy.isnan(last_d))
 			last_d[point_entry] = di[point_entry]
 			last_o[point_entry] = oi[point_entry]
 			
@@ -202,8 +202,8 @@ class WedgeTorusGeometry(object):
 			assert dist.shape == nh.shape, (dist.shape, nh.shape)
 			assert point_exit.shape == terminated.shape, (point_exit.shape, terminated.shape)
 			assert dist.shape == terminated.shape, (dist.shape, terminated.shape)
-			termination = numpy.logical_and(numpy.logical_and(dist <= nh, dist > 0), logical_and(point_exit, -terminated))
-			gothrough   = numpy.logical_and(numpy.logical_and(dist > nh,  dist > 0), logical_and(point_exit, -terminated))
+			termination = numpy.logical_and(numpy.logical_and(dist <= nh, dist > 0), logical_and(point_exit, ~terminated))
+			gothrough   = numpy.logical_and(numpy.logical_and(dist > nh,  dist > 0), logical_and(point_exit, ~terminated))
 			t_dist = dist[termination]
 			t_nh = nh[termination]
 			t_distance = distance[termination]

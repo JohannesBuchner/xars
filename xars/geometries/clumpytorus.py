@@ -1,6 +1,6 @@
 import numpy
 from numpy import log10
-from coordtrans import to_spherical, to_cartesian
+from xars.coordtrans import to_spherical, to_cartesian
 import h5py
 from lightrayrider import sphere_raytrace_finite, sphere_raytrace
 
