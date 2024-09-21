@@ -23,8 +23,8 @@ class ConeTorusGeometry:
 
         # compute intersection with cone border
         a = zv**2 - (xv**2 + yv**2) * tan(0.5 * pi - self.Theta_tor)**2
-        b = 2. * zi * zv - (2. * xi * xv + 2.*yi*yv) * tan(0.5 * pi - self.Theta_tor)**2
-        c = zi**2 - (xi**2 + yi**2) * tan(0.5*pi - self.Theta_tor)**2
+        b = 2. * zi * zv - (2. * xi * xv + 2. * yi * yv) * tan(0.5 * pi - self.Theta_tor)**2
+        c = zi**2 - (xi**2 + yi**2) * tan(0.5 * pi - self.Theta_tor)**2
         quad = b**2 - 4. * a * c
 
         # compute the two solutions
@@ -50,12 +50,12 @@ class ConeTorusGeometry:
         #  a=xD2+yD2-zD2, b=2xExD+2yEyD-2zEzD, and c=xE2+yE2-zE2.
         #  a=xD2+yD2+zD2, b=2xExD+2yEyD+2zEzD, and c=xE2+yE2+zE2-1
         sa = 1
-        sb = 2.*zi*zv + 2.*xi*xv + 2.*yi*yv
+        sb = 2. * zi * zv + 2. * xi * xv + 2. * yi * yv
         sc = zi**2 + xi**2 + yi**2 - 1
-        squad = sb**2 - 4.*sa*sc
+        squad = sb**2 - 4. * sa * sc
         # compute the two solutions
-        se1 = (-sb-squad**0.5)/(2.*sa)
-        se2 = (-sb+squad**0.5)/(2.*sa)
+        se1 = (-sb - squad**0.5) / (2. * sa)
+        se2 = (-sb + squad**0.5) / (2. * sa)
 
         sx1 = xi + se1 * xv
         sx2 = xi + se2 * xv
@@ -70,8 +70,8 @@ class ConeTorusGeometry:
             r2 = sx2**2 + sy2**2 + sz2**2
         theta1 = numpy.where(r1 == 0, 0., arccos(sz1 / r1))
         theta2 = numpy.where(r2 == 0, 0., arccos(sz2 / r2))
-        theta1[theta1 > pi/2] = pi - theta1[theta1 > pi/2]
-        theta2[theta2 > pi/2] = pi - theta2[theta2 > pi/2]
+        theta1[theta1 > pi / 2] = pi - theta1[theta1 > pi / 2]
+        theta2[theta2 > pi / 2] = pi - theta2[theta2 > pi / 2]
         si1 = theta1 >= self.Theta_tor
         si2 = theta2 >= self.Theta_tor
         # print 'circle points theta', theta1, theta2, si1, si2 #, (sx1, sy1, sz1), (sx2, sy2, sz2)
@@ -145,7 +145,7 @@ class ConeTorusGeometry:
         return inside, (xf,yf,zf), (rad, phi, theta)
 
     def viz(self):
-        """ Visualize the current geometry """
+        """Visualize the current geometry."""
         Theta_tor = self.Theta_tor * 180 / pi
         nh = log10(self.NH) + 22
 
@@ -157,21 +157,21 @@ class ConeTorusGeometry:
         ax = plt.axes([0,0,1,1])
 
         thickness = max(0, min(1, (nh - 20.) / 5))
-        plt.text(0.35, 0.5,  "nH=%2.1f" % nh, ha="right", va='center',
-            family=font, size=14)
+        plt.text(0.35, 0.5, "nH=%2.1f" % nh, ha="right", va='center',
+                 family=font, size=14)
         ax.add_line(mlines.Line2D([0,0.9], [0.5,0.5], lw=1.,alpha=0.4, ls='dashed', color='grey'))
         ax.add_line(mlines.Line2D([0.4,0.4], [0.5,0.9], lw=1.,alpha=0.4, ls='dashed', color='grey'))
         ax.add_patch(mpatches.Arc((0.4,0.5), 0.5, 0.5, theta2=90, theta1=90 - Theta_tor,
-            color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
+                                  color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
         plt.text(0.4 + 0.02, 0.5 + 0.25 + 0.02, "%2.0f" % Theta_tor, ha="left", va='bottom',
-            family=font, size=14)
+                 family=font, size=14)
         ax.add_patch(mpatches.Wedge((0.4,0.5), 0.3, -90 + Theta_tor, 90 - Theta_tor, color='black',
-            linewidth=0, alpha=thickness, fill=True))
+                                    linewidth=0, alpha=thickness, fill=True))
         ax.add_patch(mpatches.Wedge((0.4,0.5), 0.3, 90 + Theta_tor, -90 - Theta_tor, color='black',
-            linewidth=0, alpha=thickness, fill=True))
+                                    linewidth=0, alpha=thickness, fill=True))
 
         ax.add_patch(mpatches.Circle((0.4,0.5), 0.02, color='red',
-            linewidth=0, alpha=1, fill=True))
+                                     linewidth=0, alpha=1, fill=True))
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -195,8 +195,8 @@ def test_origin_y():
     torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
     xi, yi, zi = numpy.zeros((3,3))
     # y-direction
-    beta = numpy.zeros((3,)) + pi/2
-    alpha = numpy.zeros((3,)) + pi/2
+    beta = numpy.zeros((3,)) + pi / 2
+    alpha = numpy.zeros((3,)) + pi / 2
     dist = numpy.array([0.01, 0.99, 1.01])
     inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     assert numpy.allclose(zf, 0), zf
@@ -221,13 +221,13 @@ def test_origin_z():
 def test_origin_xyz():
     torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
     xi, yi, zi = numpy.zeros((3,3))
-    beta = pi/4 + pi/8 + numpy.zeros(3)
-    alpha = pi/8 + numpy.zeros(3)
+    beta = pi / 4 + pi / 8 + numpy.zeros(3)
+    alpha = pi / 8 + numpy.zeros(3)
     dist = numpy.array([0.01, 0.99, 1.01])
     inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
-    assert numpy.allclose(xf, 0.85355339*dist), xf
-    assert numpy.allclose(yf, 0.35355339*dist), yf
-    assert numpy.allclose(zf, 0.38268343*dist), zf
+    assert numpy.allclose(xf, 0.85355339 * dist), xf
+    assert numpy.allclose(yf, 0.35355339 * dist), yf
+    assert numpy.allclose(zf, 0.38268343 * dist), zf
     assert numpy.all(inside == [True, True, False]), inside
     assert numpy.allclose(rad, dist), rad
     assert numpy.allclose(phi, alpha), alpha
@@ -298,7 +298,7 @@ def test_horizontal_x_shortside():
     xi = -0.99 + numpy.zeros(3)
     yi = 0 + numpy.zeros(3)
     zi = 0.001 + numpy.zeros(3)
-    beta = numpy.zeros(3) + pi/2  # go horizontal
+    beta = numpy.zeros(3) + pi / 2  # go horizontal
     alpha = numpy.array([0, 0, pi])  # go in x
     dist = numpy.array([0.01, 0.98, 0.02])
     inside, (xf,yf,zf), (rad, phi, theta) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
@@ -313,7 +313,7 @@ def test_horizontal_x_farside():
     xi = -0.99 + numpy.zeros(3)
     yi = 0 + numpy.zeros(3)
     zi = 0.001 + numpy.zeros(3)
-    beta = numpy.zeros(3) + pi/2  # go horizontal
+    beta = numpy.zeros(3) + pi / 2  # go horizontal
     alpha = numpy.zeros(3)  # go in x
     dist = numpy.array([1.0, 1.5, 3])
     xskipped = zi * 2  # in 45 degree torus x=z

@@ -79,7 +79,8 @@ class WedgeTorusGeometry:
                 C = Theta_low[i] > Theta_high[j]
                 D = Theta_low[j] > Theta_high[i]
                 if not (A or B or C or D):
-                    return False, ['radial collision' if not (A or B) else '',
+                    return False, [
+                        'radial collision' if not (A or B) else '',
                         'angle collision' if not (C or D) else '',
                         Theta_low, Theta_high, r_inner, r_outer]
         return True, None
@@ -106,11 +107,11 @@ class WedgeTorusGeometry:
         intersections = []
 
         if self.plot is not None:
-            plt.plot(0.4 + 0.3 * (xi + xv * numpy.linspace(-0.1, 5)),
-                 0.5 + 0.3 * (zi + zv * numpy.linspace(-0.1, 5)),
-                 ':', color='orange')
-            plt.plot(0.4 + 0.3 * xi,
-                 0.5 + 0.3 * zi, '*', color='orange')
+            plt.plot(
+                0.4 + 0.3 * (xi + xv * numpy.linspace(-0.1, 5)),
+                0.5 + 0.3 * (zi + zv * numpy.linspace(-0.1, 5)),
+                ':', color='orange')
+            plt.plot(0.4 + 0.3 * xi, 0.5 + 0.3 * zi, '*', color='orange')
 
             plt.savefig(self.plot)
 
@@ -128,7 +129,7 @@ class WedgeTorusGeometry:
             d1o, d2o = self.line_sphere_intersection((xi, yi, zi), (xv, yv, zv), self.r_outer[i])
 
             for inter in d1i, d2i, d1o, d2o:
-                rf, thetaf, phif = to_spherical((xi+inter*xv, yi+inter*yv, zi+inter*zv))
+                rf, thetaf, phif = to_spherical((xi + inter * xv, yi + inter * yv, zi + inter * zv))
                 if self.verbose:
                     print('   potential sphere surface intersection with %d:' % i, inter, (rf, thetaf, phif))
                 relevant = numpy.logical_and(thetaf <= self.Theta_high[i], thetaf >= self.Theta_low[i])
@@ -158,7 +159,8 @@ class WedgeTorusGeometry:
         intersections = intersection_sort(intersections)
 
         if self.plot is not None:
-            plt.plot([0.4 + 0.3 * (xi + d * xv) for i,d in intersections],
+            plt.plot(
+                [0.4 + 0.3 * (xi + d * xv) for i,d in intersections],
                 [0.5 + 0.3 * (zi + d * zv) for i,d in intersections],
                 '+', color='orange', ms=5, alpha=0.9)
             plt.savefig(self.plot)
@@ -314,13 +316,13 @@ class WedgeTorusGeometry:
         (xi, yi, zi) = xxx_todo_changeme4
         (xv, yv, zv) = xxx_todo_changeme5
         a = zv**2 - (xv**2 + yv**2) * tan(pi / 2 - theta)**2
-        b = 2. * zi * zv - (2. * xi * xv + 2. * yi * yv)*tan(pi / 2 - theta)**2
+        b = 2. * zi * zv - (2. * xi * xv + 2. * yi * yv) * tan(pi / 2 - theta)**2
         c = zi**2 - (xi**2 + yi**2) * tan(pi / 2 - theta)**2
         quad = b**2 - 4. * a * c
 
         have_soln = quad >= 0
-        d1 = (-b - quad**0.5)/(2. * a)
-        d2 = (-b + quad**0.5)/(2. * a)
+        d1 = (-b - quad**0.5) / (2. * a)
+        d2 = (-b + quad**0.5) / (2. * a)
         if self.verbose:
             print('cone intersection distances', d1, d2)
 
@@ -329,7 +331,7 @@ class WedgeTorusGeometry:
             zf = zi + di * zv
             dr, dtheta, dphi = to_spherical((xi + di * xv, yi + di * yv, zi + di * zv))
             if self.plot:
-                plt.plot(0.4 + 0.3*xf, 0.5 + 0.3*zf, '<', color='green' if di > 0 else 'red', alpha=0.3)
+                plt.plot(0.4 + 0.3 * xf, 0.5 + 0.3 * zf, '<', color='green' if di > 0 else 'red', alpha=0.3)
             di[di <= 0] = numpy.nan
             di[(dtheta - theta)**2 > 1e-9] = numpy.nan
 
@@ -345,27 +347,32 @@ class WedgeTorusGeometry:
         thickness = max(0, min(1, (nh - 20.) / 5))
 
         ax.add_patch(mpatches.Arc((0.4,0.5), 0.65, 0.65, theta2=90 - Theta_low, theta1=90 - Theta_high,
-            color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
-        plt.text(0.4 + 0.05 + 0.3 * r_outer * cos(pi/2 - (s_Theta_low+s_Theta_high)/2.),
-             0.5 + 0.02 + 0.3 * r_outer * sin(pi/2 - (s_Theta_low+s_Theta_high)/2.),
+                                  color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
+        plt.text(
+            0.4 + 0.05 + 0.3 * r_outer * cos(pi / 2 - (s_Theta_low + s_Theta_high) / 2.),
+            0.5 + 0.02 + 0.3 * r_outer * sin(pi / 2 - (s_Theta_low + s_Theta_high) / 2.),
             r"""$r=%2.2f-%2.2f$
 $n_H=%2.1f$""" % (r_inner, r_outer, nh), ha="left", va='center',
             family=font, size=14)
-        plt.text(0.4 + 0.05 + 0.3 * r_outer * cos(pi/2 - s_Theta_high),
-             0.5 + 0.02 + 0.3 * r_outer * sin(pi/2 - s_Theta_high),
+        plt.text(
+            0.4 + 0.05 + 0.3 * r_outer * cos(pi / 2 - s_Theta_high),
+            0.5 + 0.02 + 0.3 * r_outer * sin(pi / 2 - s_Theta_high),
             r"$%2.0f^\circ$" % (Theta_high), ha="left", va='bottom',
             family=font, size=14)
-        plt.text(0.4 + 0.05 + 0.3 * r_outer * cos(pi/2 - s_Theta_low),
-             0.5 + 0.02 + 0.3 * r_outer * sin(pi/2 - s_Theta_low),
+        plt.text(
+            0.4 + 0.05 + 0.3 * r_outer * cos(pi / 2 - s_Theta_low),
+            0.5 + 0.02 + 0.3 * r_outer * sin(pi / 2 - s_Theta_low),
             r"$%2.0f^\circ$" % (Theta_low), ha="left", va='top',
             family=font, size=14)
-        ax.add_patch(mpatches.Wedge(center=(0.4,0.5), r=0.3 * r_outer,
+        ax.add_patch(mpatches.Wedge(
+            center=(0.4,0.5), r=0.3 * r_outer,
             theta2=90 - Theta_low,
             theta1=90 - Theta_high,
             width=0.3 * (r_outer - r_inner),
             color='black',
             linewidth=0, alpha=thickness, fill=True))
-        ax.add_patch(mpatches.Wedge(center=(0.4,0.5), r=0.3 * r_outer,
+        ax.add_patch(mpatches.Wedge(
+            center=(0.4,0.5), r=0.3 * r_outer,
             theta1=90 + Theta_low,
             theta2=90 + Theta_high,
             width=0.3 * (r_outer - r_inner),
@@ -373,7 +380,7 @@ $n_H=%2.1f$""" % (r_inner, r_outer, nh), ha="left", va='center',
             linewidth=0, alpha=thickness, fill=True))
 
         ax.add_patch(mpatches.Circle((0.4,0.5), 0.02, color='red',
-            linewidth=0, alpha=1, fill=True))
+                                     linewidth=0, alpha=1, fill=True))
 
     def viz(self):
         """ Visualize the current geometry """
@@ -392,8 +399,9 @@ $n_H=%2.1f$""" % (r_inner, r_outer, nh), ha="left", va='center',
 
 
 def test_1_wedge():
-    geo = WedgeTorusGeometry(Theta_high=[(90 - -30) / 180. * pi],
-        Theta_low=[(90-30) / 180. * pi],
+    geo = WedgeTorusGeometry(
+        Theta_high=[(90 - -30) / 180. * pi],
+        Theta_low=[(90 - 30) / 180. * pi],
         r_inner=[0.4], r_outer=[0.9], NH=[10**(24 - 22)], verbose=True)
     geo.verbose = True
     geo.viz()
@@ -402,9 +410,11 @@ def test_1_wedge():
 
 
 def test_2_wedges():
-    geo = WedgeTorusGeometry(Theta_high=numpy.array([90--30, 90-40]) / 180. * pi,
-        Theta_low=numpy.array([90-30, 90-90]) / 180. * pi,
-        r_inner=numpy.array([0.3, 0.1]), r_outer=numpy.array([0.4, 0.9]), NH=numpy.array([10**(24-22), 10**(21-22)]), verbose=True)
+    geo = WedgeTorusGeometry(
+        Theta_high=numpy.array([90 - -30, 90 - 40]) / 180. * pi,
+        Theta_low=numpy.array([90 - 30, 90 - 90]) / 180. * pi,
+        r_inner=numpy.array([0.3, 0.1]), r_outer=numpy.array([0.4, 0.9]),
+        NH=numpy.array([10**(24 - 22), 10**(21 - 22)]), verbose=True)
     geo.verbose = True
     geo.viz()
     plt.savefig('wedgetest2.pdf')
@@ -415,8 +425,9 @@ def test_random_wedge():
     numpy.random.seed(0)
     for _ in range(20):
         while True:
-            d = dict(Theta_low=numpy.random.uniform(0, pi, 2),
-                NH=10**(numpy.random.uniform(20, 25, 2)-22),
+            d = dict(
+                Theta_low=numpy.random.uniform(0, pi, 2),
+                NH=10**(numpy.random.uniform(20, 25, 2) - 22),
                 r_inner=numpy.random.uniform(0, 1, 2),
                 verbose=True)
             d['Theta_high'] = numpy.random.uniform(d['Theta_low'], pi, 2)
@@ -434,14 +445,16 @@ def test_random_wedge():
 
 
 def test_ray():
-    geo = WedgeTorusGeometry(Theta_high=numpy.array([90, 45]) / 180. * pi,
+    geo = WedgeTorusGeometry(
+        Theta_high=numpy.array([90, 45]) / 180. * pi,
         Theta_low=numpy.array([60, 0]) / 180. * pi,
-        r_inner=numpy.array([0.3, 0.1]), r_outer=numpy.array([0.4, 0.9]), NH=numpy.array([10**(24-22), 10**(21-22)]), verbose=True)
+        r_inner=numpy.array([0.3, 0.1]), r_outer=numpy.array([0.4, 0.9]),
+        NH=numpy.array([10**(24 - 22), 10**(21 - 22)]), verbose=True)
     # send in rays
     geo.plot = "raytest.pdf"
     geo.verbose = True
     geo.viz()
-    (xi, yi, zi), (dist, beta, alpha) = (0.29,0.,-0.2), (10, pi/2 - pi/2 - 0.01, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.29, 0., -0.2), (10, pi / 2 - pi / 2 - 0.01, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     assert inside, inside
@@ -451,7 +464,7 @@ def test_ray():
     assert r < 0.4, r
     assert r > 0.3, r
 
-    (xi, yi, zi), (dist, beta, alpha) = (0.29,0.,-0.2), (78, pi/2 - pi/2 - 0.01, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.29, 0., -0.2), (78, pi / 2 - pi / 2 - 0.01, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     assert inside
@@ -461,14 +474,14 @@ def test_ray():
     assert r < 0.4
     assert r > 0.3
 
-    (xi, yi, zi), (dist, beta, alpha) = (0.29,0.,-0.2), (78.44, pi/2 - pi/2 - 0.01, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.29,0.,-0.2), (78.44, pi / 2 - pi / 2 - 0.01, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     assert inside
     assert r < 0.9, r
     assert r > 0.3, r
 
-    (xi, yi, zi), (dist, beta, alpha) = (0.29,0.,-0.2), (90, pi/2 - pi/2 - 0.01, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.29,0.,-0.2), (90, pi / 2 - pi / 2 - 0.01, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     assert not inside
@@ -482,20 +495,20 @@ def test_ray_2():
         Theta_high=numpy.array([95, 80]) / 180. * pi,
         Theta_low=numpy.array([85, 60]) / 180. * pi,
         r_inner=numpy.array([0.01, 0.01]), r_outer=numpy.array([1, 1]),
-        NH=numpy.array([10**(24-22), 10**(21-22)]), verbose=True)
+        NH=numpy.array([10**(24 - 22), 10**(21 - 22)]), verbose=True)
     # send in rays
     geo.plot = "raytest2.pdf"
     geo.verbose = True
     geo.viz()
     plt.savefig(geo.plot)
-    (xi, yi, zi), (dist, beta, alpha) = (0.,0.,0.), (10, pi/2, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.,0.,0.), (10, pi / 2, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     assert inside
     assert r < 0.3
     assert r > 0.
 
-    (xi, yi, zi), (dist, beta, alpha) = (0.,0.,0.), (50, pi/2, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.,0.,0.), (50, pi / 2, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     assert inside
@@ -527,7 +540,7 @@ def test_ray_3():
     geo.verbose = True
     geo.viz()
     plt.savefig(geo.plot)
-    (xi, yi, zi), (dist, beta, alpha) = (0.1,0,0.1), (0.01, pi + pi/2, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.1,0,0.1), (0.01, pi + pi / 2, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     plt.close()
@@ -535,11 +548,11 @@ def test_ray_3():
     assert xf < xi, xf
     assert xf > 0., xf
     assert yf == 0, yf
-    assert numpy.abs(zf-zi)/zi < 1e-6, zf
+    assert numpy.abs(zf - zi) / zi < 1e-6, zf
 
     geo.plot = "raytest3b.pdf"
     geo.viz()
-    (xi, yi, zi), (dist, beta, alpha) = (-0.1,0,0.1), (0.01, pi/2, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (-0.1,0,0.1), (0.01, pi / 2, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     plt.close()
@@ -572,8 +585,8 @@ def test_ray_4():
     geo.verbose = True
     geo.viz()
     plt.savefig(geo.plot)
-    (xi, yi, zi), (dist, beta, alpha) = (-0.02, 0, -0.2), (1, pi/2+pi/6, 0)
-    (xi, yi, zi), (dist, beta, alpha) = (0.5, 0, 0.02), (1, -pi/6, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (-0.02, 0, -0.2), (1, pi / 2 + pi / 6, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.5, 0, 0.02), (1, -pi / 6, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     plt.close()
@@ -595,8 +608,8 @@ def test_ray_5():
     geo.verbose = True
     geo.viz()
     plt.savefig(geo.plot)
-    (xi, yi, zi), (dist, beta, alpha) = (-0.02, 0, -0.2), (1, pi/2+pi/6, 0)
-    (xi, yi, zi), (dist, beta, alpha) = (0.2, 0, 0.7), (1, 2*pi-pi/4, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (-0.02, 0, -0.2), (1, pi / 2 + pi / 6, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.2, 0, 0.7), (1, 2 * pi - pi / 4, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     plt.close()
@@ -609,7 +622,7 @@ def test_ray_6():
         'Theta_low': ([pi / 2 - pi / 4]),
         'r_outer': ([1]),
         'r_inner': ([0.0]),
-        'Theta_high': ([pi/2 + pi/100])
+        'Theta_high': ([pi / 2 + pi / 100])
     }
 
     geo = WedgeTorusGeometry(verbose=True, **d)
@@ -631,7 +644,7 @@ def test_ray_7():
         'Theta_low': ([pi / 2 - pi / 4]),
         'r_outer': ([1]),
         'r_inner': ([0.0]),
-        'Theta_high': ([pi/2 + pi/100])
+        'Theta_high': ([pi / 2 + pi / 100])
     }
 
     geo = WedgeTorusGeometry(verbose=True, **d)
@@ -640,7 +653,7 @@ def test_ray_7():
     geo.verbose = True
     geo.viz()
     plt.savefig(geo.plot)
-    (xi, yi, zi), (dist, beta, alpha) = (0.5, 0, 0.2), (0.1, - pi/2, 0)
+    (xi, yi, zi), (dist, beta, alpha) = (0.5, 0, 0.2), (0.1, - pi / 2, 0)
     inside, (xf, yf, zf), (r, theta, phi) = geo.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     plt.savefig(geo.plot)
     plt.close()
@@ -683,12 +696,13 @@ def speed_run():
     plotting = False
     for i in range(50):
         while True:
-            d = dict(Theta_low=numpy.random.uniform(0,pi,2),
-                NH=10**(numpy.random.uniform(20,25,2)-22),
-                r_inner=numpy.random.uniform(0,1,2),
+            d = dict(
+                Theta_low=numpy.random.uniform(0, pi, 2),
+                NH=10**(numpy.random.uniform(20, 25, 2) - 22),
+                r_inner=numpy.random.uniform(0, 1, 2),
                 verbose=False)
-            d['Theta_high'] = numpy.random.uniform(d['Theta_low'] + 1 / 180*pi,pi,2)
-            d['r_outer'] = numpy.random.uniform(d['r_inner'] + 0.01,1,2)
+            d['Theta_high'] = numpy.random.uniform(d['Theta_low'] + 1 / 180 * pi, pi, 2)
+            d['r_outer'] = numpy.random.uniform(d['r_inner'] + 0.01, 1, 2)
 
             try:
                 geo = WedgeTorusGeometry(**d)
@@ -706,7 +720,7 @@ def speed_run():
         (xi, yi, zi) = [numpy.random.uniform(-0.3, 0.3, N) for i in range(3)]
         dist = 10**numpy.random.uniform(-3, 3, N)
         beta = numpy.random.uniform(0, pi, N)
-        alpha = numpy.random.uniform(0, 2*pi, N)
+        alpha = numpy.random.uniform(0, 2 * pi, N)
         if plotting:
             geo.viz()
 

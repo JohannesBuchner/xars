@@ -65,7 +65,8 @@ class PhotonBunch:
 
     def update_free(self, phi, theta, rad, alpha, beta, energy, binid):
         free = ~self.stuck
-        self.phi[free], self.theta[free], self.rad[free], self.alpha[free], self.beta[free], self.energy[free], self.binid[free] = phi, theta, rad, alpha, beta, energy, binid
+        self.phi[free], self.theta[free], self.rad[free], self.alpha[free], self.beta[free], self.energy[free], self.binid[free] = \
+            phi, theta, rad, alpha, beta, energy, binid
 
     def get_stuck(self):
         return self.alpha[self.stuck], self.beta[self.stuck], self.energy[self.stuck], self.binid[self.stuck]
@@ -80,7 +81,7 @@ class PhotonBunch:
 
     def pump(self):
         if self.verbose:
-            print('photon iteration: %d free photons, %d scattering %s' % ((~self.stuck).sum(), self.stuck.sum(), '_'*20))
+            print('photon iteration: %d free photons, %d scattering %s' % ((~self.stuck).sum(), self.stuck.sum(), '_' * 20))
         phi, theta, rad, alpha, beta, energy, binid = self.get_free()
 
         # first half deals with free photons
@@ -161,7 +162,7 @@ class PhotonBunch:
             # emit line in random direction
             if photabsorbed_line.any():
                 nline = photabsorbed_line.sum()
-                alpha_random = rng.uniform(0, 2*pi, size=nline)
+                alpha_random = rng.uniform(0, 2 * pi, size=nline)
                 beta_random = acos(rng.uniform(-1, 1, size=nline))
                 alpha[photabsorbed_line] = alpha_random
                 beta[photabsorbed_line] = beta_random
@@ -236,7 +237,7 @@ class PhotonBunch:
             x = 2. * r5a - 1
             mus = numpy.where(
                 r5 > 0.75,
-                numpy.sign(x) * numpy.abs(x)**(1/3.),
+                numpy.sign(x) * numpy.abs(x)**(1 / 3.),
                 x)
             betas = acos(mus)
             mu = cos(beta0) * cos(betas) + sin(beta0) * sin(betas) * cos(alpha_new - alpha)

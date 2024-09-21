@@ -7,7 +7,7 @@ def to_spherical(cartesian_location):
     xf = numpy.asarray(xf).reshape((-1,))
     yf = numpy.asarray(yf).reshape((-1,))
     zf = numpy.asarray(zf).reshape((-1,))
-    rad = (xf**2+yf**2+zf**2)**0.5
+    rad = (xf**2 + yf**2 + zf**2)**0.5
     phi = arctan2(yf, xf)
     mask = ~(rad == 0)
     theta = numpy.zeros_like(rad)

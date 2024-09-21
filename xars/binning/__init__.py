@@ -9,7 +9,7 @@ from .bending import bin2energy_lo, energy2bin, nbins
 
 
 def bin2energy_hi(i):
-    return bin2energy_lo(i+1)
+    return bin2energy_lo(i + 1)
 
 
 def bin2energy(i):

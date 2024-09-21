@@ -56,13 +56,13 @@ class BNTorusGeometry:
         asol[twosolmask] = ltsol
         bsol = twosolmask.copy()
         bsol[twosolmask] = gtsol
-        xf[asol] = x2[ltsol]+xv[asol]-(x1[ltsol]-xi[asol])
-        yf[asol] = y2[ltsol]+yv[asol]-(y1[ltsol]-yi[asol])
-        zf[asol] = z2[ltsol]+zv[asol]-(z1[ltsol]-zi[asol])
+        xf[asol] = x2[ltsol] + xv[asol] - (x1[ltsol] - xi[asol])
+        yf[asol] = y2[ltsol] + yv[asol] - (y1[ltsol] - yi[asol])
+        zf[asol] = z2[ltsol] + zv[asol] - (z1[ltsol] - zi[asol])
 
-        xf[bsol] += (x2[gtsol]-x1[gtsol])
-        yf[bsol] += (y2[gtsol]-y1[gtsol])
-        zf[bsol] += (z2[gtsol]-z1[gtsol])
+        xf[bsol] += (x2[gtsol] - x1[gtsol])
+        yf[bsol] += (y2[gtsol] - y1[gtsol])
+        zf[bsol] += (z2[gtsol] - z1[gtsol])
 
         # use symmetries
         # bring to upper side of torus
@@ -91,26 +91,26 @@ class BNTorusGeometry:
 
         thickness = max(0, min(1, (nh - 20.) / 5))
         plt.text(
-            0.35, 0.5,  "nH=%2.1f" % nh, ha="right", va='center',
+            0.35, 0.5, "nH=%2.1f" % nh, ha="right", va='center',
             family=font, size=14)
         ax.add_line(mlines.Line2D([0,0.9], [0.5,0.5], lw=1.,alpha=0.4, ls='dashed', color='grey'))
         ax.add_line(mlines.Line2D([0.4,0.4], [0.5,0.9], lw=1.,alpha=0.4, ls='dashed', color='grey'))
         ax.add_patch(
             mpatches.Arc((0.4,0.5), 0.5, 0.5, theta2=90, theta1=90 - Theta_tor,
-            color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
+                         color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
         plt.text(
             0.4 + 0.02, 0.5 + 0.25 + 0.02, "%2.0f" % Theta_tor, ha="left", va='bottom',
             family=font, size=14)
         ax.add_patch(
             mpatches.Wedge((0.4,0.5), 0.3, -90 + Theta_tor, 90 - Theta_tor, color='black',
-            linewidth=0, alpha=thickness, fill=True))
+                           linewidth=0, alpha=thickness, fill=True))
         ax.add_patch(
             mpatches.Wedge((0.4,0.5), 0.3, 90 + Theta_tor, -90 - Theta_tor, color='black',
-            linewidth=0, alpha=thickness, fill=True))
+                           linewidth=0, alpha=thickness, fill=True))
 
         ax.add_patch(
             mpatches.Circle((0.4,0.5), 0.02, color='red',
-            linewidth=0, alpha=1, fill=True))
+                            linewidth=0, alpha=1, fill=True))
 
         ax.set_xticks([])
         ax.set_yticks([])

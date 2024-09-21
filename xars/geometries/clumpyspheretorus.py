@@ -58,19 +58,19 @@ class ClumpySphereTorusGeometry:
         ax = plt.axes([0,0,1,1])
 
         thickness = max(0, min(1, (nh - 20.) / 5))
-        plt.text(0.35, 0.5,  "nH=%2.1f" % nh, ha="right", va='center',
-            family=font, size=14)
+        plt.text(0.35, 0.5, "nH=%2.1f" % nh, ha="right", va='center',
+                 family=font, size=14)
         ax.add_line(mlines.Line2D([0,0.9], [0.5,0.5], lw=1.,alpha=0.4, ls='dashed', color='grey'))
         ax.add_line(mlines.Line2D([0.4,0.4], [0.5,0.9], lw=1.,alpha=0.4, ls='dashed', color='grey'))
         ax.add_patch(mpatches.Arc((0.4,0.5), 0.5, 0.5, theta2=90, theta1=90,
-            color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
+                                  color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
         ax.add_patch(mpatches.Wedge((0.4,0.5), 0.3, -90, 90, color='black',
-            linewidth=0, alpha=thickness, fill=True))
+                                    linewidth=0, alpha=thickness, fill=True))
         ax.add_patch(mpatches.Wedge((0.4,0.5), 0.3, 90, -90, color='black',
-            linewidth=0, alpha=thickness, fill=True))
+                                    linewidth=0, alpha=thickness, fill=True))
 
         ax.add_patch(mpatches.Circle((0.4,0.5), 0.02, color='red',
-            linewidth=0, alpha=1, fill=True))
+                                     linewidth=0, alpha=1, fill=True))
 
         ax.set_xticks([])
         ax.set_yticks([])

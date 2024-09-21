@@ -20,7 +20,7 @@ NH = 1/dist
 
 
 class GradientConeTorusGeometry(conetorus.ConeTorusGeometry):
-    def __init__(self, Theta_tor, NH0=21-22, z0=0, zg=-1, verbose=False):
+    def __init__(self, Theta_tor, NH0=21 - 22, z0=0, zg=-1, verbose=False):
         self.NH0 = NH0
         self.z0 = z0
         self.zg = zg

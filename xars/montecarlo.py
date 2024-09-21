@@ -19,7 +19,7 @@ def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
     plt.ylim(0,1)
     plt.xlim(0,1)
     plt.plot(
-        xi[mask], zi[mask],   '.', ms=1, alpha=0.5,
+        xi[mask], zi[mask], '.', ms=1, alpha=0.5,
         label='%02.2f%% (%02.2f%% out) at interaction # %d' % (
             len(mask) * 100. / nphot,
             mask.sum() * 100. / nphot,
@@ -34,10 +34,10 @@ def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
     plt.vlines(xi[~mask].mean(), 0, 1, linestyle='--', color='blue')
     xv = sin(beta)
     zv = cos(beta)
-    plt.plot(xv[mask],  zv[mask],  '+', color='red', ms=1)
+    plt.plot(xv[mask], zv[mask], '+', color='red', ms=1)
     plt.plot(xv[~mask], zv[~mask], '+', color='blue', ms=1)
 
-    plt.plot(sin(beta[mask].mean()),  cos(beta[mask].mean()),  'o', color='red')
+    plt.plot(sin(beta[mask].mean()), cos(beta[mask].mean()), 'o', color='red')
     plt.plot(sin(beta[~mask].mean()), cos(beta[~mask].mean()), 'o', color='blue')
     plt.legend(loc='best', prop=dict(size=6))
 
@@ -64,11 +64,11 @@ def run(
     rdata_transmit = numpy.zeros((nbins, nbins, nmu))
     rdata_reflect = numpy.zeros((nbins, nbins, nmu))
     energy_lo, energy_hi = bin2energy(list(range(nbins)))
-    energy = (energy_hi + energy_lo)/2.
+    energy = (energy_hi + energy_lo) / 2.
     # deltae = energy_hi - energy_lo
 
-    binrange = [list(range(nbins+1)), list(range(nmu+1))]
-    for i in tqdm.trange(nbins-1, -1, -1):
+    binrange = [list(range(nbins + 1)), list(range(nmu + 1))]
+    for i in tqdm.trange(nbins - 1, -1, -1):
         photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
         remainder = [(photons.rad, photons.theta)]
         if plot_paths:
@@ -112,15 +112,17 @@ def run(
                 mask = emission['mask']
                 path = [(prev_rad[mask], prev_theta[mask]) for prev_rad, prev_theta in remainder]
 
-                remainder = [(prev_rad[~mask], prev_theta[~mask])
+                remainder = [
+                    (prev_rad[~mask], prev_theta[~mask])
                     for prev_rad, prev_theta in remainder] + [(photons.rad, photons.theta)]
 
-                rad_paths = numpy.transpose([path_rad for path_rad, path_theta in path] + [2*numpy.ones(mask.sum())])
+                rad_paths = numpy.transpose([path_rad for path_rad, path_theta in path] + [2 * numpy.ones(mask.sum())])
                 theta_paths = numpy.transpose([path_theta for path_rad, path_theta in path] + [beta])
                 plt.figure("paths")
-                plot_path(rad_paths[:100], theta_paths[:100],
-                    color=(['b','r','g','y','k','m','w']*5)[n_interactions],
-                    alpha=1 - 0.75*numpy.exp(-n_interactions/5.))
+                plot_path(
+                    rad_paths[:100], theta_paths[:100],
+                    color=(['b', 'r', 'g', 'y', 'k', 'm', 'w'] * 5)[n_interactions],
+                    alpha=1 - 0.75 * numpy.exp(-n_interactions / 5.))
 
             if plot_interactions:
                 print('plotting %d photons ...' % len(beta))
@@ -143,7 +145,7 @@ def run(
 
 def store(prefix, nphot, rdata, nmu, extra_fits_header=None, plot=False):
     energy_lo, energy_hi = bin2energy(list(range(nbins)))
-    energy = (energy_hi + energy_lo)/2.
+    energy = (energy_hi + energy_lo) / 2.
     deltae = energy_hi - energy_lo
     import h5py
     try:
@@ -191,18 +193,18 @@ def store(prefix, nphot, rdata, nmu, extra_fits_header=None, plot=False):
     matrix = rdata
     total = nphot_total
     deltae0 = deltae[energy >= 1][0]
-    NH = 1e24/1e22
+    NH = 1e24 / 1e22
     weights = (energy**-PhoIndex * deltae / deltae0).reshape((-1,1))  # * deltae.reshape((1, -1)) / deltae.reshape((-1, 1))
     yall = (weights * matrix.sum(axis=2)).sum(axis=0) / deltae * deltae0
     for mu in range(nmu):
         y = (weights * matrix[:,:,mu]).sum(axis=0) / deltae * deltae0
-        sys.stdout.write('plotting %d/%d ...\r' % (mu+1, nmu))
+        sys.stdout.write('plotting %d/%d ...\r' % (mu + 1, nmu))
         sys.stdout.flush()
 
         plt.figure(figsize=(10,10))
-        plt.plot(energy, exp(-xphot*NH) * energy**-PhoIndex, '-', color='red', linewidth=1)
-        plt.plot(energy, exp(-xscatt*NH) * energy**-PhoIndex, '-', color='pink')
-        plt.plot(energy, exp(-xlines_cumulative[:,0]*NH) * energy**-PhoIndex, '-', color='orange')
+        plt.plot(energy, exp(-xphot * NH) * energy**-PhoIndex, '-', color='red', linewidth=1)
+        plt.plot(energy, exp(-xscatt * NH) * energy**-PhoIndex, '-', color='pink')
+        plt.plot(energy, exp(-xlines_cumulative[:,0] * NH) * energy**-PhoIndex, '-', color='orange')
         plt.plot(energy, energy**-PhoIndex, '--', color='gray')
         plt.plot(energy, y / total * nmu, '-', color='k')  # , drawstyle='steps')
         plt.plot(energy, yall / total, '-', color='gray', alpha=0.3, linewidth=3)  # , drawstyle='steps')

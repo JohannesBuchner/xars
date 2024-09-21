@@ -32,7 +32,7 @@ class ClumpyTorusGeometry:
         inside = t >= 0
 
         # compute new position
-        xf, yf, zf = xi + a*t, yi + b*t, zi + c*t
+        xf, yf, zf = xi + a * t, yi + b * t, zi + c * t
 
         # compute spherical coordinates
         rad, phi, theta = to_spherical((xf, yf, zf))
@@ -81,7 +81,7 @@ class ClumpyTorusGeometry:
             # add colorbar
             ax = plt.axes([0.1, 0.1, 0.8, 0.02], frameon=False)
             cbar = plt.colorbar(coll, cax=ax, ticks=[20, 21, 22, 23, 24, 25, 26],
-                cmap=plt.cm.gray_r, orientation='horizontal')
+                                cmap=plt.cm.gray_r, orientation='horizontal')
             cbar.solids.set_edgecolor("face")
             cbar.outline.set_linewidth(0)
             cbar.set_label('Cloud column density')

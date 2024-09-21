@@ -38,7 +38,7 @@ class LayeredConeTorusGeometry:
         return NH_los
 
     def viz(self):
-        """ Visualize the current geometry """
+        """Visualize the current geometry."""
         import matplotlib.lines as mlines
         import matplotlib.patches as mpatches
         plt.figure(figsize=(5,5))
@@ -54,23 +54,23 @@ class LayeredConeTorusGeometry:
             nh = log10(NH) + 22
             thickness = max(0, min(1, (nh - 20.) / 5))
             plt.text(0.35, 0.5, "nH=%2.1f" % nh, ha="right", va='center',
-                family=font, size=14)
+                     family=font, size=14)
             if describe_all or i == 0:
                 ax.add_patch(mpatches.Arc((0.4,0.5), 0.5, 0.5, theta2=90, theta1=90 - Theta_tor,
-                    color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
+                                          color='black', linewidth=1, alpha=1, fill=False, ls='dashed'))
             ax.add_patch(mpatches.Wedge((0.4,0.5), 0.3, -90 + Theta_tor, 90 - Theta_tor, color=(1 - thickness, 1 - thickness, 1 - thickness),
-                linewidth=0, fill=True))
+                                        linewidth=0, fill=True))
             ax.add_patch(mpatches.Wedge((0.4,0.5), 0.3, 90 + Theta_tor, -90 - Theta_tor, color=(1 - thickness, 1 - thickness, 1 - thickness),
-                linewidth=0, fill=True))
+                                        linewidth=0, fill=True))
 
         if describe_all:
             text = ', '.join(["%2.0f" % (Theta_tor * 180 / pi) for Theta_tor in self.Theta_tors])
         else:
             text = ', '.join(["%2.0f" % (Theta_tor * 180 / pi) for Theta_tor in self.Theta_tors]) + '...'
         plt.text(0.4 + 0.02, 0.5 + 0.25 + 0.02, text, ha="left", va='bottom',
-            family=font, size=14)
+                 family=font, size=14)
         ax.add_patch(mpatches.Circle((0.4,0.5), 0.02, color='red',
-            linewidth=0, alpha=1, fill=True))
+                                     linewidth=0, alpha=1, fill=True))
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -88,7 +88,7 @@ def test_origin_x():
     torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
     xi, yi, zi = numpy.zeros((3,3))
     # x-direction
-    beta = numpy.zeros((3,)) + pi/2
+    beta = numpy.zeros((3,)) + pi / 2
     alpha = numpy.zeros((3,))
     dist = numpy.array([0.01, 0.99, 1.01])
     inside, (xf,yf,zf), (rad, theta, phi) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
@@ -102,8 +102,8 @@ def test_origin_y():
     torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
     xi, yi, zi = numpy.zeros((3,3))
     # y-direction
-    beta = numpy.zeros((3,)) + pi/2
-    alpha = numpy.zeros((3,)) + pi/2
+    beta = numpy.zeros((3,)) + pi / 2
+    alpha = numpy.zeros((3,)) + pi / 2
     dist = numpy.array([0.01, 0.99, 1.01])
     inside, (xf,yf,zf), (rad, theta, phi) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
     assert numpy.allclose(zf, 0), zf
@@ -128,13 +128,13 @@ def test_origin_z():
 def test_origin_xyz():
     torus = ConeTorusGeometry(Theta_tor=45 * pi / 180, NH=1, verbose=True)
     xi, yi, zi = numpy.zeros((3,3))
-    beta = pi/4 + pi/8 + numpy.zeros(3)
-    alpha = pi/8 + numpy.zeros(3)
+    beta = pi / 4 + pi / 8 + numpy.zeros(3)
+    alpha = pi / 8 + numpy.zeros(3)
     dist = numpy.array([0.01, 0.99, 1.01])
     inside, (xf,yf,zf), (rad, theta, phi) = torus.compute_next_point((xi, yi, zi), (dist, beta, alpha))
-    assert numpy.allclose(xf, 0.85355339*dist), xf
-    assert numpy.allclose(yf, 0.35355339*dist), yf
-    assert numpy.allclose(zf, 0.38268343*dist), zf
+    assert numpy.allclose(xf, 0.85355339 * dist), xf
+    assert numpy.allclose(yf, 0.35355339 * dist), yf
+    assert numpy.allclose(zf, 0.38268343 * dist), zf
     assert numpy.all(inside == [True, True, False]), inside
     print(rad, theta, phi)
     assert numpy.allclose(rad, dist), rad
@@ -221,7 +221,7 @@ def test_horizontal_x_farside():
     xi = -0.99 + numpy.zeros(3)
     yi = 0 + numpy.zeros(3)
     zi = 0.001 + numpy.zeros(3)
-    beta = numpy.zeros(3) + pi/2  # go horizontal
+    beta = numpy.zeros(3) + pi / 2  # go horizontal
     alpha = numpy.zeros(3)  # go in x
     dist = numpy.array([1.0, 1.5, 3])
     xskipped = zi * 2  # in 45 degree torus x=z
