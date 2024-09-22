@@ -38,11 +38,11 @@ def run(
 		alpha = emission['alpha']
 		#bins = emission['binid']
 		energy = emission['energy']
-		mask_removed = emission['mask_removed']
+		mask_escaped = emission['mask_escaped']
 		
 		# get previous location
 		prev_rad, prev_theta, prev_phi = prev_location
-		rad, theta, phi = prev_rad[mask_removed], prev_theta[mask_removed], prev_phi[mask_removed]
+		rad, theta, phi = prev_rad[mask_escaped], prev_theta[mask_escaped], prev_phi[mask_escaped]
 		assert rad.shape == energy.shape
 		if n_interactions == 0:
 			continue # we do not consider direct emission

@@ -110,8 +110,8 @@ class PhotonBunch:
             if self.verbose:
                 print('  .. emitting %d to outside, %d inside material' % ((~inside).sum(), inside.sum()))
             self.update_free(phi, theta, rad, alpha, beta, energy, binid)
-            mask_removed = ~self.stuck
-            mask_removed[mask_removed] = outside
+            mask_escaped = ~self.stuck
+            mask_escaped[mask_escaped] = outside
             mask_kept = ~self.stuck
             mask_kept[mask_kept] = inside
             self.cut_free(inside)
@@ -120,7 +120,7 @@ class PhotonBunch:
                 beta=beta[outside], alpha=alpha[outside],
                 energy=energy[outside], binid=binid[outside],
                 x=xi[outside], y=yi[outside], z=zi[outside],
-                mask_removed=mask_removed, mask_kept=mask_kept)
+                mask_escaped=mask_escaped, mask_kept=mask_kept)
             # print '   ', rad.shape, theta.shape, len(inside)
             xf, yf, zf = xf[inside], yf[inside], zf[inside]
             phi, theta, rad, alpha, beta, energy, binid = self.get_free()

@@ -114,15 +114,15 @@ def run(
 
             # remove the emitted photons from the remainder
             if plot_paths:
-                mask_removed = emission['mask_removed']
+                mask_escaped = emission['mask_escaped']
                 mask_kept = emission['mask_kept']
-                path = [(prev_rad[mask_removed], prev_theta[mask_removed]) for prev_rad, prev_theta in remainder]
+                path = [(prev_rad[mask_escaped], prev_theta[mask_escaped]) for prev_rad, prev_theta in remainder]
 
                 remainder = [
                     (prev_rad[mask_kept], prev_theta[mask_kept])
                     for prev_rad, prev_theta in remainder] + [(photons.rad, photons.theta)]
 
-                rad_paths = numpy.transpose([path_rad for path_rad, path_theta in path] + [2 * numpy.ones(mask_removed.sum())])
+                rad_paths = numpy.transpose([path_rad for path_rad, path_theta in path] + [2 * numpy.ones(mask_escaped.sum())])
                 theta_paths = numpy.transpose([path_theta for path_rad, path_theta in path] + [beta])
                 plt.figure("paths")
                 plot_path(
