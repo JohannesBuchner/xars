@@ -81,4 +81,3 @@ def test():
     assert e1.shape == energy.shape, (e1.shape, energy.shape)
     for i in range(len(energy)):
         assert (numpy.isclose(e1[i], energy[i])), (e1[i], energy[i], energy_lo[i], energy_hi[i])
-

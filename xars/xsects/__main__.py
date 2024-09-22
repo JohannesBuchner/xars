@@ -9,10 +9,8 @@ import matplotlib.pyplot as plt
 import numpy
 from numpy import exp, log
 
-from . import (absorption_ratio, e1, energy, xboth,
-               xlines, xlines_energies, xlines_relative, xphot, xscatt)
-
-
+from . import (absorption_ratio, e1, energy, xboth, xlines, xlines_energies,
+               xlines_relative, xphot, xscatt)
 
 # xscatt[:] = 1e-6
 xkfe = xlines.sum(axis=1)
