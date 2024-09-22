@@ -1,6 +1,6 @@
 import numpy
 from numpy import arccos as acos
-from numpy import cos, log, log1p, pi, sin
+from numpy import cos, log1p, pi, sin
 
 from .binning import bin2energy, energy2bin, nbins
 from .coordtrans import to_cartesian, to_spherical
@@ -110,15 +110,17 @@ class PhotonBunch:
             if self.verbose:
                 print('  .. emitting %d to outside, %d inside material' % ((~inside).sum(), inside.sum()))
             self.update_free(phi, theta, rad, alpha, beta, energy, binid)
-            mask = ~self.stuck
-            mask[mask] = outside
+            mask_removed = ~self.stuck
+            mask_removed[mask_removed] = outside
+            mask_kept = ~self.stuck
+            mask_kept[mask_kept] = inside
             self.cut_free(inside)
             emit = dict(
                 phi=phi0[outside], theta=theta0[outside], rad=rad0[outside],
                 beta=beta[outside], alpha=alpha[outside],
                 energy=energy[outside], binid=binid[outside],
                 x=xi[outside], y=yi[outside], z=zi[outside],
-                mask=mask)
+                mask_removed=mask_removed, mask_kept=mask_kept)
             # print '   ', rad.shape, theta.shape, len(inside)
             xf, yf, zf = xf[inside], yf[inside], zf[inside]
             phi, theta, rad, alpha, beta, energy, binid = self.get_free()
@@ -198,6 +200,7 @@ class PhotonBunch:
             energy_outside = binid <= 0
             dropouts = numpy.logical_or(energy_outside, absorbed)
             remainders = ~dropouts
+            emit['mask_kept'][emit['mask_kept']] = remainders
             if self.verbose:
                 print('  .. .. outside of energy range: %d' % (energy_outside.sum()))
             if self.verbose:

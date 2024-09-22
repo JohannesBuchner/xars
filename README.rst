@@ -49,9 +49,15 @@ Downloads, movies and more details on the `Models <doc/README.rst>`_ page.
 Installation
 ------------------
 
-.. image:: https://travis-ci.org/JohannesBuchner/xars.svg?branch=master
-    :target: https://travis-ci.org/JohannesBuchner/xars
-    :align: right
+.. image:: https://img.shields.io/badge/docs-published-ok.svg
+        :target: https://johannesbuchner.github.io/xars/
+        :alt: Documentation Status
+.. image:: https://github.com/JohannesBuchner/xars/actions/workflows/tests.yml/badge.svg
+	:target: https://github.com/JohannesBuchner/xars/actions
+.. image:: https://coveralls.io/repos/github/xars/LightRayRider/badge.svg?branch=master
+	:target: https://coveralls.io/github/xars/LightRayRider?branch=master
+
+
 
 XARS requires the following python modules:
 
