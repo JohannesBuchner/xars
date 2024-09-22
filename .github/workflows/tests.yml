@@ -59,7 +59,6 @@ jobs:
          python3 -m coverage run -a generate_blobs.py
          python3 -m coverage run -a ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
          OMP_NUM_THREADS=3 python3 -m coverage run -a ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
-         cd ..
 
     - name: Test on grid
       run: |
@@ -68,7 +67,6 @@ jobs:
          python3 -m coverage run -a generate_warpeddisk.py
          python3 -m coverage run -a ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
          OMP_NUM_THREADS=3 python3 -m coverage run -a ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
-         cd ..
 
     #- name: Run entire BNTorus geometry
     #  run: |
@@ -77,11 +75,11 @@ jobs:
 
     - name: Convert coverage output to lcov for coveralls
       run: |
-        cd ..
         coverage combine .coverage examples/.coverage examples/example-*/.coverage
         coverage-lcov
         # make paths relative
         sed -i s,$PWD/,,g lcov.info
+        cat lcov.info
     - name: prepare coveralls partial upload
       uses: coverallsapp/github-action@master
       with:
