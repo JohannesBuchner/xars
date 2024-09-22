@@ -54,8 +54,8 @@ Installation
         :alt: Documentation Status
 .. image:: https://github.com/JohannesBuchner/xars/actions/workflows/tests.yml/badge.svg
 	:target: https://github.com/JohannesBuchner/xars/actions
-.. image:: https://coveralls.io/repos/github/xars/badge.svg?branch=master
-	:target: https://coveralls.io/github/xars?branch=master
+.. image:: https://coveralls.io/repos/github/JohannesBuchner/xars/badge.svg?branch=master
+	:target: https://coveralls.io/github/JohannesBuchner/xars?branch=master
 
 
 
