@@ -9,14 +9,9 @@ import matplotlib.pyplot as plt
 import numpy
 from numpy import exp, log
 
-from . import (absorption_ratio, e1, energy, energy_hi, energy_lo, xboth,
+from . import (absorption_ratio, e1, energy, xboth,
                xlines, xlines_energies, xlines_relative, xphot, xscatt)
 
-
-def test():
-    assert e1.shape == energy.shape, (e1.shape, energy.shape)
-    for i in range(len(energy)):
-        assert (numpy.isclose(e1[i], energy[i])), (e1[i], energy[i], energy_lo[i], energy_hi[i])
 
 
 # xscatt[:] = 1e-6

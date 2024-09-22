@@ -75,3 +75,10 @@ assert (xlines_cumulative >= 0).all()
 
 xboth = xphot + xscatt
 absorption_ratio = xphot / xboth
+
+
+def test():
+    assert e1.shape == energy.shape, (e1.shape, energy.shape)
+    for i in range(len(energy)):
+        assert (numpy.isclose(e1[i], energy[i])), (e1[i], energy[i], energy_lo[i], energy_hi[i])
+
