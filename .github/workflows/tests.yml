@@ -80,8 +80,8 @@ jobs:
 
     - name: Convert coverage output to lcov for coveralls
       run: |
-        coverage combine . examples/example-*/
-        coverage-lcov
+        coverage combine . # examples/example-*/
+        coverage lcov -o lcov.info
         # make paths relative
         sed -i s,$PWD/,,g lcov.info
         grep SF lcov.info
