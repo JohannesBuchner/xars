@@ -25,7 +25,7 @@ jobs:
       run: python -m pip install matplotlib "numpy<2" setuptools scipy astropy lightrayrider flake8 pycodestyle pydocstyle pytest coverage coverage_lcov[extras]
 
     - name: Install package
-      run: python -m pip install .
+      run: python -m pip install -e .
 
     - name: Lint with flake8
       run: flake8 xars/*.py xars/*/*.py
@@ -37,36 +37,41 @@ jobs:
     #  run: pydocstyle lightrayrider/*.py lightrayrider/*.pyx
     
     - name: Test with pytest
-      run: python3 -m coverage run -a -m pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
+      run: |
+        python3 -m coverage run -m pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
 
-    - name: Test package
+    - name: Test visualisation scripts
       run: |
-        cd scripts
-        python3 -m coverage run vizfek2.py
-        python3 -m coverage run -m xars.xsects
-        cd ..
+        echo "backend: Agg" > matplotlibrc
+        python3 -m coverage run -a scripts/vizfek2.py
+        python3 -m coverage run -a -m xars.xsects
     
     - name: Test package
       run: |
-        cd examples
-        python3 -m coverage run torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=myoutput
-        python3 -m coverage run disk.py --nevents=100 --output=output-disk
+        python3 -m coverage run -a examples/torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=examples/myoutput
+        python3 -m coverage run -a examples/disk.py --nevents=100 --output=examples/output-disk
     
-    - name: Test on blobs
+    - name: Create blob test data
       run: |
          cd examples/example-blobs
          echo "backend: Agg" > matplotlibrc
          python3 -m coverage run -a generate_blobs.py
-         python3 -m coverage run -a ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
-         OMP_NUM_THREADS=3 python3 -m coverage run -a ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
+    
+    - name: Test on blob
+      run: |
+         python3 -m coverage run -a examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+         OMP_NUM_THREADS=3 python3 -m coverage run -a examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
 
-    - name: Test on grid
+    - name: Create grid test data
       run: |
          cd examples/example-grid
          echo "backend: Agg" > matplotlibrc
          python3 -m coverage run -a generate_warpeddisk.py
-         python3 -m coverage run -a ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
-         OMP_NUM_THREADS=3 python3 -m coverage run -a ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
+
+    - name: Test on grid
+      run: |
+         python3 -m coverage run -a examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
+         OMP_NUM_THREADS=3 python3 -m coverage run -a examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
 
     #- name: Run entire BNTorus geometry
     #  run: |
