@@ -4,8 +4,9 @@
 
 [run]
 branch = True
-include = 
-        lightrayrider/*
+#include = 
+#        xars/*
+#        examples/*
 
 
 [report]
