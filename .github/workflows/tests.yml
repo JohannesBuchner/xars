@@ -22,7 +22,7 @@ jobs:
         python-version: 3
     
     - name: Install test dependencies
-      run: python -m pip install matplotlib "numpy<2" setuptools scipy lightrayrider flake8 pycodestyle pydocstyle pytest coverage coverage_lcov[extras]
+      run: python -m pip install matplotlib "numpy<2" setuptools scipy astropy lightrayrider flake8 pycodestyle pydocstyle pytest coverage coverage_lcov[extras]
 
     - name: Install package
       run: python -m pip install .
