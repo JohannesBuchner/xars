@@ -147,7 +147,7 @@ def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
 		
 			mkbin = kbin * nmu + mbin
 		
-			bins = emission['bin']
+			bins = emission['binid']
 			# produce unique array bins, mbin which contains counts
 			counts, xedges, yedges = numpy.histogram2d(bins, mkbin, bins=binrange)
 			# record into histogram if it landed within relevant range

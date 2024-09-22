@@ -8,8 +8,10 @@ from xars.photons import PhotonBunch
 from xars.coordtrans import to_cartesian
 
 
-def run(nphot, geometry, 
-	verbose = False, emin=0.5, PhoIndex=2):
+def run(
+	nphot, geometry, 
+	verbose=False, emin=0.5, PhoIndex=2
+):
 	
 	energy_lo, energy_hi = bin2energy(range(nbins))
 	energy = (energy_hi + energy_lo)/2.
@@ -18,7 +20,7 @@ def run(nphot, geometry,
 	photons = PhotonBunch(i=100, nphot=nphot, verbose=verbose, geometry=geometry)
 	photons.energy = emin/numpy.random.power(PhoIndex, size=nphot)
 	photons.energy[photons.energy > energy.max()] = energy.max()
-	photons.bin = energy2bin(photons.energy)
+	photons.binid = energy2bin(photons.energy)
 	
 	for n_interactions in range(1000):
 		prev_location = photons.rad.copy(), photons.theta.copy(), photons.phi.copy()
@@ -34,7 +36,7 @@ def run(nphot, geometry,
 		if verbose: print(' received %d emitted photons (after %d interactions)' % (len(emission['energy']), n_interactions))
 		beta = emission['beta']
 		alpha = emission['alpha']
-		#bins = emission['bin']
+		#bins = emission['binid']
 		energy = emission['energy']
 		mask = emission['mask']
 		
