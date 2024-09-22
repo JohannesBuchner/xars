@@ -21,7 +21,7 @@ classifiers = [
     "Development Status :: 6 - Mature",
 ]
 dependencies = [
-    "numpy"
+    "numpy", "tqdm", "matplotlib", "scipy"
 ]
 
 [project.urls]
