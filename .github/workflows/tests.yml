@@ -49,7 +49,7 @@ jobs:
     - name: Test package
       run: |
         python3 -m coverage run -p examples/torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=examples/myoutput
-        python3 -m coverage run -p examples/disk.py --nevents=100 --output=examples/output-disk --plot-interactions --plot-paths --verbose
+        python3 -m coverage run -p examples/disk.py --nevents=3 --output=examples/output-disk --plot-interactions --plot-paths --plot-every=40 --verbose
     
     - name: Create blob test data
       run: |

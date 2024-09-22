@@ -10,8 +10,7 @@ from .xsects import (absorption_ratio, electmass, xboth, xlines_cumulative,
 rng = numpy.random
 
 
-def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
-    import matplotlib.pyplot as plt
+def plot_interaction(nphot, n_interactions, rad, theta, beta, plt, **kwargs):
     mask = rad < 1
     xi = rad * sin(theta)
     zi = rad * cos(theta)
@@ -42,20 +41,20 @@ def plot_interaction(nphot, n_interactions, rad, theta, beta, **kwargs):
     plt.legend(loc='best', prop=dict(size=6))
 
 
-def plot_path(rad_paths, theta_paths, **kwargs):
-    import matplotlib.pyplot as plt
+def plot_path(rad_paths, theta_paths, plt, **kwargs):
     for rad, theta in zip(rad_paths, theta_paths):
         xi = rad * sin(theta)
         zi = rad * cos(theta)
-        print(theta, rad, xi, zi)
+        # print(theta, rad, xi, zi)
         plt.plot(xi, zi, 'o:', **kwargs)
-    print()
+    # print()
 
 
 def run(
     prefix, nphot, nmu, geometry,
     binmapfunction,
-    plot_paths=False, plot_interactions=False, verbose=False
+    plot_paths=False, plot_interactions=False, verbose=False,
+    plot_every=1
 ):
 
     if plot_paths or plot_interactions:
@@ -71,7 +70,7 @@ def run(
     for i in tqdm.trange(nbins - 1, -1, -1):
         photons = PhotonBunch(i=i, nphot=nphot, verbose=verbose, geometry=geometry)
         remainder = [(photons.rad, photons.theta)]
-        if plot_paths:
+        if plot_paths and i % plot_every == 0:
             plt.figure("paths", figsize=(4, 4))
         for n_interactions in range(1000):
             emission, more = photons.pump()
@@ -82,7 +81,7 @@ def run(
             if len(emission['energy']) == 0:
                 if not more:
                     break
-                if plot_paths:
+                if plot_paths and i % plot_every == 0:
                     mask_kept = emission['mask_kept']
                     remainder = [
                         (prev_rad[mask_kept], prev_theta[mask_kept])
@@ -113,7 +112,7 @@ def run(
             #    print linebin, rdata[i][724,:], rdata[900][724,4] if i > 900 else ''
 
             # remove the emitted photons from the remainder
-            if plot_paths:
+            if plot_paths and i % plot_every == 0:
                 mask_escaped = emission['mask_escaped']
                 mask_kept = emission['mask_kept']
                 path = [(prev_rad[mask_escaped], prev_theta[mask_escaped]) for prev_rad, prev_theta in remainder]
@@ -128,17 +127,18 @@ def run(
                 plot_path(
                     rad_paths[:100], theta_paths[:100],
                     color=['b', 'r', 'g', 'y', 'k', 'm', 'w'][n_interactions % 7],
-                    alpha=1 - 0.75 * numpy.exp(-n_interactions / 5.))
+                    alpha=1 - 0.75 * numpy.exp(-n_interactions / 5.),
+                    plt=plt)
 
-            if plot_interactions:
+            if plot_interactions and i % plot_every == 0:
                 print('plotting %d photons ...' % len(beta))
-                plot_interaction(nphot=nphot, n_interactions=n_interactions, **emission)
+                plot_interaction(nphot=nphot, n_interactions=n_interactions, plt=plt, **emission)
                 plt.savefig(prefix + "rdata_%d_%d.png" % (i, n_interactions))
                 plt.close()
                 print('plotting ... done')
             if not more:
                 break
-        if plot_paths:
+        if plot_paths and i % plot_every == 0:
             plt.figure("paths")
             plt.xlim(-1, 1)
             plt.ylim(-1, 1)
