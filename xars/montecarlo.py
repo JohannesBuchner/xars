@@ -127,7 +127,7 @@ def run(
                 plt.figure("paths")
                 plot_path(
                     rad_paths[:100], theta_paths[:100],
-                    color=(['b', 'r', 'g', 'y', 'k', 'm', 'w'] * 5)[n_interactions],
+                    color=['b', 'r', 'g', 'y', 'k', 'm', 'w'][n_interactions % 7],
                     alpha=1 - 0.75 * numpy.exp(-n_interactions / 5.))
 
             if plot_interactions:
