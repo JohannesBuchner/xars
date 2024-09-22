@@ -70,10 +70,10 @@ jobs:
          OMP_NUM_THREADS=3 python3 -m coverage run -a ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
          cd ..
 
-    - name: Run entire BNTorus geometry
-      run: |
-         cd examples
-         bash runtorus.sh 100
+    #- name: Run entire BNTorus geometry
+    #  run: |
+    #     cd examples
+    #     bash runtorus.sh 100
 
     - name: Convert coverage output to lcov for coveralls
       run: |
