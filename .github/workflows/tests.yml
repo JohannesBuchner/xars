@@ -80,11 +80,11 @@ jobs:
 
     - name: Convert coverage output to lcov for coveralls
       run: |
-        coverage combine .coverage examples/.coverage examples/example-*/.coverage
+        coverage combine .coverage examples/example-*/.coverage
         coverage-lcov
         # make paths relative
         sed -i s,$PWD/,,g lcov.info
-        cat lcov.info
+        grep SF lcov.info
     - name: prepare coveralls partial upload
       uses: coverallsapp/github-action@master
       with:
