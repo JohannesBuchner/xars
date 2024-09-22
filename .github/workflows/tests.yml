@@ -54,7 +54,7 @@ jobs:
     
     - name: Test on blobs
       run: |
-         cd example-blobs
+         cd examples/example-blobs
          echo "backend: Agg" > matplotlibrc
          python3 -m coverage run -a generate_blobs.py
          python3 -m coverage run -a ../torusC.py --geometry=torusblob23.0.hdf5 --nevents=1000
@@ -63,7 +63,7 @@ jobs:
 
     - name: Test on grid
       run: |
-         cd example-grid
+         cd examples/example-grid
          echo "backend: Agg" > matplotlibrc
          python3 -m coverage run -a generate_warpeddisk.py
          python3 -m coverage run -a ../torusG.py --geometry=warpeddisk_1.hdf5 --nevents=100
@@ -72,6 +72,7 @@ jobs:
 
     - name: Run entire BNTorus geometry
       run: |
+         cd examples
          bash runtorus.sh 100
 
     - name: Convert coverage output to lcov for coveralls
