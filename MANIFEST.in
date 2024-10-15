@@ -1,0 +1,3 @@
+include xars/xsects/xsects.dat
+include README.rst
+include LICENSE

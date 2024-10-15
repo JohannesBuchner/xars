@@ -1,0 +1,106 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: build
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '42 4 5,20 * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@main
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@main
+      with:
+        python-version: 3
+    
+    - name: Install test dependencies
+      run: python -m pip install matplotlib "numpy<2" setuptools scipy astropy lightrayrider flake8 pycodestyle pydocstyle pytest coverage coverage_lcov[extras]
+
+    - name: Install package
+      run: python -m pip install -e .
+
+    - name: Lint with flake8
+      run: flake8 xars/*.py xars/*/*.py
+
+    - name: Check code style
+      run: pycodestyle xars/*.py xars/*/*.py
+
+    #- name: Check doc style
+    #  run: pydocstyle lightrayrider/*.py lightrayrider/*.pyx
+    
+    - name: Test with pytest
+      run: |
+        python3 -m coverage run -p -m pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
+
+    - name: Test visualisation scripts
+      run: |
+        echo "backend: Agg" > matplotlibrc
+        python3 -m coverage run -p scripts/vizfek2.py
+        python3 -m coverage run -p -m xars.xsects
+    
+    - name: Test package
+      run: |
+        python3 -m coverage run -p examples/torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=examples/myoutput
+        python3 -m coverage run -p examples/disk.py --nevents=3 --output=examples/output-disk --plot-interactions --plot-paths --plot-every=40 --verbose
+    
+    - name: Create blob test data
+      run: |
+         cd examples/example-blobs
+         echo "backend: Agg" > matplotlibrc
+         python3 -m coverage run -p generate_blobs.py
+    
+    - name: Test on blob
+      run: |
+         python3 -m coverage run -p examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+         OMP_NUM_THREADS=3 python3 examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+
+    - name: Create grid test data
+      run: |
+         cd examples/example-grid
+         echo "backend: Agg" > matplotlibrc
+         python3 -m coverage run -p generate_warpeddisk.py
+
+    - name: Test on grid
+      run: |
+         python3 -m coverage run -p examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
+         OMP_NUM_THREADS=3 python3 examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
+
+    #- name: Run entire BNTorus geometry
+    #  run: |
+    #     cd examples
+    #     bash runtorus.sh 100
+
+    - name: Convert coverage output to lcov for coveralls
+      run: |
+        coverage combine . # examples/example-*/
+        coverage lcov -o lcov.info
+        # make paths relative
+        sed -i s,$PWD/,,g lcov.info
+        grep SF lcov.info
+    - name: prepare coveralls partial upload
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        path-to-lcov: lcov.info
+        flag-name: run-${{ matrix.python-version }}
+        parallel: true
+
+  finish:
+    needs: build
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        parallel-finished: true
+        carryforward: "run-1,run-2"

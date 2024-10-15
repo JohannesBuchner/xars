@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xars"
+version = "2.0.0"
+description = "XARS simulates X-rays propagating through matter in user-defined geometries."
+readme = "README.rst"
+authors = [
+    { name="Johannes Buchner", email="buchner.johannes@gmx.at" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+classifiers = [
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Development Status :: 6 - Mature",
+]
+dependencies = [
+    "numpy",
+    "scipy",
+    "tqdm",
+    "matplotlib",
+    "h5py",
+]
+
+[project.urls]
+Repository = "https://github.com/JohannesBuchner/LightRayRider"
+Homepage = "https://github.com/JohannesBuchner/LightRayRider"
+
+
+[tool.setuptools]
+packages = ["xars", "xars.geometries", "xars.binning", "xars.xsects"]

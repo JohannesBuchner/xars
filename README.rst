@@ -2,7 +2,7 @@
 XARS X-ray Monte-carlo simulator
 ====================================
 
-.. image:: logo3-large.png
+.. image:: doc/logo3-large.png
 
 XARS simulates X-rays propagating through matter in user-defined geometries.
 
@@ -49,9 +49,15 @@ Downloads, movies and more details on the `Models <doc/README.rst>`_ page.
 Installation
 ------------------
 
-.. image:: https://travis-ci.org/JohannesBuchner/xars.svg?branch=master
-    :target: https://travis-ci.org/JohannesBuchner/xars
-    :align: right
+.. image:: https://img.shields.io/badge/docs-published-ok.svg
+        :target: https://johannesbuchner.github.io/xars/
+        :alt: Documentation Status
+.. image:: https://github.com/JohannesBuchner/xars/actions/workflows/tests.yml/badge.svg
+	:target: https://github.com/JohannesBuchner/xars/actions
+.. image:: https://coveralls.io/repos/github/JohannesBuchner/xars/badge.svg?branch=master
+	:target: https://coveralls.io/github/JohannesBuchner/xars?branch=master
+
+
 
 XARS requires the following python modules:
 

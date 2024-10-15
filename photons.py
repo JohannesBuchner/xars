@@ -6,31 +6,33 @@ from coordtrans import to_spherical, to_cartesian
 from binning import nbins, energy2bin, bin2energy
 from xsects import xscatt, xphot, xlines_cumulative, xboth, absorption_ratio, xlines_energies, xlines_fwhm, xlines_asymmetries, electmass
 
-def randn_skew_fast(N, alpha=0.0, loc=0.0, scale=1.0):
-    sigma = alpha / np.sqrt(1.0 + alpha**2) 
-    u0 = np.random.randn(N)
-    v = np.random.randn(N)
-    u1 = (sigma*u0 + np.sqrt(1.0 - sigma**2)*v) * scale
+
+def randn_skew_fast(N, alpha=0.0, loc=0.0, scale=1.0, rng=numpy.random):
+    sigma = alpha / numpy.sqrt(1.0 + alpha**2)
+    u0 = rng.randn(N)
+    v = rng.randn(N)
+    u1 = (sigma * u0 + numpy.sqrt(1.0 - sigma**2) * v) * scale
     u1[u0 < 0] *= -1
     u1 = u1 + loc
     return u1
+
 
 def generate_line(central_energy, fwhm, half_max_asymmetry_ratio, rng):
 	energy = central_energy
 	# handle lines where an intrinsic width is given
 	mask_complicated = fwhm > 0
 	if mask_complicated.any():
+		# this function has only two cases hard-coded:
 		case_1 = half_max_asymmetry_ratio[mask_complicated] == 1.22
 		case_2 = half_max_asymmetry_ratio[mask_complicated] == 1.66
-		print(case_1.sum(), case_2.sum())
-		alpha = np.where(case_1, -1.8, np.where(case_2, -3.3, 0))
-		unscaled_peak_shift = np.where(case_1, -0.540867, np.where(case_2, -0.45749, 0))
-		unscaled_FWHM = np.where(case_1, 1.6101833478824428, np.where(case_2, 1.374, 1))
+		alpha = numpy.where(case_1, -1.8, numpy.where(case_2, -3.3, 0))
+		unscaled_peak_shift = numpy.where(case_1, -0.540867, numpy.where(case_2, -0.45749, 0))
+		unscaled_FWHM = numpy.where(case_1, 1.6101833478824428, numpy.where(case_2, 1.374, 1))
 		# if we generated a unit skewed gaussian:
 		# u = randn_skew_fast(len(central_energy), alpha, loc=0, scale=1)
 		# it peaks at unscaled_peak_shift
 		# so we need to correct for that to move the peak to zero: u - unscaled_peak_shift
-		u = randn_skew_fast(len(central_energy), alpha, loc=-unscaled_peak_shift, scale=1)
+		u = randn_skew_fast(len(central_energy), alpha, loc=-unscaled_peak_shift, scale=1, rng=rng)
 		# it would have a FWHM which is sigma_from_FWHM_scale times larger than expected from a standard Gaussian
 		# so we need to set scale=1. / sigma_from_FWHM_scale to make it narrow
 		# finally, we need to scale it to match the desired fwhm
@@ -181,7 +183,10 @@ class PhotonBunch(object):
 			
 			if is_line.any():
 				# reset photon energy to appropriate line energy
-				e2 = generate_line(xlines_energies[iline[is_line]], xlines_fwhm[iline[is_line]], xlines_asymmetries[iline[is_line]])
+				e2 = generate_line(
+					xlines_energies[iline[is_line]],
+					xlines_fwhm[iline[is_line]],
+					xlines_asymmetries[iline[is_line]])
 				e = energy2bin(e2)
 				energy[photabsorbed_line] = e2
 				bin[photabsorbed_line] = e

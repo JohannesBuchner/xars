@@ -1,7 +1,7 @@
 XARS X-ray Monte-carlo simulator
 ------------------------------------
 
-.. image:: ../logo3-mid.png
+.. image:: logo3-mid.png
   :align: right
 
 XARS simulates X-rays propagating through matter in user-defined geometries.
