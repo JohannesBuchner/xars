@@ -5,7 +5,8 @@ from numpy import exp, log, log10
 # pick a binning module
 # from bn import nbins, bin2energy_lo, energy2bin
 # from uniform import nbins, bin2energy_lo, energy2bin
-from .bending import bin2energy_lo, energy2bin, nbins
+# from .bending import bin2energy_lo, energy2bin, nbins
+from .xrismbending import bin2energy_lo, energy2bin, nbins
 
 
 def bin2energy_hi(i):

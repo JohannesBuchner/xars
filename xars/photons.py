@@ -31,7 +31,7 @@ def generate_line(central_energy, fwhm, half_max_asymmetry_ratio, rng):
         case_2 = half_max_asymmetry_ratio[mask_complicated] == 1.66
         alpha = numpy.where(case_1, -1.8, numpy.where(case_2, -3.3, 0))
         unscaled_peak_shift = numpy.where(case_1, -0.540867, numpy.where(case_2, -0.45749, 0))
-        unscaled_FWHM = numpy.where(case_1, 1.6101833478824428, numpy.where(case_2, 1.374, 1))
+        unscaled_FWHM = numpy.where(case_1, 1.61018, numpy.where(case_2, 1.374, 2.355))
         # if we generated a unit skewed gaussian:
         # u = randn_skew_fast(len(central_energy), alpha, loc=0, scale=1)
         # it peaks at unscaled_peak_shift
