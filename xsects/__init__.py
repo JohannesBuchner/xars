@@ -50,6 +50,8 @@ xscatt *= 1.2
 xsectsdata = numpy.loadtxt(os.path.join(os.path.dirname(__file__), 'xsects.dat'))
 xlines_energies = xsectsdata[0,2:]
 xlines_yields = xsectsdata[1,2:]
+xlines_fwhm = xsectsdata[2,2:]
+xlines_asymmetries = xsectsdata[3,2:]
 xsects = xsectsdata[2:,:]
 # convert to units of 1e-22 cm^2 (from 1e-21)
 xsects[:,1:] *= 10
