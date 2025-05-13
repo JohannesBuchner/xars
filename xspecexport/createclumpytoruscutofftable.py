@@ -4,7 +4,7 @@ import h5py
 import astropy.io.fits as pyfits
 import sys
 import progressbar
-from binning import nbins, energy2bin, bin2energy
+from xars.binning import nbins, energy2bin, bin2energy
 
 energy_lo, energy_hi = bin2energy(numpy.arange(nbins))
 energy = (energy_hi + energy_lo) / 2
