@@ -65,7 +65,18 @@ lint-fix: ## fix style with autopep8 and isort; ignores to not autofix tabs to s
 	isort .
 
 test: ## run tests quickly with the default Python
-	pytest
+	pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
+	echo "backend: Agg" > matplotlibrc
+	$(PYTHON) scripts/vizfek2.py
+	$(PYTHON) -m xars.xsects
+	$(PYTHON) examples/torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=examples/myoutput
+	$(PYTHON) examples/disk.py --nevents=3 --output=examples/output-disk --plot-interactions --plot-paths --plot-every=40 --verbose
+	cd examples/example-blobs && echo "backend: Agg" > matplotlibrc && $(PYTHON) generate_blobs.py
+	$(PYTHON) examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+	OMP_NUM_THREADS=3 $(PYTHON) examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+	cd examples/example-grid && echo "backend: Agg" > matplotlibrc && $(PYTHON) generate_warpeddisk.py
+	$(PYTHON) examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
+	OMP_NUM_THREADS=3 $(PYTHON) examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
 
 test-all: ## run tests on every Python version with tox
 	tox
