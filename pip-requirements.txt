@@ -1,0 +1,7 @@
+numpy
+scipy
+matplotlib
+h5py
+astropy
+tqdm
+lightrayrider
