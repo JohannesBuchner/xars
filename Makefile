@@ -82,7 +82,18 @@ test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source xars -m pytest
+	PYTHONPATH=. coverage run --source xars -m pytest xars/binning/__init__.py xars/xsects/__init__.py xars/geometries/layeredconetorus.py xars/geometries/conetorus.py xars/geometries/wedgetorus.py xars/coordtrans.py
+	echo "backend: Agg" > matplotlibrc
+	PYTHONPATH=. coverage run --append --source xars scripts/vizfek2.py
+	PYTHONPATH=. coverage run --append --source xars -m xars.xsects
+	PYTHONPATH=. coverage run --append --source xars examples/torus2.py --log10nh=24.2 --opening-angle=0 --nevents=100 --output=examples/myoutput
+	PYTHONPATH=. coverage run --append --source xars examples/disk.py --nevents=3 --output=examples/output-disk --plot-interactions --plot-paths --plot-every=40 --verbose
+	cd examples/example-blobs && echo "backend: Agg" > matplotlibrc && PYTHONPATH=../.. coverage run --append --source xars generate_blobs.py
+	PYTHONPATH=. coverage run --append --source xars examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+	OMP_NUM_THREADS=3 PYTHONPATH=. coverage run --append --source xars examples/torusC.py --geometry=examples/example-blobs/torusblob23.0.hdf5 --nevents=1000
+	cd examples/example-grid && echo "backend: Agg" > matplotlibrc && PYTHONPATH=../.. coverage run --append --source xars generate_warpeddisk.py
+	PYTHONPATH=. coverage run --append --source xars examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
+	OMP_NUM_THREADS=3 PYTHONPATH=. coverage run --append --source xars examples/torusG.py --geometry=examples/example-grid/warpeddisk_1.hdf5 --nevents=100
 	coverage report -m
 	coverage html
 	$(BROWSER) htmlcov/index.html
