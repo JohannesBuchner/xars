@@ -36,11 +36,6 @@ Documentation = "https://github.com/JohannesBuchner/xars"
 [tool.setuptools]
 packages = ["xars", "xars.geometries", "xars.binning", "xars.xsects"]
 
-[flake8]
-exclude = "docs"
-extend-ignore = "E501,F401,E128,E231,E124"
-style = "numpy"
-
 [tool.pycodestyle]
 count = false
 ignore = "W191,W291,W293,E231,E225"
