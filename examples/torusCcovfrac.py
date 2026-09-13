@@ -25,6 +25,7 @@ for i, sigma in enumerate([0, 5, 20, 60][::-1]):
 			label='TORsigma=%d CTKcover=%.1f' % (Theta_tor, fCT),
 			bins=numpy.linspace(20, 26, 40)
 		)
+		numpy.savetxt('UXCLUMPY-TORsigma%d_CTKcover%.1f-NHsamples.txt' % (Theta_tor, fCT), f['NH_samples'][:], delimiter=',')
 		print('%d %.1f %.2f %.2f' % (Theta_tor, fCT, (lognh>22).mean(), (lognh>24).mean()))
 		#print(lognh.
 plt.legend(loc='lower right')
