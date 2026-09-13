@@ -25,6 +25,19 @@ dependencies = [
     "tqdm",
     "matplotlib",
     "h5py",
+    "astropy",
+    "lightrayrider",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8",
+    "pycodestyle",
+    "pydocstyle",
+    "pytest",
+    "coverage",
+    "coverage_lcov[extras]",
+    "setuptools",
 ]
 
 [project.urls]
