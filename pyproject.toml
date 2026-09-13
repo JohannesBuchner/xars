@@ -28,8 +28,9 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/JohannesBuchner/LightRayRider"
-Homepage = "https://github.com/JohannesBuchner/LightRayRider"
+Homepage = "https://github.com/JohannesBuchner/xars"
+Source = "https://github.com/JohannesBuchner/xars"
+Documentation = "https://github.com/JohannesBuchner/xars"
 
 
 [tool.setuptools]
