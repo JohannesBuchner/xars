@@ -11,9 +11,8 @@ authors = [
     { name="Johannes Buchner", email="buchner.johannes@gmx.at" }
 ]
 license = { file = "LICENSE" }
-requires-python = ">=3.10"
+requires-python = ">=3.10, <3.14"
 classifiers = [
-    "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Scientific/Engineering :: Astronomy",
