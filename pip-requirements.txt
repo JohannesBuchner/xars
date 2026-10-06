@@ -1,7 +1,7 @@
 numpy<2
-scipy
+scipy<1.18
 matplotlib
 h5py
-astropy
+astropy<8
 tqdm
 lightrayrider
