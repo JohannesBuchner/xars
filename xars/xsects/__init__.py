@@ -86,7 +86,7 @@ absorption_ratio = xphot / xboth
 # names from the table header comment of xsects.dat
 # (e.g. "# E XPHOT XKFEa2 XKFEa1 XKFEb XKC XKO ... XKNIa2 XKNIa1")
 with open(xsects_filename) as f:
-    colnames = [l for l in f if l.startswith('# E XPHOT')][-1].lstrip('#').split()
+    colnames = [line for line in f if line.startswith('# E XPHOT')][-1].lstrip('#').split()
 fe_columns = numpy.array(
     [2 + i for i, name in enumerate(colnames[2:]) if name.startswith('XKFE')],
     dtype=int)
