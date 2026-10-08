@@ -1,9 +1,13 @@
 import numpy
 from numpy import exp, log
 
-nbins = 2800
 r = 1.5
 A = log((8.1 + 0.015) / 8.10)**(-1. / r)
+
+emax = 10000.  # keV, upper end of the energy range
+# keep the resolution spacing; extend the logarithmic part so that the
+# upper edge of the last bin reaches emax
+nbins = 2600 + int(A * log(emax / 8.1)**(1. / r)) + 1
 
 
 def bin2energy_lo(bin):

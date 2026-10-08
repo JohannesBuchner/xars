@@ -15,8 +15,22 @@ from xars import binning
 from xars.binning.bn import bin2energy_lo, nbins
 
 
-def interpolate(etarget, e, y):
-    ytarget = 10**numpy.interp(x=log10(etarget), xp=log10(e), fp=log10(y))
+def interpolate(etarget, e, y, nslope=50):
+    x = log10(e)
+    xtarget = log10(etarget)
+    logy = log10(y)
+    logytarget = numpy.interp(x=xtarget, xp=x, fp=logy)
+    # continue with a power law beyond the end of the source table
+    # (the extrapolated photoelectric cross-sections are orders of magnitude
+    # below the analytically computed scattering cross-section there)
+    beyond = xtarget > x[-1]
+    if beyond.any() and numpy.isfinite(logy[-1]):
+        finite = numpy.isfinite(logy)
+        if finite.sum() >= 2:
+            xf, yf = x[finite][-nslope:], logy[finite][-nslope:]
+            slope = numpy.polyfit(xf, yf, 1)[0]
+            logytarget[beyond] = logy[finite][-1] + slope * (xtarget[beyond] - x[-1])
+    ytarget = 10**logytarget
     ytarget[~numpy.isfinite(ytarget)] = 0
     return ytarget
 
@@ -54,10 +68,13 @@ for i in range(1, xsects_orig.shape[1]):
     xsects.append(interpolate(energy, emid, xsects_orig[:,i]))
 xsects = numpy.transpose(xsects)
 
-# write out
+# write out, keeping the comments and the line energy/yield/width/asymmetry
+# header rows
 with open('xsects_orig.dat') as fin:
     lines = fin.readlines()
-nheader = max([i for i, l in enumerate(lines) if l.startswith('#')])
+data_rows = [i for i, l in enumerate(lines) if not l.startswith('#')]
+nheader_rows = 4  # line energies, yields, fwhm, asymmetries
+table_start = data_rows[nheader_rows]
 with open('xsects.dat', 'w') as f:
-    f.write(''.join(lines[:nheader + 1]))
+    f.write(''.join(lines[:table_start]))
     numpy.savetxt(f, xsects)
