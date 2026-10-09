@@ -1,7 +1,7 @@
 import numpy
 from numpy import exp, log
 
-nbins = 2800
+nbins = 2850
 r = 1.5
 A = log((8.1 + 0.015) / 8.10)**(-1. / r)
 
