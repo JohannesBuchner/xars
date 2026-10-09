@@ -2,7 +2,7 @@ import numpy
 from numpy import arccos as acos
 from numpy import cos, log1p, pi, sin
 
-from .binning import bin2energy, energy2bin, nbins
+from .binning import bin2energy, bin2energy_lo, energy2bin, nbins
 from .coordtrans import to_cartesian, to_spherical
 from .xsects import (absorption_ratio, electmass, xboth, xlines_asymmetries,
                      xlines_cumulative, xlines_energies, xlines_fwhm, xphot,
@@ -300,7 +300,7 @@ class PhotonBunch:
             print('  .. finally checking all, if outside of energy range')
 
         phi, theta, rad, alpha, beta, energy, binid = self.get()
-        energy_outside = numpy.logical_or(energy < 0.1, energy > 1800)
+        energy_outside = numpy.logical_or(energy < 0.1, energy > bin2energy_lo(nbins))
         dropouts = energy_outside
         remainders = ~dropouts
         if self.verbose:
