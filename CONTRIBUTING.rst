@@ -111,7 +111,7 @@ Tips
 
 To run a subset of tests::
 
-$ pytest tests.test_snowline
+$ pytest xars/xsects/__init__.py
 
 
 Deploying
