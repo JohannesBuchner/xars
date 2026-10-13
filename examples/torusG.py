@@ -109,8 +109,10 @@ if not os.path.exists(prefix + "normalisation.fits"):
 #outphotons = open(prefix + 'photons.txt', 'a')
 
 def run(prefix, nphot, nmu, n_nh_bins, geometry, binmapfunction, verbose=False):
-	rdata_transmit = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
-	rdata_reflect = numpy.zeros((nbins, nbins, nmu*n_nh_bins))
+	# float32: these are photon counts; the (nbins, nbins, ...) float64
+	# arrays exceed the memory of CI runners (and large workstations)
+	rdata_transmit = numpy.zeros((nbins, nbins, nmu*n_nh_bins), dtype=numpy.float32)
+	rdata_reflect = numpy.zeros((nbins, nbins, nmu*n_nh_bins), dtype=numpy.float32)
 	#rdata = [0] * nbins
 	energy_lo, energy_hi = bin2energy(list(range(nbins)))
 	
